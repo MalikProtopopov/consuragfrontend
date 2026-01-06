@@ -2,7 +2,12 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { telegramApi } from "../api/telegramApi";
-import type { CreateTelegramRequest, UpdateTelegramRequest } from "@/shared/types/api";
+import type {
+  CreateTelegramRequest,
+  UpdateTelegramRequest,
+  TelegramSessionsListParams,
+  TelegramEventsListParams,
+} from "@/shared/types/api";
 
 /**
  * Query keys for telegram
@@ -10,6 +15,13 @@ import type { CreateTelegramRequest, UpdateTelegramRequest } from "@/shared/type
 export const telegramKeys = {
   all: ["telegram"] as const,
   integration: (projectId: string) => [...telegramKeys.all, projectId] as const,
+  stats: (projectId: string) => [...telegramKeys.all, "stats", projectId] as const,
+  sessions: (projectId: string, params?: TelegramSessionsListParams) =>
+    [...telegramKeys.all, "sessions", projectId, params] as const,
+  sessionDetail: (projectId: string, sessionId: string) =>
+    [...telegramKeys.all, "session", projectId, sessionId] as const,
+  events: (projectId: string, params?: TelegramEventsListParams) =>
+    [...telegramKeys.all, "events", projectId, params] as const,
 };
 
 /**
@@ -133,6 +145,79 @@ export function useDeleteTelegramWebhook() {
     onSuccess: (_, projectId) => {
       queryClient.invalidateQueries({ queryKey: telegramKeys.integration(projectId) });
     },
+  });
+}
+
+// ============================================
+// Analytics & Sessions hooks
+// ============================================
+
+/**
+ * Hook to get telegram statistics
+ */
+export function useTelegramStats(projectId: string) {
+  return useQuery({
+    queryKey: telegramKeys.stats(projectId),
+    queryFn: () => telegramApi.getStats(projectId),
+    enabled: !!projectId,
+  });
+}
+
+/**
+ * Hook to get telegram sessions list
+ */
+export function useTelegramSessions(
+  projectId: string,
+  params?: TelegramSessionsListParams
+) {
+  return useQuery({
+    queryKey: telegramKeys.sessions(projectId, params),
+    queryFn: () => telegramApi.getSessions(projectId, params),
+    enabled: !!projectId,
+  });
+}
+
+/**
+ * Hook to get telegram session detail
+ */
+export function useTelegramSessionDetail(
+  projectId: string,
+  sessionId: string,
+  messagesLimit = 50
+) {
+  return useQuery({
+    queryKey: telegramKeys.sessionDetail(projectId, sessionId),
+    queryFn: () => telegramApi.getSessionDetail(projectId, sessionId, messagesLimit),
+    enabled: !!projectId && !!sessionId,
+  });
+}
+
+/**
+ * Hook to export telegram session
+ */
+export function useExportTelegramSession() {
+  return useMutation({
+    mutationFn: ({
+      projectId,
+      sessionId,
+    }: {
+      projectId: string;
+      sessionId: string;
+    }) => telegramApi.exportSession(projectId, sessionId),
+  });
+}
+
+/**
+ * Hook to get telegram events
+ */
+export function useTelegramEvents(
+  projectId: string,
+  params?: TelegramEventsListParams
+) {
+  return useQuery({
+    queryKey: telegramKeys.events(projectId, params),
+    queryFn: () => telegramApi.getEvents(projectId, params),
+    enabled: !!projectId,
   });
 }
 

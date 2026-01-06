@@ -9,6 +9,12 @@ export {
   useDeleteTelegramIntegration,
   useSetTelegramWebhook,
   useDeleteTelegramWebhook,
+  // Analytics & Sessions
+  useTelegramStats,
+  useTelegramSessions,
+  useTelegramSessionDetail,
+  useExportTelegramSession,
+  useTelegramEvents,
   telegramKeys,
   WebhookConfigError,
 } from "./model/useTelegram";

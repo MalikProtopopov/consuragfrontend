@@ -46,6 +46,12 @@ export const ROUTES = {
   // Integrations
   TELEGRAM_INTEGRATION: (projectId: string) =>
     `/projects/${projectId}/integrations/telegram` as const,
+  TELEGRAM_STATS: (projectId: string) =>
+    `/projects/${projectId}/integrations/telegram/stats` as const,
+  TELEGRAM_SESSIONS: (projectId: string) =>
+    `/projects/${projectId}/integrations/telegram/sessions` as const,
+  TELEGRAM_SESSION_DETAIL: (projectId: string, sessionId: string) =>
+    `/projects/${projectId}/integrations/telegram/sessions/${sessionId}` as const,
 
   // Project Secrets
   PROJECT_SECRETS: (projectId: string) =>

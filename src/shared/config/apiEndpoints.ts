@@ -106,6 +106,17 @@ export const API_ENDPOINTS = {
     GET_WEBHOOK_URL: (projectId: string) => `/api/v1/telegram/${projectId}/webhook-url` as const,
     SET_WEBHOOK: (projectId: string) => `/api/v1/telegram/${projectId}/webhook` as const,
     DELETE_WEBHOOK: (projectId: string) => `/api/v1/telegram/${projectId}/webhook` as const,
+    // Analytics & Sessions
+    STATS: (projectId: string) =>
+      `/api/v1/telegram/projects/${projectId}/telegram/stats` as const,
+    SESSIONS: (projectId: string) =>
+      `/api/v1/telegram/projects/${projectId}/telegram/sessions` as const,
+    SESSION_DETAIL: (projectId: string, sessionId: string) =>
+      `/api/v1/telegram/projects/${projectId}/telegram/sessions/${sessionId}` as const,
+    SESSION_EXPORT: (projectId: string, sessionId: string) =>
+      `/api/v1/telegram/projects/${projectId}/telegram/sessions/${sessionId}/export` as const,
+    EVENTS: (projectId: string) =>
+      `/api/v1/telegram/projects/${projectId}/telegram/events` as const,
   },
 
   // Platform Config (SAAS_ADMIN)
