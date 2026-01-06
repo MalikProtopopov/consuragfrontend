@@ -1,51 +1,30 @@
-"use client"
+"use client";
 
-import * as React from "react"
 import {
-  Users,
+  ArrowUpRight,
   Bot,
   FileText,
   MessageSquare,
-  TrendingUp,
-  Clock,
-  Zap,
-  ArrowUpRight,
   MoreHorizontal,
-} from "lucide-react"
+  TrendingUp,
+  Users,
+  Zap,
+} from "lucide-react";
 
-import { AppShell, PageContainer, PageHeader } from "@/components/layout"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { StatsCard } from "@/components/ui/stats-card"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Progress } from "@/components/ui/progress"
+import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
+import { Badge } from "@/shared/ui/badge";
+import { Button } from "@/shared/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-
-const mockUser = {
-  name: "Alex Johnson",
-  email: "alex@company.com",
-  avatarUrl: "",
-}
+} from "@/shared/ui/dropdown-menu";
+import { Progress } from "@/shared/ui/progress";
+import { StatsCard } from "@/shared/ui/stats-card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
+import { AppShell, PageContainer, PageHeader } from "@/widgets/app-shell";
 
 const recentActivity = [
   {
@@ -80,7 +59,7 @@ const recentActivity = [
     time: "2 hours ago",
     status: "error",
   },
-]
+];
 
 const recentAvatars = [
   {
@@ -111,12 +90,11 @@ const recentAvatars = [
     conversations: 0,
     lastActive: "Not deployed",
   },
-]
+];
 
 export default function DashboardPage() {
   return (
     <AppShell
-      user={mockUser}
       headerProps={{
         breadcrumbs: [{ title: "Dashboard" }],
       }}
@@ -138,34 +116,26 @@ export default function DashboardPage() {
           <StatsCard
             title="Total Avatars"
             value="12"
-            icon={<Bot className="size-5" />}
-            trend="up"
-            trendValue="+2"
-            trendLabel="this month"
+            description="+2 this month"
+            icon={Bot}
           />
           <StatsCard
             title="Active Users"
             value="2,847"
-            icon={<Users className="size-5" />}
-            trend="up"
-            trendValue="+12.5%"
-            trendLabel="from last month"
+            description="+12.5% from last month"
+            icon={Users}
           />
           <StatsCard
             title="Documents"
             value="1,234"
-            icon={<FileText className="size-5" />}
-            trend="up"
-            trendValue="+48"
-            trendLabel="this week"
+            description="+48 this week"
+            icon={FileText}
           />
           <StatsCard
             title="Conversations"
             value="8,456"
-            icon={<MessageSquare className="size-5" />}
-            trend="up"
-            trendValue="+23%"
-            trendLabel="vs last week"
+            description="+23% vs last week"
+            icon={MessageSquare}
           />
         </div>
 
@@ -175,9 +145,7 @@ export default function DashboardPage() {
           <Card className="lg:col-span-4">
             <CardHeader>
               <CardTitle>Conversations Overview</CardTitle>
-              <CardDescription>
-                Daily conversation volume across all avatars
-              </CardDescription>
+              <CardDescription>Daily conversation volume across all avatars</CardDescription>
             </CardHeader>
             <CardContent>
               {/* Placeholder for chart */}
@@ -212,13 +180,9 @@ export default function DashboardPage() {
                     />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium">{item.title}</p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {item.subtitle}
-                      </p>
+                      <p className="text-xs text-muted-foreground truncate">{item.subtitle}</p>
                     </div>
-                    <p className="text-xs text-muted-foreground whitespace-nowrap">
-                      {item.time}
-                    </p>
+                    <p className="text-xs text-muted-foreground whitespace-nowrap">{item.time}</p>
                   </div>
                 ))}
               </div>
@@ -275,12 +239,8 @@ export default function DashboardPage() {
                         {avatar.status}
                       </Badge>
                     </TableCell>
-                    <TableCell>
-                      {avatar.conversations.toLocaleString()}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {avatar.lastActive}
-                    </TableCell>
+                    <TableCell>{avatar.conversations.toLocaleString()}</TableCell>
+                    <TableCell className="text-muted-foreground">{avatar.lastActive}</TableCell>
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -292,9 +252,7 @@ export default function DashboardPage() {
                           <DropdownMenuItem>Edit</DropdownMenuItem>
                           <DropdownMenuItem>Test Chat</DropdownMenuItem>
                           <DropdownMenuItem>View Analytics</DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive">
-                            Delete
-                          </DropdownMenuItem>
+                          <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -364,6 +322,5 @@ export default function DashboardPage() {
         </div>
       </PageContainer>
     </AppShell>
-  )
+  );
 }
-

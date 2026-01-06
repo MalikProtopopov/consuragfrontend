@@ -1,54 +1,46 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Link from "next/link"
+import * as React from "react";
+
+import Link from "next/link";
+
 import {
+  AlertCircle,
+  AlertTriangle,
   ArrowLeft,
+  Bell,
+  Bot,
+  CheckCircle,
+  ChevronRight,
+  Download,
+  FileText,
+  Folder,
+  Info,
   Moon,
-  Sun,
-  Check,
-  Copy,
   Plus,
   Search,
   Settings,
+  Sun,
   Trash2,
-  Download,
-  Upload,
-  Mail,
   User,
-  Bell,
-  Heart,
-  Star,
-  ChevronRight,
-  AlertCircle,
-  Info,
-  CheckCircle,
-  AlertTriangle,
-  Bot,
-  FileText,
-  FolderKanban,
-  BarChart3,
-} from "lucide-react"
+} from "lucide-react";
+import { useTheme } from "next-themes";
 
+import { Alert, AlertDescription, AlertTitle } from "@/shared/ui/alert";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
+import { Badge } from "@/shared/ui/badge";
 // UI Components
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Switch } from "@/components/ui/switch"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Button } from "@/shared/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Slider } from "@/components/ui/slider"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/shared/ui/card";
+import { ChatContainer, ChatMessage } from "@/shared/ui/chat";
+import { Checkbox } from "@/shared/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -57,53 +49,34 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@/components/ui/alert"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { Progress } from "@/components/ui/progress"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Separator } from "@/components/ui/separator"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+} from "@/shared/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-
+} from "@/shared/ui/dropdown-menu";
+import { EmptyState } from "@/shared/ui/empty-state";
+import { FileUpload } from "@/shared/ui/file-upload";
+import { Input } from "@/shared/ui/input";
+import { Label } from "@/shared/ui/label";
+import { Progress } from "@/shared/ui/progress";
+import { RadioGroup, RadioGroupItem } from "@/shared/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
+// Separator import removed - not currently used
+// import { Separator } from "@/shared/ui/separator";
+import { Skeleton } from "@/shared/ui/skeleton";
+import { Slider } from "@/shared/ui/slider";
 // Custom Components
-import { Spinner } from "@/components/ui/spinner"
-import { EmptyState } from "@/components/ui/empty-state"
-import { StatsCard } from "@/components/ui/stats-card"
-import { Stepper, Step } from "@/components/ui/stepper"
-import { FileUpload, FileWithProgress } from "@/components/ui/file-upload"
-import { ChatContainer, ChatMessage } from "@/components/ui/chat"
+import { Spinner } from "@/shared/ui/spinner";
+import { StatsCard } from "@/shared/ui/stats-card";
+import { Stepper, StepperItem } from "@/shared/ui/stepper";
+import { Switch } from "@/shared/ui/switch";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
+import { Textarea } from "@/shared/ui/textarea";
+import { TooltipProvider } from "@/shared/ui/tooltip";
 
 // Component Section Wrapper
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -112,7 +85,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       <h2 className="text-xl font-semibold">{title}</h2>
       {children}
     </section>
-  )
+  );
 }
 
 function ComponentCard({ title, children }: { title: string; children: React.ReactNode }) {
@@ -123,28 +96,26 @@ function ComponentCard({ title, children }: { title: string; children: React.Rea
       </CardHeader>
       <CardContent>{children}</CardContent>
     </Card>
-  )
+  );
 }
 
 export default function DesignSystemPage() {
-  const [isDark, setIsDark] = React.useState(false)
-  const [sliderValue, setSliderValue] = React.useState([50])
-  const [progressValue, setProgressValue] = React.useState(45)
-  const [currentStep, setCurrentStep] = React.useState(1)
-  const [files, setFiles] = React.useState<FileWithProgress[]>([])
+  const { theme, setTheme } = useTheme();
+  const [sliderValue, setSliderValue] = React.useState([50]);
+  const [progressValue, setProgressValue] = React.useState(45);
+  const [currentStep, setCurrentStep] = React.useState(1);
+  // Files state removed since FileUpload handles its own state
 
   const toggleTheme = () => {
-    const newIsDark = !isDark
-    setIsDark(newIsDark)
-    document.documentElement.classList.toggle("dark", newIsDark)
-  }
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
 
-  const steps: Step[] = [
+  const steps: { id: string; title: string; description: string }[] = [
     { id: "1", title: "Basic Info", description: "Name and description" },
     { id: "2", title: "Configuration", description: "LLM settings" },
     { id: "3", title: "Knowledge Base", description: "Upload documents" },
     { id: "4", title: "Review", description: "Confirm and create" },
-  ]
+  ];
 
   const demoMessages: ChatMessage[] = [
     {
@@ -156,14 +127,15 @@ export default function DesignSystemPage() {
     {
       id: "2",
       role: "assistant",
-      content: "The capital of France is **Paris**. It's the largest city in France and serves as the country's major cultural, economic, and political center. Paris is known for landmarks like the Eiffel Tower, the Louvre Museum, and Notre-Dame Cathedral.",
+      content:
+        "The capital of France is **Paris**. It's the largest city in France and serves as the country's major cultural, economic, and political center. Paris is known for landmarks like the Eiffel Tower, the Louvre Museum, and Notre-Dame Cathedral.",
       timestamp: new Date(),
       sources: [
         { id: "1", title: "World Geography Guide" },
         { id: "2", title: "European Capitals" },
       ],
     },
-  ]
+  ];
 
   return (
     <TooltipProvider>
@@ -183,7 +155,7 @@ export default function DesignSystemPage() {
               </div>
             </div>
             <Button variant="ghost" size="icon" onClick={toggleTheme}>
-              {isDark ? <Sun className="size-5" /> : <Moon className="size-5" />}
+              {theme === "dark" ? <Sun className="size-5" /> : <Moon className="size-5" />}
             </Button>
           </div>
         </header>
@@ -259,8 +231,12 @@ export default function DesignSystemPage() {
                 <div className="flex flex-wrap gap-2">
                   <Button leftIcon={<Plus />}>Add New</Button>
                   <Button rightIcon={<ChevronRight />}>Continue</Button>
-                  <Button leftIcon={<Download />} variant="secondary">Download</Button>
-                  <Button leftIcon={<Trash2 />} variant="destructive">Delete</Button>
+                  <Button leftIcon={<Download />} variant="secondary">
+                    Download
+                  </Button>
+                  <Button leftIcon={<Trash2 />} variant="destructive">
+                    Delete
+                  </Button>
                 </div>
               </ComponentCard>
 
@@ -268,8 +244,12 @@ export default function DesignSystemPage() {
                 <div className="flex flex-wrap gap-2">
                   <Button disabled>Disabled</Button>
                   <Button loading>Loading</Button>
-                  <Button size="icon"><Settings className="size-4" /></Button>
-                  <Button size="icon" variant="ghost"><Bell className="size-4" /></Button>
+                  <Button size="icon">
+                    <Settings className="size-4" />
+                  </Button>
+                  <Button size="icon" variant="ghost">
+                    <Bell className="size-4" />
+                  </Button>
                 </div>
               </ComponentCard>
             </div>
@@ -334,7 +314,9 @@ export default function DesignSystemPage() {
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox id="disabled" disabled />
-                    <Label htmlFor="disabled" className="text-muted-foreground">Disabled option</Label>
+                    <Label htmlFor="disabled" className="text-muted-foreground">
+                      Disabled option
+                    </Label>
                   </div>
                 </div>
               </ComponentCard>
@@ -350,7 +332,9 @@ export default function DesignSystemPage() {
                     <Switch id="notifications" defaultChecked />
                   </div>
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="disabled-switch" className="text-muted-foreground">Disabled</Label>
+                    <Label htmlFor="disabled-switch" className="text-muted-foreground">
+                      Disabled
+                    </Label>
                     <Switch id="disabled-switch" disabled />
                   </div>
                 </div>
@@ -378,14 +362,11 @@ export default function DesignSystemPage() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <Label>Temperature</Label>
-                      <span className="text-sm text-muted-foreground">{sliderValue[0] / 100}</span>
+                      <span className="text-sm text-muted-foreground">
+                        {(sliderValue[0] ?? 50) / 100}
+                      </span>
                     </div>
-                    <Slider
-                      value={sliderValue}
-                      onValueChange={setSliderValue}
-                      max={100}
-                      step={1}
-                    />
+                    <Slider value={sliderValue} onValueChange={setSliderValue} max={100} step={1} />
                   </div>
                 </div>
               </ComponentCard>
@@ -486,19 +467,15 @@ export default function DesignSystemPage() {
               <StatsCard
                 title="Active Users"
                 value="2,847"
-                icon={<User className="size-5" />}
-                trend="up"
-                trendValue="+12.5%"
-                trendLabel="from last month"
+                description="+12.5% from last month"
+                icon={User}
               />
 
               <StatsCard
                 title="Documents Processed"
                 value="1,234"
-                icon={<FileText className="size-5" />}
-                trend="up"
-                trendValue="+8.2%"
-                trendLabel="from last week"
+                description="+8.2% from last week"
+                icon={FileText}
               />
             </div>
           </Section>
@@ -509,33 +486,25 @@ export default function DesignSystemPage() {
               <Alert>
                 <Info className="size-4" />
                 <AlertTitle>Information</AlertTitle>
-                <AlertDescription>
-                  This is an informational alert message.
-                </AlertDescription>
+                <AlertDescription>This is an informational alert message.</AlertDescription>
               </Alert>
 
               <Alert className="border-success/50 text-success [&>svg]:text-success">
                 <CheckCircle className="size-4" />
                 <AlertTitle>Success</AlertTitle>
-                <AlertDescription>
-                  Your changes have been saved successfully.
-                </AlertDescription>
+                <AlertDescription>Your changes have been saved successfully.</AlertDescription>
               </Alert>
 
               <Alert className="border-warning/50 text-warning [&>svg]:text-warning">
                 <AlertTriangle className="size-4" />
                 <AlertTitle>Warning</AlertTitle>
-                <AlertDescription>
-                  Please review your settings before continuing.
-                </AlertDescription>
+                <AlertDescription>Please review your settings before continuing.</AlertDescription>
               </Alert>
 
               <Alert variant="destructive">
                 <AlertCircle className="size-4" />
                 <AlertTitle>Error</AlertTitle>
-                <AlertDescription>
-                  Something went wrong. Please try again.
-                </AlertDescription>
+                <AlertDescription>Something went wrong. Please try again.</AlertDescription>
               </Alert>
             </div>
           </Section>
@@ -554,9 +523,24 @@ export default function DesignSystemPage() {
                 </TableHeader>
                 <TableBody>
                   {[
-                    { name: "John Doe", email: "john@example.com", status: "Active", role: "Admin" },
-                    { name: "Jane Smith", email: "jane@example.com", status: "Active", role: "Editor" },
-                    { name: "Bob Wilson", email: "bob@example.com", status: "Pending", role: "Viewer" },
+                    {
+                      name: "John Doe",
+                      email: "john@example.com",
+                      status: "Active",
+                      role: "Admin",
+                    },
+                    {
+                      name: "Jane Smith",
+                      email: "jane@example.com",
+                      status: "Active",
+                      role: "Editor",
+                    },
+                    {
+                      name: "Bob Wilson",
+                      email: "bob@example.com",
+                      status: "Pending",
+                      role: "Viewer",
+                    },
                   ].map((user) => (
                     <TableRow key={user.email}>
                       <TableCell>
@@ -579,7 +563,9 @@ export default function DesignSystemPage() {
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">Actions</Button>
+                            <Button variant="ghost" size="sm">
+                              Actions
+                            </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem>Edit</DropdownMenuItem>
@@ -603,10 +589,18 @@ export default function DesignSystemPage() {
                 <div className="space-y-4">
                   <Progress value={progressValue} />
                   <div className="flex gap-2">
-                    <Button size="sm" variant="outline" onClick={() => setProgressValue(Math.max(0, progressValue - 10))}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setProgressValue(Math.max(0, progressValue - 10))}
+                    >
                       -10%
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => setProgressValue(Math.min(100, progressValue + 10))}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setProgressValue(Math.min(100, progressValue + 10))}
+                    >
                       +10%
                     </Button>
                   </div>
@@ -668,7 +662,17 @@ export default function DesignSystemPage() {
           {/* Stepper */}
           <Section title="Stepper / Wizard">
             <Card className="p-6">
-              <Stepper steps={steps} currentStep={currentStep} />
+              <Stepper currentStep={currentStep}>
+                {steps.map((step, index) => (
+                  <StepperItem
+                    key={step.id}
+                    title={step.title}
+                    description={step.description}
+                    isCompleted={index < currentStep}
+                    isCurrent={index === currentStep}
+                  />
+                ))}
+              </Stepper>
               <div className="flex justify-center gap-2 mt-8">
                 <Button
                   variant="outline"
@@ -691,10 +695,11 @@ export default function DesignSystemPage() {
           <Section title="File Upload">
             <Card className="p-6">
               <FileUpload
-                accept=".pdf,.doc,.docx,.txt"
-                files={files}
-                onFilesChange={setFiles}
-                onFileRemove={(id) => setFiles(files.filter(f => f.id !== id))}
+                accept={{
+                  "application/pdf": [".pdf"],
+                  "text/plain": [".txt"],
+                }}
+                onUpload={(files) => console.log("Uploaded:", files)}
               />
             </Card>
           </Section>
@@ -703,13 +708,14 @@ export default function DesignSystemPage() {
           <Section title="Empty State">
             <Card>
               <EmptyState
-                icon="folder"
+                icon={Folder}
                 title="No projects yet"
                 description="Get started by creating your first project. Projects help you organize your AI avatars and documents."
-                action={{
-                  label: "Create Project",
-                  onClick: () => console.log("Create project"),
-                }}
+                action={
+                  <Button onClick={() => console.log("Create project")}>
+                    Create Project
+                  </Button>
+                }
               />
             </Card>
           </Section>
@@ -753,7 +759,8 @@ export default function DesignSystemPage() {
                   <DialogHeader>
                     <DialogTitle>Are you sure?</DialogTitle>
                     <DialogDescription>
-                      This action cannot be undone. This will permanently delete your avatar and remove all associated data.
+                      This action cannot be undone. This will permanently delete your avatar and
+                      remove all associated data.
                     </DialogDescription>
                   </DialogHeader>
                   <DialogFooter>
@@ -776,10 +783,8 @@ export default function DesignSystemPage() {
               />
             </Card>
           </Section>
-
         </main>
       </div>
     </TooltipProvider>
-  )
+  );
 }
-

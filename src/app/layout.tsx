@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
+
+import { QueryProvider, ThemeProvider } from "@/providers";
+import { Toaster } from "@/shared/ui/sonner";
+import { TokenLimitDialogProvider } from "@/shared/ui/token-limit-dialog";
+import { ApiUrlSwitcher } from "@/shared/ui/api-url-switcher";
+
 import "./globals.css";
 
 const inter = Inter({
@@ -27,10 +33,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}
-      >
-        {children}
+      <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
+        <ThemeProvider>
+          <QueryProvider>
+            <TokenLimitDialogProvider>
+              {children}
+            </TokenLimitDialogProvider>
+            <Toaster />
+            <ApiUrlSwitcher />
+          </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

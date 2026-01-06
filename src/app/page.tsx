@@ -1,76 +1,76 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Link from "next/link"
+import Link from "next/link";
+
 import {
-  LayoutDashboard,
-  Palette,
-  Component,
-  Layout,
-  MousePointer2,
-  Code2,
   ArrowRight,
+  Bot,
+  Code2,
+  Component,
+  FileText,
   Github,
+  Layout,
   Moon,
+  MousePointer2,
+  Palette,
   Sun,
   Users,
-  FileText,
-  Bot,
   Zap,
-  CheckCircle2,
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+} from "lucide-react";
+import { useTheme } from "next-themes";
+
+import { Badge } from "@/shared/ui/badge";
+import { Button } from "@/shared/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 
 export default function HomePage() {
-  const [isDark, setIsDark] = React.useState(false)
+  const { theme, setTheme } = useTheme();
 
   const toggleTheme = () => {
-    const newIsDark = !isDark
-    setIsDark(newIsDark)
-    document.documentElement.classList.toggle("dark", newIsDark)
-  }
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
 
   const features = [
     {
       icon: Palette,
       title: "Design Tokens",
-      description: "CSS custom properties for colors, typography, spacing, and motion—all theme-aware."
+      description:
+        "CSS custom properties for colors, typography, spacing, and motion—all theme-aware.",
     },
     {
       icon: Component,
       title: "40+ Components",
-      description: "Buttons, inputs, cards, modals, and more—built with shadcn/ui and Radix primitives."
+      description:
+        "Buttons, inputs, cards, modals, and more—built with shadcn/ui and Radix primitives.",
     },
     {
       icon: Layout,
       title: "App Shell",
-      description: "Ready-to-use sidebar, header, and content layout for admin dashboards."
+      description: "Ready-to-use sidebar, header, and content layout for admin dashboards.",
     },
     {
       icon: MousePointer2,
       title: "Micro-interactions",
-      description: "Smooth 120-240ms transitions with carefully crafted easing curves."
+      description: "Smooth 120-240ms transitions with carefully crafted easing curves.",
     },
     {
       icon: Code2,
       title: "Developer Ready",
-      description: "TypeScript, Tailwind CSS v4, and full accessibility (WCAG AA) built-in."
+      description: "TypeScript, Tailwind CSS v4, and full accessibility (WCAG AA) built-in.",
     },
     {
       icon: Zap,
       title: "Performance First",
-      description: "Tree-shakeable components, CSS variables for theming, minimal bundle size."
+      description: "Tree-shakeable components, CSS variables for theming, minimal bundle size.",
     },
-  ]
+  ];
 
   const stats = [
     { value: "40+", label: "Components" },
     { value: "2", label: "Themes" },
     { value: "6", label: "Status Colors" },
     { value: "100%", label: "TypeScript" },
-  ]
+  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -82,24 +82,35 @@ export default function HomePage() {
               UI
             </div>
             <span className="font-semibold text-lg">UI Kit 2026</span>
-            <Badge variant="primary-subtle" size="sm">Beta</Badge>
+            <Badge variant="primary-subtle" size="sm">
+              Beta
+            </Badge>
           </div>
-          
+
           <nav className="hidden md:flex items-center gap-6">
-            <Link href="/design-system" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <Link
+              href="/design-system"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
               Components
             </Link>
-            <Link href="/design-system/tokens" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <Link
+              href="/design-system/tokens"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
               Tokens
             </Link>
-            <Link href="/design-system/patterns" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <Link
+              href="/design-system/patterns"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
               Patterns
             </Link>
           </nav>
 
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" onClick={toggleTheme}>
-              {isDark ? <Sun className="size-5" /> : <Moon className="size-5" />}
+              {theme === "dark" ? <Sun className="size-5" /> : <Moon className="size-5" />}
             </Button>
             <Button variant="ghost" size="icon" asChild>
               <a href="https://github.com" target="_blank" rel="noopener noreferrer">
@@ -121,7 +132,7 @@ export default function HomePage() {
         {/* Background gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
-        
+
         <div className="container mx-auto px-4 py-24 md:py-32 relative">
           <div className="max-w-3xl mx-auto text-center space-y-8">
             <Badge variant="outline" className="px-4 py-1.5">
@@ -129,17 +140,17 @@ export default function HomePage() {
                 Design System for AI Platforms
               </span>
             </Badge>
-            
+
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
               Build beautiful AI interfaces with{" "}
               <span className="bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">
                 UI Kit 2026
               </span>
             </h1>
-            
+
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-              A comprehensive design system for AI avatar platforms. Neo-minimal design with warm enterprise aesthetics, 
-              built on Next.js, Tailwind CSS v4, and shadcn/ui.
+              A comprehensive design system for AI avatar platforms. Neo-minimal design with warm
+              enterprise aesthetics, built on Next.js, Tailwind CSS v4, and shadcn/ui.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -150,9 +161,7 @@ export default function HomePage() {
                 </Link>
               </Button>
               <Button variant="outline" size="xl" asChild>
-                <Link href="/dashboard">
-                  View Demo Dashboard
-                </Link>
+                <Link href="/dashboard">View Demo Dashboard</Link>
               </Button>
             </div>
           </div>
@@ -175,14 +184,14 @@ export default function HomePage() {
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold mb-4">Everything you need</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              A complete design system with tokens, components, patterns, and templates 
-              for building modern AI-powered applications.
+              A complete design system with tokens, components, patterns, and templates for building
+              modern AI-powered applications.
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {features.map((feature) => {
-              const Icon = feature.icon
+              const Icon = feature.icon;
               return (
                 <Card key={feature.title} className="card-hover border-border/50">
                   <CardHeader>
@@ -195,7 +204,7 @@ export default function HomePage() {
                     <CardDescription>{feature.description}</CardDescription>
                   </CardContent>
                 </Card>
-              )
+              );
             })}
           </div>
         </div>
@@ -295,7 +304,9 @@ export default function HomePage() {
               <h3 className="font-semibold mb-4">Typography</h3>
               <div className="space-y-2">
                 <p className="text-2xl font-semibold">Heading</p>
-                <p className="text-base">Body text with <span className="font-medium">medium weight</span></p>
+                <p className="text-base">
+                  Body text with <span className="font-medium">medium weight</span>
+                </p>
                 <p className="text-sm text-muted-foreground">Secondary text</p>
                 <p className="text-xs text-muted-foreground">Caption text</p>
                 <code className="text-sm font-mono bg-muted px-1 py-0.5 rounded">code snippet</code>
@@ -320,7 +331,8 @@ export default function HomePage() {
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold mb-4">Built for AI Platforms</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Specialized components and patterns for AI avatar management, document processing, and chat interfaces.
+              Specialized components and patterns for AI avatar management, document processing, and
+              chat interfaces.
             </p>
           </div>
 
@@ -366,15 +378,21 @@ export default function HomePage() {
                 Explore the full component library and start building your AI platform today.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Button size="lg" variant="secondary" className="bg-white text-primary hover:bg-white/90" asChild>
-                  <Link href="/design-system">
-                    Browse Components
-                  </Link>
+                <Button
+                  size="lg"
+                  variant="secondary"
+                  className="bg-white text-primary hover:bg-white/90"
+                  asChild
+                >
+                  <Link href="/design-system">Browse Components</Link>
                 </Button>
-                <Button size="lg" variant="ghost" className="border border-white/30 text-white hover:bg-white/10 hover:text-white" asChild>
-                  <Link href="/dashboard">
-                    View Dashboard Demo
-                  </Link>
+                <Button
+                  size="lg"
+                  variant="ghost"
+                  className="border border-white/30 text-white hover:bg-white/10 hover:text-white"
+                  asChild
+                >
+                  <Link href="/dashboard">View Dashboard Demo</Link>
                 </Button>
               </div>
             </div>
@@ -394,5 +412,5 @@ export default function HomePage() {
         </div>
       </footer>
     </div>
-  )
+  );
 }
