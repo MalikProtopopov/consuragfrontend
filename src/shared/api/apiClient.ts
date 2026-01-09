@@ -5,9 +5,11 @@ import axios, {
   type InternalAxiosRequestConfig,
 } from "axios";
 import { apiUrlManager } from "@/shared/lib/apiUrlManager";
+import type { TokenResponse } from "@/shared/types/api";
 
 const TOKEN_KEY = "auth_token";
 const REFRESH_TOKEN_KEY = "auth_refresh_token";
+const EXPIRES_AT_KEY = "auth_expires_at";
 
 // Token limit error codes
 const TOKEN_LIMIT_ERROR_CODES = ["TOKEN_LIMIT_EXCEEDED", "EMBEDDING_LIMIT_EXCEEDED"] as const;
@@ -64,11 +66,21 @@ export const tokenManager = {
     return localStorage.getItem(REFRESH_TOKEN_KEY);
   },
 
-  setTokens: (accessToken: string, refreshToken?: string): void => {
+  getExpiresAt: (): number | null => {
+    if (typeof window === "undefined") return null;
+    const expiresAt = localStorage.getItem(EXPIRES_AT_KEY);
+    return expiresAt ? Number(expiresAt) : null;
+  },
+
+  setTokens: (accessToken: string, refreshToken?: string, expiresIn?: number): void => {
     if (typeof window === "undefined") return;
     localStorage.setItem(TOKEN_KEY, accessToken);
     if (refreshToken) {
       localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+    }
+    if (expiresIn) {
+      const expiresAt = Date.now() + expiresIn * 1000;
+      localStorage.setItem(EXPIRES_AT_KEY, String(expiresAt));
     }
   },
 
@@ -76,12 +88,54 @@ export const tokenManager = {
     if (typeof window === "undefined") return;
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
+    localStorage.removeItem(EXPIRES_AT_KEY);
   },
 
   hasToken: (): boolean => {
     return !!tokenManager.getAccessToken();
   },
+
+  /**
+   * Check if access token is expired or will expire soon (within 60 seconds)
+   */
+  isAccessTokenExpired: (): boolean => {
+    const expiresAt = tokenManager.getExpiresAt();
+    if (!expiresAt) return true;
+    // Consider expired 60 seconds before actual expiration for proactive refresh
+    return Date.now() > expiresAt - 60000;
+  },
 };
+
+/**
+ * Queue mechanism for handling parallel requests during token refresh
+ */
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (token: string) => void;
+  reject: (error: Error) => void;
+}> = [];
+
+const processQueue = (error: Error | null, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token!);
+    }
+  });
+  failedQueue = [];
+};
+
+/**
+ * Refresh tokens using refresh_token in request body (not header)
+ */
+async function refreshTokens(refreshToken: string, baseURL: string): Promise<TokenResponse> {
+  const response = await axios.post<TokenResponse>(
+    `${baseURL}/api/v1/auth/refresh`,
+    { refresh_token: refreshToken }
+  );
+  return response.data;
+}
 
 /**
  * API Error interface matching backend error format
@@ -134,19 +188,59 @@ class ApiClient {
   }
 
   private setupInterceptors(): void {
-    // Request interceptor - add auth token
+    const baseURL = this.instance.defaults.baseURL || "";
+
+    // Request interceptor - add auth token with proactive refresh
     this.instance.interceptors.request.use(
-      (config: InternalAxiosRequestConfig) => {
+      async (config: InternalAxiosRequestConfig) => {
+        // Skip auth for refresh endpoint to avoid infinite loop
+        if (config.url?.includes("/auth/refresh")) {
+          return config;
+        }
+
         const token = tokenManager.getAccessToken();
-        if (token && config.headers) {
-          config.headers.Authorization = `Bearer ${token}`;
+        const refreshToken = tokenManager.getRefreshToken();
+
+        // Proactive refresh if token is expired or expiring soon
+        if (token && tokenManager.isAccessTokenExpired() && refreshToken) {
+          if (!isRefreshing) {
+            isRefreshing = true;
+            try {
+              const newTokens = await refreshTokens(refreshToken, baseURL);
+              tokenManager.setTokens(
+                newTokens.access_token,
+                newTokens.refresh_token,
+                newTokens.expires_in
+              );
+              processQueue(null, newTokens.access_token);
+            } catch (error) {
+              processQueue(error as Error, null);
+              // If proactive refresh fails, continue with old token
+              // Response interceptor will handle 401
+            } finally {
+              isRefreshing = false;
+            }
+          } else {
+            // Wait for ongoing refresh to complete
+            await new Promise<string>((resolve, reject) => {
+              failedQueue.push({ resolve, reject });
+            }).catch(() => {
+              // Ignore errors, will retry with current token
+            });
+          }
+        }
+
+        // Add current token to request
+        const currentToken = tokenManager.getAccessToken();
+        if (currentToken && config.headers) {
+          config.headers.Authorization = `Bearer ${currentToken}`;
         }
         return config;
       },
       (error: unknown) => Promise.reject(error)
     );
 
-    // Response interceptor - handle errors globally
+    // Response interceptor - handle errors globally with queue mechanism
     this.instance.interceptors.response.use(
       (response: AxiosResponse) => response,
       async (error: unknown) => {
@@ -155,9 +249,16 @@ class ApiClient {
           const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
           // Handle 401 - try to refresh token or redirect to login
-          if (status === 401 && typeof window !== "undefined") {
-            // If we already tried to refresh, redirect to login
-            if (originalRequest._retry) {
+          if (
+            status === 401 &&
+            typeof window !== "undefined" &&
+            !originalRequest._retry &&
+            !originalRequest.url?.includes("/auth/refresh")
+          ) {
+            const refreshToken = tokenManager.getRefreshToken();
+
+            if (!refreshToken) {
+              // No refresh token - logout and redirect
               tokenManager.clearTokens();
               const isAuthRoute =
                 window.location.pathname.startsWith("/login") ||
@@ -168,54 +269,57 @@ class ApiClient {
               return Promise.reject(error);
             }
 
-            // Try to refresh token
-            const refreshToken = tokenManager.getRefreshToken();
-            if (refreshToken) {
-              originalRequest._retry = true;
-              try {
-                const response = await axios.post(
-                  `${this.instance.defaults.baseURL}/api/v1/auth/refresh`,
-                  {},
-                  {
-                    headers: {
-                      Authorization: `Bearer ${refreshToken}`,
-                    },
-                  }
-                );
-                const { access_token, refresh_token } = response.data;
-                tokenManager.setTokens(access_token, refresh_token);
-                
-                // Retry original request
-                if (originalRequest.headers) {
-                  originalRequest.headers.Authorization = `Bearer ${access_token}`;
-                }
-                return this.instance(originalRequest);
-              } catch {
-                tokenManager.clearTokens();
-                const isAuthRoute =
-                  window.location.pathname.startsWith("/login") ||
-                  window.location.pathname.startsWith("/register");
-                if (!isAuthRoute) {
-                  window.location.href = "/login";
-                }
-                return Promise.reject(error);
-              }
+            // If already refreshing, add to queue
+            if (isRefreshing) {
+              return new Promise((resolve, reject) => {
+                failedQueue.push({
+                  resolve: (token: string) => {
+                    if (originalRequest.headers) {
+                      originalRequest.headers.Authorization = `Bearer ${token}`;
+                    }
+                    resolve(this.instance(originalRequest));
+                  },
+                  reject: (err: Error) => reject(err),
+                });
+              });
             }
 
-            // No refresh token, redirect to login
-            tokenManager.clearTokens();
-            const isAuthRoute =
-              window.location.pathname.startsWith("/login") ||
-              window.location.pathname.startsWith("/register");
-            if (!isAuthRoute) {
-              window.location.href = "/login";
+            originalRequest._retry = true;
+            isRefreshing = true;
+
+            try {
+              const newTokens = await refreshTokens(refreshToken, baseURL);
+              tokenManager.setTokens(
+                newTokens.access_token,
+                newTokens.refresh_token,
+                newTokens.expires_in
+              );
+              processQueue(null, newTokens.access_token);
+
+              // Retry original request with new token
+              if (originalRequest.headers) {
+                originalRequest.headers.Authorization = `Bearer ${newTokens.access_token}`;
+              }
+              return this.instance(originalRequest);
+            } catch (refreshError) {
+              processQueue(refreshError as Error, null);
+              tokenManager.clearTokens();
+              const isAuthRoute =
+                window.location.pathname.startsWith("/login") ||
+                window.location.pathname.startsWith("/register");
+              if (!isAuthRoute) {
+                window.location.href = "/login";
+              }
+              return Promise.reject(refreshError);
+            } finally {
+              isRefreshing = false;
             }
           }
 
           // Transform error to ApiError if response has expected format
           if (error.response?.data?.error) {
             const apiError = error.response.data as ApiErrorResponse;
-            
+
             // Check for token limit errors and emit event
             if (
               TOKEN_LIMIT_ERROR_CODES.includes(apiError.error.code as TokenLimitErrorCode)
@@ -230,7 +334,7 @@ class ApiClient {
                 } | undefined,
               });
             }
-            
+
             throw new ApiError(apiError, status);
           }
 

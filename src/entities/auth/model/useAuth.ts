@@ -76,6 +76,7 @@ export function useRegister() {
 
 /**
  * Hook for logout
+ * @param logoutFromAllDevices - Pass true to logout from all devices
  */
 export function useLogout() {
   const queryClient = useQueryClient();
@@ -83,7 +84,7 @@ export function useLogout() {
   const { logout: clearAuth } = useAuthStore();
 
   return useMutation({
-    mutationFn: authApi.logout,
+    mutationFn: (logoutFromAllDevices?: boolean) => authApi.logout(logoutFromAllDevices),
     onSuccess: () => {
       clearAuth();
       queryClient.clear();

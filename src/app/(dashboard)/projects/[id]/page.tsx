@@ -160,7 +160,7 @@ export default function ProjectDashboardPage({ params }: ProjectDashboardPagePro
                             : "outline"
                       }
                     >
-                      {avatar.is_published ? "Опубликован" : avatar.status}
+                      {avatar.is_published ? "Опубликован" : avatar.status === "active" ? "Активен" : avatar.status === "draft" ? "Черновик" : avatar.status === "inactive" ? "Неактивен" : avatar.status === "training" ? "Обучается" : avatar.status}
                     </Badge>
                   </Link>
                 ))}

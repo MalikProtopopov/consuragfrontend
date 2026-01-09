@@ -22,8 +22,8 @@ export const authApi = {
       data
     );
     
-    // Save tokens to localStorage
-    tokenManager.setTokens(response.access_token, response.refresh_token);
+    // Save tokens to localStorage with expiration time
+    tokenManager.setTokens(response.access_token, response.refresh_token, response.expires_in);
     
     return response;
   },
@@ -40,10 +40,16 @@ export const authApi = {
 
   /**
    * Logout current user
+   * @param logoutFromAllDevices - If true, logout from all devices. If false, logout only from current device.
    */
-  logout: async (): Promise<void> => {
+  logout: async (logoutFromAllDevices = false): Promise<void> => {
     try {
-      await apiClient.post<void, void>(API_ENDPOINTS.AUTH.LOGOUT);
+      const refreshToken = tokenManager.getRefreshToken();
+      // Send refresh_token to logout from single device, or empty body to logout from all
+      await apiClient.post<{ refresh_token?: string } | undefined, void>(
+        API_ENDPOINTS.AUTH.LOGOUT,
+        logoutFromAllDevices ? undefined : { refresh_token: refreshToken }
+      );
     } finally {
       // Always clear tokens, even if API call fails
       tokenManager.clearTokens();
@@ -55,8 +61,8 @@ export const authApi = {
    */
   refresh: async (): Promise<TokenResponse> => {
     const response = await apiClient.post<void, TokenResponse>(API_ENDPOINTS.AUTH.REFRESH);
-    // Save new tokens
-    tokenManager.setTokens(response.access_token, response.refresh_token);
+    // Save new tokens with expiration time
+    tokenManager.setTokens(response.access_token, response.refresh_token, response.expires_in);
     return response;
   },
 

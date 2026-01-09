@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { chatApi } from "../api/chatApi";
 import type {
   ChatMessage,
@@ -24,6 +24,11 @@ export const chatKeys = {
 };
 
 /**
+ * localStorage key for session ID
+ */
+const getSessionStorageKey = (avatarId: string) => `chat_session_${avatarId}`;
+
+/**
  * Hook to get avatar public info
  */
 export function useAvatarInfo(avatarId: string) {
@@ -35,81 +40,201 @@ export function useAvatarInfo(avatarId: string) {
 }
 
 /**
- * Hook for chat functionality
+ * Hook for chat functionality with localStorage persistence
  */
 export function useChat(avatarId: string, source: ChatSource = "web") {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
+  
+  // Store session ID in a ref to avoid closure issues
+  const sessionIdRef = useRef<string | null>(null);
 
-  // Create session
+  // Save session to localStorage
+  const saveSession = useCallback((sid: string) => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(getSessionStorageKey(avatarId), sid);
+    }
+  }, [avatarId]);
+
+  // Clear session from localStorage
+  const clearSession = useCallback(() => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(getSessionStorageKey(avatarId));
+    }
+  }, [avatarId]);
+
+  // Get session from localStorage
+  const getSavedSession = useCallback(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem(getSessionStorageKey(avatarId));
+      // Validate it's a proper UUID, not "undefined" or "null" string
+      if (saved && saved !== "undefined" && saved !== "null" && saved.length > 10) {
+        return saved;
+      }
+    }
+    return null;
+  }, [avatarId]);
+
+  // Initialize: check localStorage for existing session and load history
+  useEffect(() => {
+    // Use a local variable to track if this effect instance should run
+    let shouldRun = true;
+    
+    const initChat = async () => {
+      if (!shouldRun) return;
+      
+      setIsInitializing(true);
+      try {
+        const savedSessionId = getSavedSession();
+        console.log("[useChat] Initializing, saved session:", savedSessionId);
+        
+        if (savedSessionId && shouldRun) {
+          // Try to load history from existing session
+          try {
+            console.log("[useChat] Loading history for session:", savedSessionId);
+            const messages = await chatApi.getHistory(avatarId, { 
+              session_id: savedSessionId,
+              limit: 50 
+            });
+            console.log("[useChat] History loaded, messages:", messages.length);
+            if (!shouldRun) return;
+            
+            // Session is valid, use it
+            setSessionId(savedSessionId);
+            sessionIdRef.current = savedSessionId;
+            setMessages(messages);
+            return;
+          } catch (error) {
+            if (!shouldRun) return;
+            // Session expired or invalid, clear it
+            console.log("[useChat] Saved session invalid, creating new one", error);
+            clearSession();
+          }
+        }
+        
+        if (!shouldRun) return;
+        
+        // No saved session or invalid, create new one
+        console.log("[useChat] Creating new session");
+        const response = await chatApi.createSession(avatarId, source);
+        if (!shouldRun) return;
+        console.log("[useChat] New session created:", response.id);
+        setSessionId(response.id);
+        sessionIdRef.current = response.id;
+        saveSession(response.id);
+        console.log("[useChat] Session saved to localStorage");
+        setMessages([]);
+      } catch (error) {
+        console.error("[useChat] Failed to initialize chat:", error);
+      } finally {
+        if (shouldRun) {
+          setIsInitializing(false);
+        }
+      }
+    };
+
+    initChat();
+    
+    // Cleanup function - cancel if effect re-runs
+    return () => {
+      shouldRun = false;
+    };
+  }, [avatarId, source, getSavedSession, saveSession, clearSession]);
+
+  // Create new session
   const createSession = useCallback(async () => {
+    setIsInitializing(true);
     try {
       const response = await chatApi.createSession(avatarId, source);
-      setSessionId(response.session_id);
+      setSessionId(response.id);
+      sessionIdRef.current = response.id;
+      saveSession(response.id);
       setMessages([]);
       return response;
-    } catch (error) {
-      throw error;
+    } finally {
+      setIsInitializing(false);
     }
-  }, [avatarId, source]);
+  }, [avatarId, source, saveSession]);
 
   // Send message
   const sendMessage = useCallback(
     async (content: string) => {
-      if (!sessionId) {
-        // Create session first
+      let currentSessionId = sessionIdRef.current;
+      
+      // Create session if not exists
+      if (!currentSessionId) {
         const session = await createSession();
-        return sendMessageInternal(session.session_id, content);
+        currentSessionId = session.id;
       }
-      return sendMessageInternal(sessionId, content);
+      
+      // Double-check session exists
+      if (!currentSessionId) {
+        throw new Error("Failed to create chat session");
+      }
+      
+      // Immediately show user message with temporary ID
+      const tempUserMessage: ChatMessage = {
+        id: `temp-${Date.now()}`,
+        role: "user",
+        content,
+        created_at: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, tempUserMessage]);
+      
+      setIsLoading(true);
+      try {
+        const response = await chatApi.sendMessage(avatarId, currentSessionId, content);
+        // Replace temp message with real one and add assistant response
+        setMessages((prev) => [
+          ...prev.filter((m) => m.id !== tempUserMessage.id),
+          response.user_message,
+          response.assistant_message,
+        ]);
+        return response;
+      } catch (error) {
+        // Remove temp message on error
+        setMessages((prev) => prev.filter((m) => m.id !== tempUserMessage.id));
+        throw error;
+      } finally {
+        setIsLoading(false);
+      }
     },
-    [sessionId, createSession]
+    [avatarId, createSession]
   );
 
-  const sendMessageInternal = async (sid: string, content: string) => {
-    setIsLoading(true);
-    try {
-      const response = await chatApi.sendMessage(avatarId, sid, content);
-      setMessages((prev) => [
-        ...prev,
-        response.user_message,
-        response.assistant_message,
-      ]);
-      return response;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Load history
+  // Load history manually
   const loadHistory = useCallback(async () => {
-    if (!sessionId) return;
+    const currentSessionId = sessionIdRef.current;
+    if (!currentSessionId) return;
     try {
-      const response = await chatApi.getHistory(avatarId, { session_id: sessionId });
-      setMessages(response.messages);
+      const messages = await chatApi.getHistory(avatarId, { session_id: currentSessionId });
+      setMessages(messages);
     } catch (error) {
       console.error("Failed to load history:", error);
     }
-  }, [avatarId, sessionId]);
+  }, [avatarId]);
 
-  // Reset chat
-  const resetChat = useCallback(() => {
+  // Reset chat (creates new session)
+  const resetChat = useCallback(async () => {
+    clearSession();
     setSessionId(null);
+    sessionIdRef.current = null;
     setMessages([]);
-  }, []);
+    // Create new session immediately
+    await createSession();
+  }, [createSession, clearSession]);
 
   // Send feedback
   const sendFeedbackMutation = useMutation({
     mutationFn: ({
       messageId,
       feedback,
-      comment,
     }: {
       messageId: string;
       feedback: FeedbackType;
-      comment?: string;
-    }) => chatApi.sendFeedback(avatarId, messageId, feedback, comment),
+    }) => chatApi.sendFeedback(avatarId, messageId, feedback),
     onSuccess: (_, { messageId, feedback }) => {
       setMessages((prev) =>
         prev.map((msg) =>
@@ -123,6 +248,7 @@ export function useChat(avatarId: string, source: ChatSource = "web") {
     sessionId,
     messages,
     isLoading,
+    isInitializing,
     createSession,
     sendMessage,
     loadHistory,

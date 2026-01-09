@@ -27,7 +27,7 @@ import { StatsCard } from "@/shared/ui/stats-card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/shared/ui/dialog";
 import { toast } from "sonner";
 import { getApiErrorMessage } from "@/shared/lib";
-import { MessageSquare, ThumbsUp, ThumbsDown, Activity } from "lucide-react";
+import { MessageSquare, Activity, FileText } from "lucide-react";
 import type { UpdateAvatarRequest, AvatarStatus } from "@/shared/types/api";
 
 interface AvatarSettingsPageProps {
@@ -187,7 +187,7 @@ export default function AvatarSettingsPage({ params }: AvatarSettingsPageProps) 
       {/* Status Badge */}
       <div className="flex gap-2 mb-6">
         <Badge variant={avatar.status === "active" ? "success" : "secondary"}>
-          {avatar.status}
+          {avatar.status === "active" ? "Активен" : avatar.status === "draft" ? "Черновик" : avatar.status === "inactive" ? "Неактивен" : avatar.status === "training" ? "Обучается" : avatar.status}
         </Badge>
         {avatar.is_published && <Badge variant="success">Опубликован</Badge>}
       </div>
@@ -425,14 +425,14 @@ export default function AvatarSettingsPage({ params }: AvatarSettingsPageProps) 
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               <StatsCard title="Сессий" value={stats.total_sessions ?? 0} icon={MessageSquare} />
               <StatsCard title="Сообщений" value={stats.total_messages ?? 0} icon={MessageSquare} />
-              <StatsCard title="Токенов" value={(stats.total_tokens ?? 0).toLocaleString()} icon={Activity} />
+              <StatsCard title="Токенов" value={(stats.total_tokens_used ?? 0).toLocaleString()} icon={Activity} />
               <StatsCard
                 title="Сообщений/сессия"
-                value={(stats.average_messages_per_session ?? 0).toFixed(1)}
+                value={(stats.avg_messages_per_session ?? 0).toFixed(1)}
                 icon={MessageSquare}
               />
-              <StatsCard title="Положительных" value={stats.positive_feedback_count ?? 0} icon={ThumbsUp} />
-              <StatsCard title="Отрицательных" value={stats.negative_feedback_count ?? 0} icon={ThumbsDown} />
+              <StatsCard title="Документов" value={stats.documents_count ?? 0} icon={FileText} />
+              <StatsCard title="Чанков" value={stats.indexed_chunks_count ?? 0} icon={Activity} />
             </div>
           ) : (
             <Card>

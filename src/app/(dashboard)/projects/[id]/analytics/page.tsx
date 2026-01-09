@@ -1,7 +1,7 @@
 "use client";
 
 import { use } from "react";
-import { Bot, FileText, MessageSquare, ThumbsUp, ThumbsDown, Activity } from "lucide-react";
+import { FileText, MessageSquare, ThumbsUp, ThumbsDown, Activity } from "lucide-react";
 import { useProject } from "@/entities/project";
 import { useProjectUsage } from "@/entities/analytics";
 import { PageContainer, PageHeader } from "@/widgets/app-shell";
@@ -47,43 +47,36 @@ export default function ProjectAnalyticsPage({ params }: ProjectAnalyticsPagePro
     <PageContainer>
       <PageHeader title="Аналитика проекта" description={project.name} />
 
+      {/* Period Info */}
+      <p className="text-sm text-text-muted mb-4">
+        Период: {usage.period_start} — {usage.period_end}
+      </p>
+
       {/* Main Stats */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-8">
         <StatsCard
-          title="Аватары"
-          value={usage.avatars_count ?? 0}
-          description={`${usage.published_avatars ?? 0} опубликовано`}
-          icon={Bot}
-        />
-        <StatsCard
-          title="Документы"
-          value={usage.documents_count ?? 0}
-          description={`${usage.indexed_documents ?? 0} проиндексировано`}
-          icon={FileText}
-        />
-        <StatsCard
-          title="Чанков"
-          value={(usage.total_chunks ?? 0).toLocaleString()}
-          description="в базе знаний"
-          icon={FileText}
-        />
-        <StatsCard
-          title="Всего сессий"
-          value={(usage.total_sessions ?? 0).toLocaleString()}
-          description={`${usage.active_sessions ?? 0} активных`}
-          icon={Activity}
-        />
-        <StatsCard
           title="Всего сообщений"
           value={(usage.total_messages ?? 0).toLocaleString()}
-          description={`${usage.messages_period ?? 0} за период`}
+          description={`${usage.user_messages ?? 0} от пользователей, ${usage.assistant_messages ?? 0} от ассистента`}
           icon={MessageSquare}
         />
         <StatsCard
           title="Токенов"
           value={(usage.total_tokens ?? 0).toLocaleString()}
-          description={`${usage.tokens_period ?? 0} за период`}
+          description="использовано"
           icon={Activity}
+        />
+        <StatsCard
+          title="Сессий"
+          value={(usage.total_sessions ?? 0).toLocaleString()}
+          description={`${usage.unique_clients ?? 0} уникальных клиентов`}
+          icon={Activity}
+        />
+        <StatsCard
+          title="Документы"
+          value={usage.documents_uploaded ?? 0}
+          description={`${usage.documents_indexed ?? 0} проиндексировано`}
+          icon={FileText}
         />
       </div>
 
@@ -122,12 +115,7 @@ export default function ProjectAnalyticsPage({ params }: ProjectAnalyticsPagePro
               <p className="text-sm text-text-muted">
                 Рейтинг:{" "}
                 <span className="font-medium text-text-primary">
-                  {(
-                    ((usage.positive_feedback ?? 0) /
-                      ((usage.positive_feedback ?? 0) + (usage.negative_feedback ?? 0))) *
-                    100
-                  ).toFixed(1)}
-                  %
+                  {((usage.feedback_score ?? 0) * 100).toFixed(1)}%
                 </span>{" "}
                 положительных
               </p>

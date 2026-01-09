@@ -98,14 +98,14 @@ export default function PlatformAnalyticsPage() {
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
         <StatsCard
           title="Сообщений сегодня"
-          value={(stats.messages_today ?? 0).toLocaleString()}
-          description={`${(stats.messages_month ?? 0).toLocaleString()} за месяц`}
+          value={(stats.total_messages_today ?? 0).toLocaleString()}
+          description={`${(stats.total_messages_month ?? 0).toLocaleString()} за месяц`}
           icon={MessageSquare}
         />
         <StatsCard
           title="Токенов сегодня"
-          value={(stats.tokens_today ?? 0).toLocaleString()}
-          description={`${(stats.tokens_month ?? 0).toLocaleString()} за месяц`}
+          value={(stats.total_tokens_today ?? 0).toLocaleString()}
+          description={`${(stats.total_tokens_month ?? 0).toLocaleString()} за месяц`}
           icon={Activity}
         />
       </div>

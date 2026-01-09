@@ -11,7 +11,6 @@ import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Spinner } from "@/shared/ui/spinner";
-import { ScrollArea } from "@/shared/ui/scroll-area";
 import { Badge } from "@/shared/ui/badge";
 import { cn } from "@/shared/lib";
 import type { ChatMessage } from "@/shared/types/api";
@@ -27,6 +26,7 @@ export default function ChatPage({ params }: ChatPageProps) {
     sessionId,
     messages,
     isLoading: chatLoading,
+    isInitializing,
     sendMessage,
     resetChat,
     sendFeedback,
@@ -71,8 +71,8 @@ export default function ChatPage({ params }: ChatPageProps) {
     }
   };
 
-  const handleNewChat = () => {
-    resetChat();
+  const handleNewChat = async () => {
+    await resetChat();
     inputRef.current?.focus();
   };
 
@@ -104,8 +104,12 @@ export default function ChatPage({ params }: ChatPageProps) {
             К аватару
           </Link>
         </Button>
-        <Button variant="outline" onClick={handleNewChat}>
-          <RefreshCw className="mr-2 h-4 w-4" />
+        <Button variant="outline" onClick={handleNewChat} disabled={isInitializing}>
+          {isInitializing ? (
+            <Spinner className="mr-2 h-4 w-4" />
+          ) : (
+            <RefreshCw className="mr-2 h-4 w-4" />
+          )}
           Новый чат
         </Button>
       </div>
@@ -135,28 +139,33 @@ export default function ChatPage({ params }: ChatPageProps) {
           </div>
         </CardHeader>
 
-        <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
+        <CardContent className="flex-1 flex flex-col p-0 min-h-0">
           {/* Messages */}
-          <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+          <div className="flex-1 overflow-y-auto p-4" ref={scrollRef}>
             <div className="space-y-4">
-              {/* Welcome message */}
-              {messages.length === 0 && avatar.welcome_message && (
+              {/* Initializing indicator */}
+              {isInitializing && (
+                <div className="flex items-center justify-center py-8">
+                  <Spinner className="h-6 w-6 mr-2" />
+                  <span className="text-sm text-text-muted">Загрузка чата...</span>
+                </div>
+              )}
+
+              {/* Welcome message - only show when not initializing and no messages */}
+              {!isInitializing && messages.length === 0 && avatar.welcome_message && (
                 <MessageBubble
                   message={{
                     id: "welcome",
-                    session_id: "",
                     role: "assistant",
                     content: avatar.welcome_message,
-                    tokens: 0,
                     created_at: new Date().toISOString(),
-                    feedback: null,
-                    sources: [],
                   }}
                   avatar={avatar}
                 />
               )}
 
-              {messages.map((message) => (
+              {/* Chat messages */}
+              {!isInitializing && messages.map((message) => (
                 <MessageBubble
                   key={message.id}
                   message={message}
@@ -165,7 +174,7 @@ export default function ChatPage({ params }: ChatPageProps) {
                 />
               ))}
 
-              {/* Loading indicator */}
+              {/* Typing indicator */}
               {(chatLoading || isSending) && (
                 <div className="flex items-start gap-3">
                   <div
@@ -188,7 +197,7 @@ export default function ChatPage({ params }: ChatPageProps) {
                 </div>
               )}
             </div>
-          </ScrollArea>
+          </div>
 
           {/* Input */}
           <div className="p-4 border-t border-border">
@@ -199,10 +208,10 @@ export default function ChatPage({ params }: ChatPageProps) {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Введите сообщение..."
-                disabled={isSending}
+                disabled={isSending || isInitializing}
                 className="flex-1"
               />
-              <Button onClick={handleSend} disabled={isSending || !input.trim()}>
+              <Button onClick={handleSend} disabled={isSending || isInitializing || !input.trim()}>
                 {isSending ? <Spinner className="h-4 w-4" /> : <Send className="h-4 w-4" />}
               </Button>
             </div>
@@ -268,7 +277,7 @@ function MessageBubble({
           <div className="flex flex-wrap gap-1">
             {message.sources.map((source, i) => (
               <Badge key={i} variant="outline" className="text-xs">
-                📄 {source.document_name}
+                📄 {source.filename}
               </Badge>
             ))}
           </div>

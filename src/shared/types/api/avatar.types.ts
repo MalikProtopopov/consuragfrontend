@@ -37,14 +37,17 @@ export interface Avatar {
 
 // Avatar stats
 export interface AvatarStats {
+  avatar_id: string;
   total_sessions: number;
   total_messages: number;
-  total_tokens: number;
-  average_messages_per_session: number;
-  positive_feedback_count: number;
-  negative_feedback_count: number;
-  sessions_today: number;
-  messages_today: number;
+  total_tokens_used: number;
+  avg_messages_per_session: number;
+  documents_count: number;
+  indexed_chunks_count: number;
+  positive_feedback_count?: number;
+  negative_feedback_count?: number;
+  sessions_today?: number;
+  messages_today?: number;
 }
 
 // Create avatar request

@@ -7,12 +7,12 @@ import type {
   ChatHistoryResponse,
   ChatHistoryParams,
   SendFeedbackRequest,
+  SendFeedbackResponse,
   SessionsListResponse,
   SessionsListParams,
   SessionDetail,
   ChatSource,
   FeedbackType,
-  SuccessResponse,
 } from "@/shared/types/api";
 
 /**
@@ -34,7 +34,9 @@ export const chatApi = {
     source: ChatSource = "web"
   ): Promise<CreateSessionResponse> => {
     const url = `${API_ENDPOINTS.CHAT.CREATE_SESSION(avatarId)}?source=${source}`;
-    return apiClient.post<void, CreateSessionResponse>(url);
+    const response = await apiClient.post<void, CreateSessionResponse>(url);
+    console.log("[chatApi] createSession response:", response);
+    return response;
   },
 
   /**
@@ -58,11 +60,12 @@ export const chatApi = {
   ): Promise<ChatHistoryResponse> => {
     const queryParams = new URLSearchParams();
     queryParams.set("session_id", params.session_id);
-    if (params.skip !== undefined) queryParams.set("skip", String(params.skip));
     if (params.limit !== undefined) queryParams.set("limit", String(params.limit));
 
     const url = `${API_ENDPOINTS.CHAT.HISTORY(avatarId)}?${queryParams.toString()}`;
-    return apiClient.get<ChatHistoryResponse>(url);
+    const response = await apiClient.get<ChatHistoryResponse>(url);
+    console.log("[chatApi] getHistory response:", response);
+    return response;
   },
 
   /**
@@ -71,12 +74,11 @@ export const chatApi = {
   sendFeedback: async (
     avatarId: string,
     messageId: string,
-    feedback: FeedbackType,
-    comment?: string
-  ): Promise<SuccessResponse> => {
-    return apiClient.post<SendFeedbackRequest, SuccessResponse>(
+    feedback: FeedbackType
+  ): Promise<SendFeedbackResponse> => {
+    return apiClient.post<SendFeedbackRequest, SendFeedbackResponse>(
       API_ENDPOINTS.CHAT.FEEDBACK(avatarId, messageId),
-      { feedback, comment }
+      { feedback }
     );
   },
 

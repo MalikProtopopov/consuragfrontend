@@ -249,10 +249,12 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                     </h4>
                   )}
                   {section.items.map((item) => {
-                    // For project overview (/projects/xxx), only exact match
-                    // For other items, also check if path starts with item href
+                    // Pages that should only match exactly (not their sub-pages)
                     const isProjectOverview = projectId && item.href === `/projects/${projectId}`;
-                    const isActive = isProjectOverview
+                    const isAvatarSettings = projectId && avatarId && item.href === `/projects/${projectId}/avatars/${avatarId}`;
+                    const requiresExactMatch = isProjectOverview || isAvatarSettings;
+                    
+                    const isActive = requiresExactMatch
                       ? pathname === item.href
                       : pathname === item.href ||
                         (item.href !== "/projects" && pathname?.startsWith(`${item.href}/`));

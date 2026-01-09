@@ -9,7 +9,7 @@ export interface PlatformAnalytics {
   active_users_today: number;
   active_users_week: number;
   active_users_month: number;
-  new_users_today: number;
+  new_users_today?: number; // Optional - may not be in response
 
   // Projects
   total_projects: number;
@@ -19,11 +19,11 @@ export interface PlatformAnalytics {
   total_avatars: number;
   published_avatars: number;
 
-  // Usage
-  messages_today: number;
-  messages_month: number;
-  tokens_today: number;
-  tokens_month: number;
+  // Usage - field names match API response
+  total_messages_today: number;
+  total_messages_month: number;
+  total_tokens_today: number;
+  total_tokens_month: number;
 
   // Documents
   total_documents: number;
@@ -86,34 +86,29 @@ export interface AuditLogsParams {
 
 // Project usage analytics
 export interface ProjectUsage {
-  project_id: string;
   period_start: string;
   period_end: string;
 
-  // Avatars
-  avatars_count: number;
-  published_avatars: number;
-
-  // Documents
-  documents_count: number;
-  indexed_documents: number;
-  total_chunks: number;
-
-  // Sessions
-  total_sessions: number;
-  active_sessions: number;
-
   // Messages
   total_messages: number;
-  messages_period: number;
+  user_messages: number;
+  assistant_messages: number;
 
   // Tokens
   total_tokens: number;
-  tokens_period: number;
+
+  // Sessions
+  total_sessions: number;
+  unique_clients: number;
+
+  // Documents
+  documents_uploaded: number;
+  documents_indexed: number;
 
   // Feedback
   positive_feedback: number;
   negative_feedback: number;
+  feedback_score: number;
 }
 
 // Project trend data point

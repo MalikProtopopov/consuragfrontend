@@ -27,21 +27,19 @@ export interface ChatSession {
 // Chat message
 export interface ChatMessage {
   id: string;
-  session_id: string;
   role: MessageRole;
   content: string;
-  tokens: number;
   created_at: string;
-  feedback: FeedbackType | null;
-  sources: MessageSource[];
+  tokens_used?: number;
+  feedback?: FeedbackType | null;
+  sources?: MessageSource[];
 }
 
-// Message source (document reference)
+// Message source (document reference from RAG)
 export interface MessageSource {
   document_id: string;
-  document_name: string;
-  chunk_id: string;
-  content_preview: string;
+  filename: string;
+  chunk_text: string;
   relevance_score: number;
 }
 
@@ -53,12 +51,13 @@ export interface MessagePair {
 
 // Avatar public info (for chat widget)
 export interface AvatarPublicInfo {
-  id: string;
+  avatar_id: string;
   name: string;
   description: string | null;
   welcome_message: string | null;
   avatar_image_url: string | null;
   primary_color: string | null;
+  is_available: boolean;
 }
 
 // Create session request
@@ -69,8 +68,16 @@ export interface CreateSessionRequest {
 
 // Create session response
 export interface CreateSessionResponse {
-  session_id: string;
-  welcome_message: string | null;
+  id: string;
+  avatar_id: string;
+  client_id: string | null;
+  source: string;
+  is_active: boolean;
+  created_at: string;
+  last_message_at: string | null;
+  messages_count: number;
+  title: string | null;
+  total_tokens_used: number;
 }
 
 // Send message request
@@ -78,24 +85,25 @@ export interface SendMessageRequest {
   content: string;
 }
 
-// Chat history response
-export interface ChatHistoryResponse {
-  messages: ChatMessage[];
-  total: number;
-  has_more: boolean;
-}
+// Chat history response - API returns array of messages directly
+export type ChatHistoryResponse = ChatMessage[];
 
 // Chat history params
 export interface ChatHistoryParams {
   session_id: string;
-  skip?: number;
   limit?: number;
 }
 
 // Send feedback request
 export interface SendFeedbackRequest {
   feedback: FeedbackType;
-  comment?: string;
+}
+
+// Send feedback response
+export interface SendFeedbackResponse {
+  success: boolean;
+  message_id: string;
+  feedback: FeedbackType;
 }
 
 // Admin: Sessions list response
