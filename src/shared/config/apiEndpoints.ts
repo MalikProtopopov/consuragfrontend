@@ -145,6 +145,36 @@ export const API_ENDPOINTS = {
       `/api/v1/projects/${projectId}/secrets/telegram/validate` as const,
   },
 
+  // End Users (B2C)
+  END_USERS: {
+    LIST: (projectId: string) => `/api/v1/projects/${projectId}/end-users` as const,
+    BY_ID: (projectId: string, endUserId: string) =>
+      `/api/v1/projects/${projectId}/end-users/${endUserId}` as const,
+    UPDATE: (projectId: string, endUserId: string) =>
+      `/api/v1/projects/${projectId}/end-users/${endUserId}` as const,
+    BLOCK: (projectId: string, endUserId: string) =>
+      `/api/v1/projects/${projectId}/end-users/${endUserId}/block` as const,
+    UNBLOCK: (projectId: string, endUserId: string) =>
+      `/api/v1/projects/${projectId}/end-users/${endUserId}/block` as const,
+    LIMITS: (projectId: string, endUserId: string) =>
+      `/api/v1/projects/${projectId}/end-users/${endUserId}/limits` as const,
+    CONVERSATIONS: (projectId: string, endUserId: string) =>
+      `/api/v1/projects/${projectId}/end-users/${endUserId}/conversations` as const,
+    SEND_MESSAGE: (projectId: string, endUserId: string) =>
+      `/api/v1/projects/${projectId}/end-users/${endUserId}/send-message` as const,
+  },
+
+  // Conversations (project level)
+  CONVERSATIONS: {
+    LIST: (projectId: string) => `/api/v1/projects/${projectId}/conversations` as const,
+    BY_ID: (projectId: string, conversationId: string) =>
+      `/api/v1/projects/${projectId}/conversations/${conversationId}` as const,
+    MESSAGES: (projectId: string, conversationId: string) =>
+      `/api/v1/projects/${projectId}/conversations/${conversationId}/messages` as const,
+    END: (projectId: string, conversationId: string) =>
+      `/api/v1/projects/${projectId}/conversations/${conversationId}/end` as const,
+  },
+
   // Billing
   BILLING: {
     // OWNER endpoints

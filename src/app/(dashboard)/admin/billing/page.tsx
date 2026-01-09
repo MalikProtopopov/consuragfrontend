@@ -108,7 +108,7 @@ export default function AdminBillingPage() {
     skip: page * 20,
     limit: 20,
     plan: selectedPlan !== "all" ? selectedPlan : undefined,
-    sort_by: "usage_percent",
+    sort_by: "tokens_used",
     sort_order: "desc",
   };
 

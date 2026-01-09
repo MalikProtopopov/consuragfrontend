@@ -53,6 +53,13 @@ export const ROUTES = {
   TELEGRAM_SESSION_DETAIL: (projectId: string, sessionId: string) =>
     `/projects/${projectId}/integrations/telegram/sessions/${sessionId}` as const,
 
+  // End Users (B2C)
+  END_USERS: (projectId: string) => `/projects/${projectId}/users` as const,
+  END_USER_DETAIL: (projectId: string, userId: string) =>
+    `/projects/${projectId}/users/${userId}` as const,
+  END_USER_CONVERSATION: (projectId: string, userId: string, conversationId: string) =>
+    `/projects/${projectId}/users/${userId}/conversations/${conversationId}` as const,
+
   // Project Secrets
   PROJECT_SECRETS: (projectId: string) =>
     `/projects/${projectId}/settings/secrets` as const,

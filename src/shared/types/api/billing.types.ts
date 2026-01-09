@@ -204,7 +204,7 @@ export interface UsersUsageParams {
   skip?: number;
   limit?: number;
   plan?: BillingPlan;
-  sort_by?: "usage_percent" | "chat_tokens" | "embedding_tokens" | "email";
+  sort_by?: "tokens_used" | "chat_tokens" | "embedding_tokens" | "email";
   sort_order?: "asc" | "desc";
 }
 

@@ -8,10 +8,12 @@ import { usePathname, useParams } from "next/navigation";
 import {
   BarChart3,
   Bot,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   CreditCard,
   FileText,
+  Folder,
   FolderKanban,
   HelpCircle,
   Key,
@@ -20,7 +22,10 @@ import {
   Send,
   Settings,
   Shield,
+  Sliders,
+  UserCircle,
   Users,
+  UsersRound,
 } from "lucide-react";
 
 import { cn } from "@/shared/lib";
@@ -30,6 +35,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shar
 import { TokenCounter } from "@/shared/ui/token-counter";
 import { useAuthStore, isAdmin } from "@/entities/auth";
 import { useUsageSummary } from "@/entities/billing";
+import { useProjects } from "@/entities/project";
 
 export interface NavItem {
   title: string;
@@ -38,6 +44,7 @@ export interface NavItem {
   badge?: string | number;
   disabled?: boolean;
   adminOnly?: boolean;
+  children?: NavItem[];
 }
 
 export interface NavSection {
@@ -52,15 +59,63 @@ export interface SidebarProps extends React.HTMLAttributes<HTMLElement> {
   footer?: React.ReactNode;
 }
 
+const MAX_PROJECTS_IN_SIDEBAR = 5;
+
 const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
   ({ className, collapsed = false, onCollapsedChange, logo, footer, ...props }, ref) => {
     const pathname = usePathname();
     const params = useParams();
     const { user } = useAuthStore();
     const { data: usageSummary } = useUsageSummary();
+    const { data: projectsData } = useProjects();
+    const [expandedItems, setExpandedItems] = React.useState<string[]>([]);
 
     const projectId = params?.id as string | undefined;
     const avatarId = params?.avatarId as string | undefined;
+
+    // Get limited projects for sidebar
+    const sidebarProjects = React.useMemo(() => {
+      return projectsData?.items?.slice(0, MAX_PROJECTS_IN_SIDEBAR) || [];
+    }, [projectsData]);
+
+    // Get current project name
+    const currentProjectName = React.useMemo(() => {
+      if (!projectId || !projectsData?.items) return null;
+      const project = projectsData.items.find((p) => p.id === projectId);
+      return project?.name || null;
+    }, [projectId, projectsData]);
+
+    // Auto-expand items based on current path
+    React.useEffect(() => {
+      if (projectId) {
+        const membersPath = `/projects/${projectId}/members`;
+        const usersPath = `/projects/${projectId}/users`;
+        const settingsPath = `/projects/${projectId}/settings`;
+
+        if (pathname?.startsWith(membersPath) || pathname?.startsWith(usersPath)) {
+          setExpandedItems((prev) =>
+            prev.includes("участники") ? prev : [...prev, "участники"]
+          );
+        }
+        if (pathname?.startsWith(settingsPath)) {
+          setExpandedItems((prev) =>
+            prev.includes("настройки") ? prev : [...prev, "настройки"]
+          );
+        }
+      }
+      // Auto-expand projects if on projects page or in a project
+      if (pathname?.startsWith("/projects")) {
+        setExpandedItems((prev) =>
+          prev.includes("проекты") ? prev : [...prev, "проекты"]
+        );
+      }
+    }, [pathname, projectId]);
+
+    const toggleExpand = (key: string) => {
+      setExpandedItems((prev) =>
+        prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+      );
+    };
 
     // Build navigation sections dynamically based on context
     const navSections = React.useMemo(() => {
@@ -77,17 +132,32 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
         const projectItems: NavItem[] = [
           { title: "Обзор", href: `/projects/${projectId}`, icon: LayoutDashboard },
           { title: "Аватары", href: `/projects/${projectId}/avatars`, icon: Bot },
-          { title: "Участники", href: `/projects/${projectId}/members`, icon: Users },
+          {
+            title: "Участники",
+            href: `/projects/${projectId}/members`,
+            icon: Users,
+            children: [
+              { title: "Команда", href: `/projects/${projectId}/members`, icon: UsersRound },
+              { title: "Пользователи", href: `/projects/${projectId}/users`, icon: UserCircle },
+            ],
+          },
           { title: "Аналитика", href: `/projects/${projectId}/analytics`, icon: BarChart3 },
           {
             title: "Telegram",
             href: `/projects/${projectId}/integrations/telegram`,
             icon: Send,
           },
-          { title: "Секреты", href: `/projects/${projectId}/settings/secrets`, icon: Key },
-          { title: "Настройки", href: `/projects/${projectId}/settings`, icon: Settings },
+          {
+            title: "Настройки",
+            href: `/projects/${projectId}/settings`,
+            icon: Settings,
+            children: [
+              { title: "Общие", href: `/projects/${projectId}/settings`, icon: Sliders },
+              { title: "Секреты", href: `/projects/${projectId}/settings/secrets`, icon: Key },
+            ],
+          },
         ];
-        sections.push({ title: "Проект", items: projectItems });
+        sections.push({ title: currentProjectName || "Проект", items: projectItems });
       }
 
       // Avatar-specific navigation (if in avatar context)
@@ -140,7 +210,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
       }
 
       return sections;
-    }, [projectId, avatarId, user]);
+    }, [projectId, avatarId, user, currentProjectName]);
 
     return (
       <TooltipProvider delayDuration={0}>
@@ -174,29 +244,153 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
               {navSections.map((section, sectionIndex) => (
                 <div key={sectionIndex} className="space-y-1">
                   {section.title && !collapsed && (
-                    <h4 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-text-muted">
+                    <h4 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-text-muted truncate" title={section.title}>
                       {section.title}
                     </h4>
                   )}
                   {section.items.map((item) => {
-                    const isActive =
-                      pathname === item.href ||
-                      (item.href !== "/projects" && pathname?.startsWith(`${item.href}/`));
+                    // For project overview (/projects/xxx), only exact match
+                    // For other items, also check if path starts with item href
+                    const isProjectOverview = projectId && item.href === `/projects/${projectId}`;
+                    const isActive = isProjectOverview
+                      ? pathname === item.href
+                      : pathname === item.href ||
+                        (item.href !== "/projects" && pathname?.startsWith(`${item.href}/`));
+                    const hasChildren = item.children && item.children.length > 0;
+                    const isChildActive = hasChildren && item.children?.some(
+                      (child) => pathname === child.href || pathname?.startsWith(`${child.href}/`)
+                    );
+                    const isExpanded = expandedItems.includes(item.title.toLowerCase());
                     const Icon = item.icon;
 
+                    // Special handling for "Проекты" menu item
+                    if (item.title === "Проекты" && !collapsed) {
+                      const isProjectsActive = pathname === "/projects" || pathname?.startsWith("/projects/");
+                      return (
+                        <div key={item.title}>
+                          <button
+                            onClick={() => toggleExpand(item.title.toLowerCase())}
+                            className={cn(
+                              "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all",
+                              isProjectsActive
+                                ? "text-accent-primary"
+                                : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
+                            )}
+                          >
+                            <Icon className={cn("size-5 shrink-0", isProjectsActive && "text-accent-primary")} />
+                            <span className="flex-1 text-left">{item.title}</span>
+                            <ChevronDown
+                              className={cn(
+                                "size-4 transition-transform",
+                                isExpanded && "rotate-180"
+                              )}
+                            />
+                          </button>
+                          {isExpanded && (
+                            <div className="ml-4 mt-1 space-y-1 border-l border-border pl-3">
+                              {sidebarProjects.map((project) => {
+                                const isProjectActive = pathname?.startsWith(`/projects/${project.id}`);
+                                return (
+                                  <Link
+                                    key={project.id}
+                                    href={`/projects/${project.id}`}
+                                    className={cn(
+                                      "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all",
+                                      isProjectActive
+                                        ? "bg-accent-primary/10 text-accent-primary"
+                                        : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
+                                    )}
+                                  >
+                                    <Folder className={cn("size-4 shrink-0", isProjectActive && "text-accent-primary")} />
+                                    <span className="truncate">{project.name}</span>
+                                  </Link>
+                                );
+                              })}
+                              <Link
+                                href="/projects"
+                                className={cn(
+                                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all",
+                                  pathname === "/projects"
+                                    ? "bg-accent-primary/10 text-accent-primary"
+                                    : "text-text-muted hover:bg-bg-hover hover:text-text-primary"
+                                )}
+                              >
+                                <FolderKanban className="size-4 shrink-0" />
+                                <span>Все проекты</span>
+                              </Link>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    }
+
+                    // Item with children (collapsible)
+                    if (hasChildren && !collapsed) {
+                      return (
+                        <div key={item.title}>
+                          <button
+                            onClick={() => toggleExpand(item.title.toLowerCase())}
+                            className={cn(
+                              "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all",
+                              isChildActive
+                                ? "text-accent-primary"
+                                : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
+                            )}
+                          >
+                            <Icon className={cn("size-5 shrink-0", isChildActive && "text-accent-primary")} />
+                            <span className="flex-1 text-left">{item.title}</span>
+                            <ChevronDown
+                              className={cn(
+                                "size-4 transition-transform",
+                                isExpanded && "rotate-180"
+                              )}
+                            />
+                          </button>
+                          {isExpanded && (
+                            <div className="ml-4 mt-1 space-y-1 border-l border-border pl-3">
+                              {item.children?.map((child) => {
+                                // For items with same href as parent (like "Общие"), only exact match
+                                const isExactMatch = pathname === child.href;
+                                const isChildItemActive = child.href === item.href
+                                  ? isExactMatch
+                                  : isExactMatch || pathname?.startsWith(`${child.href}/`);
+                                const ChildIcon = child.icon;
+                                return (
+                                  <Link
+                                    key={child.href}
+                                    href={child.href}
+                                    className={cn(
+                                      "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all",
+                                      isChildItemActive
+                                        ? "bg-accent-primary/10 text-accent-primary"
+                                        : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
+                                    )}
+                                  >
+                                    <ChildIcon className={cn("size-4 shrink-0", isChildItemActive && "text-accent-primary")} />
+                                    <span>{child.title}</span>
+                                  </Link>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    }
+
+                    // Regular item or collapsed mode
                     const linkContent = (
                       <Link
                         href={item.disabled ? "#" : item.href}
                         className={cn(
                           "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all",
-                          isActive
+                          isActive || isChildActive
                             ? "bg-accent-primary/10 text-accent-primary"
                             : "text-text-secondary hover:bg-bg-hover hover:text-text-primary",
                           item.disabled && "pointer-events-none opacity-50",
                           collapsed && "justify-center px-2"
                         )}
                       >
-                        <Icon className={cn("size-5 shrink-0", isActive && "text-accent-primary")} />
+                        <Icon className={cn("size-5 shrink-0", (isActive || isChildActive) && "text-accent-primary")} />
                         {!collapsed && (
                           <>
                             <span className="flex-1">{item.title}</span>

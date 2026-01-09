@@ -31,3 +31,6 @@ export * from "./platform-config";
 // Project Secrets (OWNER)
 export * from "./project-secret";
 
+// End Users (B2C)
+export * from "./end-user";
+

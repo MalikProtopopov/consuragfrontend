@@ -29,6 +29,9 @@ export * from "./billing.types";
 // Config (API Keys & Secrets)
 export * from "./config.types";
 
+// End Users (B2C)
+export * from "./end-user.types";
+
 // Common list response type
 export interface PaginatedResponse<T> {
   items: T[];

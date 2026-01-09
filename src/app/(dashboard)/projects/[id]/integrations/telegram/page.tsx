@@ -68,24 +68,28 @@ export default function TelegramPage({ params }: TelegramPageProps) {
   const hasIntegration = !!integration && !integrationError;
   const avatars = avatarsData?.items || [];
 
+
   // Initialize form when integration loads
   useEffect(() => {
     if (integration) {
-      // Use default_avatar_id or fallback to default_avatar.id
       const avatarId = integration.default_avatar_id || integration.default_avatar?.id || "";
-      setForm({
-        bot_token: "", // Token is not returned from API for security
-        default_avatar_id: avatarId,
-        is_active: integration.is_active,
-        welcome_message: integration.welcome_message || "",
-        // Advanced settings
-        session_timeout_hours: integration.session_timeout_hours ?? 12,
-        user_rate_limit: integration.user_rate_limit ?? 10,
-        bot_rate_limit: integration.bot_rate_limit ?? 100,
-        rate_limit_window: integration.rate_limit_window ?? 60,
-        enable_history_command: integration.enable_history_command ?? true,
-        enable_clear_command: integration.enable_clear_command ?? true,
-      });
+      
+      // Use setTimeout to ensure state update happens after React StrictMode's effect cleanup
+      setTimeout(() => {
+        setForm((prev) => ({
+          ...prev,
+          bot_token: "", // Token is not returned from API for security
+          default_avatar_id: avatarId,
+          is_active: integration.is_active,
+          welcome_message: integration.welcome_message || "",
+          session_timeout_hours: integration.session_timeout_hours ?? 12,
+          user_rate_limit: integration.user_rate_limit ?? 10,
+          bot_rate_limit: integration.bot_rate_limit ?? 100,
+          rate_limit_window: integration.rate_limit_window ?? 60,
+          enable_history_command: integration.enable_history_command ?? true,
+          enable_clear_command: integration.enable_clear_command ?? true,
+        }));
+      }, 0);
     }
   }, [integration]);
 
@@ -459,14 +463,16 @@ export default function TelegramPage({ params }: TelegramPageProps) {
               onValueChange={(v) => setForm({ ...form, default_avatar_id: v })}
             >
               <SelectTrigger className={!form.default_avatar_id ? "border-warning" : ""}>
-                <SelectValue placeholder="Выберите аватар">
-                  {/* Show current avatar name from integration if available */}
-                  {form.default_avatar_id && integration?.default_avatar?.id === form.default_avatar_id
-                    ? integration.default_avatar.name
-                    : avatars.find(a => a.id === form.default_avatar_id)?.name}
-                </SelectValue>
+                <SelectValue placeholder="Выберите аватар" />
               </SelectTrigger>
               <SelectContent>
+                {/* Show integration's current avatar first if it's not in loaded avatars list */}
+                {integration?.default_avatar && 
+                  !avatars.some(a => a.id === integration.default_avatar?.id) && (
+                    <SelectItem key={integration.default_avatar.id} value={integration.default_avatar.id}>
+                      {integration.default_avatar.name}
+                    </SelectItem>
+                  )}
                 {avatars.map((avatar) => (
                   <SelectItem key={avatar.id} value={avatar.id}>
                     {avatar.name}
