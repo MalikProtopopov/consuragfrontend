@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FolderKanban, Bot, Users } from "lucide-react";
+import { FolderKanban, Bot, Users, UserCircle } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/shared/ui/card";
 import { Badge } from "@/shared/ui/badge";
 import type { Project } from "@/shared/types/api";
@@ -40,14 +40,18 @@ export function ProjectCard({ project }: ProjectCardProps) {
           {project.description && (
             <p className="text-sm text-text-secondary mb-4 line-clamp-2">{project.description}</p>
           )}
-          <div className="flex items-center gap-4 text-sm text-text-muted">
+          <div className="flex items-center gap-4 text-sm text-text-muted flex-wrap">
             <div className="flex items-center gap-1.5">
               <Bot className="size-4" />
-              <span>{project.avatars_count} аватаров</span>
+              <span>{project.avatars_count}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <Users className="size-4" />
-              <span>{project.members_count} участников</span>
+              <span>{project.members_count}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <UserCircle className="size-4" />
+              <span>{project.end_users_count ?? 0}</span>
             </div>
           </div>
         </CardContent>

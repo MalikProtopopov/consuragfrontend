@@ -172,7 +172,7 @@ const Header = React.forwardRef<HTMLElement, HeaderProps>(
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="text-error cursor-pointer"
-                  onClick={() => logout()}
+                  onClick={() => logout(false)}
                   disabled={isLoggingOut}
                 >
                   <LogOut className="mr-2 size-4" />

@@ -11,7 +11,6 @@ import {
   XCircle,
   Activity,
   UserCheck,
-  UserX,
 } from "lucide-react";
 import { useTelegramStats, useTelegramEvents } from "@/entities/telegram";
 import { PageContainer, PageHeader } from "@/widgets/app-shell";

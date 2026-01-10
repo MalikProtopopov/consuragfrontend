@@ -153,7 +153,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
             icon: Settings,
             children: [
               { title: "Общие", href: `/projects/${projectId}/settings`, icon: Sliders },
-              { title: "Секреты", href: `/projects/${projectId}/settings/secrets`, icon: Key },
+          { title: "Секреты", href: `/projects/${projectId}/settings/secrets`, icon: Key },
             ],
           },
         ];
@@ -198,6 +198,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
             adminOnly: true,
           },
           { title: "Биллинг", href: "/admin/billing", icon: CreditCard, adminOnly: true },
+          { title: "Заявки", href: "/admin/requests", icon: FileText, adminOnly: true },
           {
             title: "Настройки платформы",
             href: "/admin/settings/platform",
@@ -257,7 +258,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                     const isActive = requiresExactMatch
                       ? pathname === item.href
                       : pathname === item.href ||
-                        (item.href !== "/projects" && pathname?.startsWith(`${item.href}/`));
+                      (item.href !== "/projects" && pathname?.startsWith(`${item.href}/`));
                     const hasChildren = item.children && item.children.length > 0;
                     const isChildActive = hasChildren && item.children?.some(
                       (child) => pathname === child.href || pathname?.startsWith(`${child.href}/`)

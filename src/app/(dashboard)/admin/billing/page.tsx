@@ -6,7 +6,6 @@ import {
   DollarSign,
   Gift,
   RefreshCw,
-  Search,
   Settings2,
   TrendingUp,
   Users,
@@ -30,8 +29,8 @@ import {
   CardTitle,
 } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
-import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
+import { Input } from "@/shared/ui/input";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { StatsCard } from "@/shared/ui/stats-card";
 import { PlanBadge } from "@/shared/ui/plan-badge";
@@ -98,7 +97,6 @@ const planOptions: { value: BillingPlan; label: string }[] = [
 
 export default function AdminBillingPage() {
   const { user } = useAuthStore();
-  const [searchQuery, setSearchQuery] = React.useState("");
   const [selectedPlan, setSelectedPlan] = React.useState<BillingPlan | "all">("all");
   const [page, setPage] = React.useState(0);
   const [selectedUser, setSelectedUser] = React.useState<UserUsage | null>(null);
@@ -120,17 +118,13 @@ export default function AdminBillingPage() {
     setIsManageDialogOpen(true);
   };
 
-  // Filter users by search query
-  const filteredUsers = React.useMemo(() => {
-    if (!usersUsage?.items) return [];
-    if (!searchQuery) return usersUsage.items;
-    const query = searchQuery.toLowerCase();
-    return usersUsage.items.filter(
-      (u) =>
-        u.email.toLowerCase().includes(query) ||
-        u.full_name?.toLowerCase().includes(query)
-    );
-  }, [usersUsage?.items, searchQuery]);
+  // Get users from response (backend returns 'users' not 'items')
+  const users = usersUsage?.users ?? [];
+  
+  // Calculate pagination info
+  const totalPages = usersUsage ? Math.ceil(usersUsage.total / 20) : 0;
+  const hasNextPage = (page + 1) * 20 < (usersUsage?.total ?? 0);
+  const hasPrevPage = page > 0;
 
   // Check admin access
   if (!isAdmin(user)) {
@@ -227,24 +221,18 @@ export default function AdminBillingPage() {
             <div>
               <CardTitle>Пользователи</CardTitle>
               <CardDescription>
-                Всего: {usersUsage?.total ?? 0} пользователей
+                Всего: {usersUsage?.total ?? 0} пользователей с настроенными бюджетами
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-muted" />
-                <Input
-                  placeholder="Поиск по email..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 w-[200px]"
-                />
-              </div>
               <Select
                 value={selectedPlan}
-                onValueChange={(v) => setSelectedPlan(v as BillingPlan | "all")}
+                onValueChange={(v) => {
+                  setSelectedPlan(v as BillingPlan | "all");
+                  setPage(0); // Reset page when filter changes
+                }}
               >
-                <SelectTrigger className="w-[140px]">
+                <SelectTrigger className="w-[160px]">
                   <SelectValue placeholder="Все планы" />
                 </SelectTrigger>
                 <SelectContent>
@@ -266,108 +254,144 @@ export default function AdminBillingPage() {
                 <Skeleton key={i} className="h-16 w-full" />
               ))}
             </div>
-          ) : filteredUsers.length === 0 ? (
-            <p className="text-center text-text-muted py-8">
-              Пользователи не найдены
-            </p>
+          ) : users.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <Users className="size-12 text-text-muted mb-4" />
+              <p className="text-lg font-medium text-text-primary">
+                Пользователи не найдены
+              </p>
+              <p className="text-sm text-text-muted mt-1">
+                {selectedPlan !== "all" 
+                  ? `Нет пользователей с планом "${selectedPlan}"`
+                  : "На платформе пока нет пользователей с настроенными бюджетами"}
+              </p>
+            </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Пользователь</TableHead>
+                  <TableHead>ID пользователя</TableHead>
                   <TableHead>План</TableHead>
                   <TableHead>Чат токены</TableHead>
                   <TableHead>Embeddings</TableHead>
+                  <TableHead>Стоимость</TableHead>
                   <TableHead className="text-right">Использование</TableHead>
                   <TableHead className="text-right">Действия</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredUsers.map((userItem) => (
-                  <TableRow key={userItem.user_id}>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium text-text-primary">
-                          {userItem.full_name || "—"}
+                {users.map((userItem) => {
+                  const chatPercent = userItem.chat_tokens_limit > 0 
+                    ? Math.round((userItem.chat_tokens_used / userItem.chat_tokens_limit) * 100)
+                    : 0;
+                  const embeddingPercent = userItem.embedding_tokens_limit > 0
+                    ? Math.round((userItem.embedding_tokens_used / userItem.embedding_tokens_limit) * 100)
+                    : 0;
+                  
+                  return (
+                    <TableRow key={userItem.user_id}>
+                      <TableCell>
+                        <div>
+                          <p className="font-mono text-sm text-text-primary">
+                            {userItem.user_id.slice(0, 8)}...
+                          </p>
+                          <p className="text-xs text-text-muted">
+                            {new Date(userItem.period_start).toLocaleDateString("ru-RU")} — {new Date(userItem.period_end).toLocaleDateString("ru-RU")}
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <PlanBadge plan={userItem.plan} size="sm" />
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          <p>
+                            {formatCompact(userItem.chat_tokens_used)} /{" "}
+                            {formatCompact(userItem.chat_tokens_limit)}
+                          </p>
+                          <p className="text-text-muted">
+                            {chatPercent}%
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          <p>
+                            {formatCompact(userItem.embedding_tokens_used)} /{" "}
+                            {formatCompact(userItem.embedding_tokens_limit)}
+                          </p>
+                          <p className="text-text-muted">
+                            {embeddingPercent}%
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <p className="text-sm font-medium">
+                          {formatCurrency(userItem.cost_usd)}
                         </p>
-                        <p className="text-sm text-text-muted">{userItem.email}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <PlanBadge plan={userItem.plan} size="sm" />
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm">
-                        <p>
-                          {formatCompact(userItem.chat_tokens_used)} /{" "}
-                          {formatCompact(userItem.chat_tokens_limit)}
-                        </p>
-                        <p className="text-text-muted">
-                          {userItem.chat_usage_percent}%
-                        </p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm">
-                        <p>
-                          {formatCompact(userItem.embedding_tokens_used)} /{" "}
-                          {formatCompact(userItem.embedding_tokens_limit)}
-                        </p>
-                        <p className="text-text-muted">
-                          {userItem.embedding_usage_percent}%
-                        </p>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <UsageProgressBar
-                        used={userItem.total_usage_percent}
-                        limit={100}
-                        label=""
-                        showPercent={false}
-                        size="sm"
-                        className="w-24 ml-auto"
-                      />
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleManageUser(userItem)}
-                      >
-                        <Settings2 className="size-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <UsageProgressBar
+                          used={userItem.usage_percent}
+                          limit={100}
+                          label=""
+                          showPercent={false}
+                          size="sm"
+                          className="w-24 ml-auto"
+                        />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleManageUser(userItem)}
+                        >
+                          <Settings2 className="size-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           )}
 
           {/* Pagination */}
-          {usersUsage && usersUsage.total > 20 && (
-            <div className="flex items-center justify-between mt-4">
+          {usersUsage && usersUsage.total > 0 && (
+            <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
               <p className="text-sm text-text-muted">
-                Показано {page * 20 + 1} - {Math.min((page + 1) * 20, usersUsage.total)}{" "}
-                из {usersUsage.total}
+                {usersUsage.total > 20 ? (
+                  <>
+                    Показано {page * 20 + 1} - {Math.min((page + 1) * 20, usersUsage.total)}{" "}
+                    из {usersUsage.total}
+                  </>
+                ) : (
+                  <>Всего: {usersUsage.total} пользователей</>
+                )}
               </p>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={page === 0}
-                  onClick={() => setPage(page - 1)}
-                >
-                  Назад
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={(page + 1) * 20 >= usersUsage.total}
-                  onClick={() => setPage(page + 1)}
-                >
-                  Вперед
-                </Button>
-              </div>
+              {totalPages > 1 && (
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={!hasPrevPage}
+                    onClick={() => setPage(page - 1)}
+                  >
+                    Назад
+                  </Button>
+                  <span className="text-sm text-text-muted px-2">
+                    {page + 1} / {totalPages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={!hasNextPage}
+                    onClick={() => setPage(page + 1)}
+                  >
+                    Вперед
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </CardContent>
@@ -402,7 +426,7 @@ function UserManageDialog({ user, open, onOpenChange }: UserManageDialogProps) {
     user.embedding_tokens_limit.toString()
   );
   const [hardLimit, setHardLimit] = React.useState(true);
-  const [overageAllowed, setOverageAllowed] = React.useState(false);
+  // Note: overage_allowed is controlled at plan level, not at user level
   const [newPlan, setNewPlan] = React.useState<BillingPlan>(user.plan);
   const [bonusChatTokens, setBonusChatTokens] = React.useState("");
   const [bonusEmbeddingTokens, setBonusEmbeddingTokens] = React.useState("");
@@ -414,27 +438,34 @@ function UserManageDialog({ user, open, onOpenChange }: UserManageDialogProps) {
   const addBonus = useAddBonusTokens();
   const resetPeriod = useResetUserPeriod();
 
-  // Load user budget data
+  // Load user budget data for full details
   const { data: budget } = useUserBudget(user.user_id);
 
   React.useEffect(() => {
     if (budget) {
-      setChatLimit(budget.chat_tokens_limit.toString());
-      setEmbeddingLimit(budget.embedding_tokens_limit.toString());
+      setChatLimit(budget.monthly_chat_limit.toString());
+      setEmbeddingLimit(budget.monthly_embedding_limit.toString());
       setHardLimit(budget.hard_limit_enabled);
-      setOverageAllowed(budget.overage_allowed);
+      setNewPlan(budget.plan);
     }
   }, [budget]);
+  
+  // Calculate days remaining
+  const daysRemaining = React.useMemo(() => {
+    const end = new Date(user.period_end);
+    const now = new Date();
+    const diff = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    return Math.max(0, diff);
+  }, [user.period_end]);
 
   const handleUpdateLimits = async () => {
     try {
       await updateLimits.mutateAsync({
         userId: user.user_id,
         data: {
-          chat_tokens_limit: parseInt(chatLimit, 10),
-          embedding_tokens_limit: parseInt(embeddingLimit, 10),
+          monthly_chat_limit: parseInt(chatLimit, 10),
+          monthly_embedding_limit: parseInt(embeddingLimit, 10),
           hard_limit_enabled: hardLimit,
-          overage_allowed: overageAllowed,
         },
       });
       toast.success("Лимиты обновлены");
@@ -491,7 +522,7 @@ function UserManageDialog({ user, open, onOpenChange }: UserManageDialogProps) {
         <DialogHeader>
           <DialogTitle>Управление пользователем</DialogTitle>
           <DialogDescription>
-            {user.full_name || user.email}
+            <span className="font-mono text-xs">{user.user_id}</span>
           </DialogDescription>
         </DialogHeader>
 
@@ -499,12 +530,12 @@ function UserManageDialog({ user, open, onOpenChange }: UserManageDialogProps) {
         <div className="grid grid-cols-2 gap-4 py-4">
           <div className="space-y-1">
             <p className="text-sm text-text-muted">План</p>
-            <PlanBadge plan={user.plan} />
+            <PlanBadge plan={budget?.plan ?? user.plan} />
           </div>
           <div className="space-y-1">
             <p className="text-sm text-text-muted">Использование</p>
             <p className="text-lg font-semibold text-text-primary">
-              {user.total_usage_percent}%
+              {(budget?.total_usage_percent ?? user.usage_percent).toFixed(1)}%
             </p>
           </div>
         </div>
@@ -545,14 +576,6 @@ function UserManageDialog({ user, open, onOpenChange }: UserManageDialogProps) {
                 onCheckedChange={setHardLimit}
               />
             </div>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="overageAllowed">Разрешить перерасход</Label>
-              <Switch
-                id="overageAllowed"
-                checked={overageAllowed}
-                onCheckedChange={setOverageAllowed}
-              />
-            </div>
             <Button
               className="w-full"
               onClick={handleUpdateLimits}
@@ -583,7 +606,7 @@ function UserManageDialog({ user, open, onOpenChange }: UserManageDialogProps) {
             <Button
               className="w-full"
               onClick={handleUpdatePlan}
-              disabled={updatePlan.isPending || newPlan === user.plan}
+              disabled={updatePlan.isPending || newPlan === (budget?.plan ?? user.plan)}
             >
               <TrendingUp className="size-4 mr-2" />
               {updatePlan.isPending ? "Сохранение..." : "Изменить план"}
@@ -646,7 +669,7 @@ function UserManageDialog({ user, open, onOpenChange }: UserManageDialogProps) {
                 {new Date(user.period_start).toLocaleDateString("ru-RU")} —{" "}
                 {new Date(user.period_end).toLocaleDateString("ru-RU")}
               </p>
-              <p className="mt-1">Осталось дней: {user.days_remaining}</p>
+              <p className="mt-1">Осталось дней: {daysRemaining}</p>
             </div>
             <Button
               variant="destructive"

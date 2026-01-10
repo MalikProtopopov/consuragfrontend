@@ -48,7 +48,7 @@ export const authApi = {
       // Send refresh_token to logout from single device, or empty body to logout from all
       await apiClient.post<{ refresh_token?: string } | undefined, void>(
         API_ENDPOINTS.AUTH.LOGOUT,
-        logoutFromAllDevices ? undefined : { refresh_token: refreshToken }
+        logoutFromAllDevices ? undefined : { refresh_token: refreshToken ?? undefined }
       );
     } finally {
       // Always clear tokens, even if API call fails

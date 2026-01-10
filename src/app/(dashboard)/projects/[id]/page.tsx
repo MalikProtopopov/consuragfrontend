@@ -2,7 +2,7 @@
 
 import { use } from "react";
 import Link from "next/link";
-import { Bot, FileText, MessageSquare, Users, BarChart3, Settings, Plus } from "lucide-react";
+import { Bot, FileText, MessageSquare, Users, UserCircle, BarChart3, Settings, Plus } from "lucide-react";
 import { useProject } from "@/entities/project";
 import { useAvatars } from "@/entities/avatar";
 import { useProjectUsage } from "@/entities/analytics";
@@ -65,17 +65,17 @@ export default function ProjectDashboardPage({ params }: ProjectDashboardPagePro
       />
 
       {/* Stats Grid */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5 mb-8">
         <StatsCard
           title="Аватары"
-          value={usage?.avatars_count || project.avatars_count}
-          description={`${usage?.published_avatars || 0} опубликовано`}
+          value={project.avatars_count}
+          description="всего"
           icon={Bot}
         />
         <StatsCard
           title="Документы"
-          value={usage?.documents_count || 0}
-          description={`${usage?.total_chunks || 0} чанков`}
+          value={usage?.documents_uploaded || 0}
+          description={`${usage?.documents_indexed || 0} проиндексировано`}
           icon={FileText}
         />
         <StatsCard
@@ -87,8 +87,14 @@ export default function ProjectDashboardPage({ params }: ProjectDashboardPagePro
         <StatsCard
           title="Участники"
           value={project.members_count}
-          description="в проекте"
+          description="команды"
           icon={Users}
+        />
+        <StatsCard
+          title="Пользователи"
+          value={project.end_users_count ?? 0}
+          description="конечных"
+          icon={UserCircle}
         />
       </div>
 
@@ -147,7 +153,7 @@ export default function ProjectDashboardPage({ params }: ProjectDashboardPagePro
                       <div>
                         <p className="font-medium text-text-primary">{avatar.name}</p>
                         <p className="text-xs text-text-muted">
-                          {avatar.documents_count} документов
+                          {avatar.documents_count} док. · {avatar.sessions_count} сессий
                         </p>
                       </div>
                     </div>

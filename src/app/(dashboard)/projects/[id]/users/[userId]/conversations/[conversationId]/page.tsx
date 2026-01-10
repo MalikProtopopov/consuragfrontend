@@ -86,7 +86,6 @@ function MessageBubble({ message }: { message: ConversationMessage }) {
   const isUser = message.direction === "in" || message.role === "user";
   const isAssistant = message.role === "assistant";
   const isAdmin = message.role === "admin";
-  const isSystem = message.role === "system";
 
   return (
     <div className="flex gap-3">

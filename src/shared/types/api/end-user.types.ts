@@ -9,7 +9,7 @@ export type EndUserStatus = "active" | "blocked" | "archived";
 export type IdentityProvider = "telegram" | "web" | "whatsapp" | "email" | "api";
 export type ConversationStatus = "active" | "ended" | "archived";
 export type MessageDirection = "in" | "out";
-export type MessageRole = "user" | "assistant" | "admin" | "system";
+export type EndUserMessageRole = "user" | "assistant" | "admin" | "system";
 export type MessageContentType = "text" | "image" | "document";
 export type MessageFeedback = "positive" | "negative" | null;
 
@@ -129,7 +129,7 @@ export interface MessageAttachment {
 export interface ConversationMessage {
   id: string;
   direction: MessageDirection;
-  role: MessageRole;
+  role: EndUserMessageRole;
   content: string;
   content_type: MessageContentType;
   attachments: MessageAttachment[] | null;

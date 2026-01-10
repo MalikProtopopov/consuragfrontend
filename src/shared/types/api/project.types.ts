@@ -25,6 +25,7 @@ export interface Project {
   updated_at: string;
   avatars_count: number;
   members_count: number;
+  end_users_count: number;
 }
 
 // Project detail with settings
@@ -84,16 +85,22 @@ export interface UpdateProjectSettingsRequest {
 
 // Project member
 export interface ProjectMember {
+  id: string;
+  project_id: string;
   user_id: string;
-  email: string;
-  full_name: string | null;
   role: UserRole;
   can_manage_settings: boolean;
   can_manage_members: boolean;
   can_manage_avatars: boolean;
   can_manage_documents: boolean;
   can_view_analytics: boolean;
-  joined_at: string;
+  created_at: string;
+  // User info - flattened from API
+  user_email: string;
+  user_name: string | null;
+  // Aliases for backwards compatibility
+  email?: string;
+  full_name?: string | null;
 }
 
 // Add member request
@@ -134,9 +141,6 @@ export interface ProjectsListParams {
   search?: string;
 }
 
-// Members list response
-export interface MembersListResponse {
-  items: ProjectMember[];
-  total: number;
-}
+// Members list response - API returns array directly
+export type MembersListResponse = ProjectMember[];
 

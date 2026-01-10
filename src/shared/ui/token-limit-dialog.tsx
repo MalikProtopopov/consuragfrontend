@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, Clock, TrendingUp } from "lucide-react";
+import { toast } from "sonner";
 import { ROUTES } from "@/shared/config";
 import { onTokenLimitError } from "@/shared/api";
 import {
@@ -54,7 +55,17 @@ export function TokenLimitDialogProvider({ children }: TokenLimitDialogProviderP
   const showError = React.useCallback((error: TokenLimitErrorData) => {
     setErrorData(error);
     setIsOpen(true);
-  }, []);
+
+    // Also show a toast notification for quick feedback
+    const isChat = error.code === "TOKEN_LIMIT_EXCEEDED";
+    toast.error(isChat ? "Лимит токенов чата исчерпан" : "Лимит embeddings исчерпан", {
+      description: "Улучшите план для продолжения работы",
+      action: {
+        label: "Улучшить",
+        onClick: () => router.push(ROUTES.SETTINGS.USAGE),
+      },
+    });
+  }, [router]);
 
   // Subscribe to token limit errors from API
   React.useEffect(() => {

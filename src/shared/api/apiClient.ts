@@ -284,10 +284,10 @@ class ApiClient {
               });
             }
 
-            originalRequest._retry = true;
+              originalRequest._retry = true;
             isRefreshing = true;
 
-            try {
+              try {
               const newTokens = await refreshTokens(refreshToken, baseURL);
               tokenManager.setTokens(
                 newTokens.access_token,
@@ -295,21 +295,21 @@ class ApiClient {
                 newTokens.expires_in
               );
               processQueue(null, newTokens.access_token);
-
+                
               // Retry original request with new token
-              if (originalRequest.headers) {
+                if (originalRequest.headers) {
                 originalRequest.headers.Authorization = `Bearer ${newTokens.access_token}`;
-              }
-              return this.instance(originalRequest);
+                }
+                return this.instance(originalRequest);
             } catch (refreshError) {
               processQueue(refreshError as Error, null);
-              tokenManager.clearTokens();
-              const isAuthRoute =
-                window.location.pathname.startsWith("/login") ||
-                window.location.pathname.startsWith("/register");
-              if (!isAuthRoute) {
-                window.location.href = "/login";
-              }
+                tokenManager.clearTokens();
+                const isAuthRoute =
+                  window.location.pathname.startsWith("/login") ||
+                  window.location.pathname.startsWith("/register");
+                if (!isAuthRoute) {
+                  window.location.href = "/login";
+                }
               return Promise.reject(refreshError);
             } finally {
               isRefreshing = false;
@@ -319,7 +319,7 @@ class ApiClient {
           // Transform error to ApiError if response has expected format
           if (error.response?.data?.error) {
             const apiError = error.response.data as ApiErrorResponse;
-
+            
             // Check for token limit errors and emit event
             if (
               TOKEN_LIMIT_ERROR_CODES.includes(apiError.error.code as TokenLimitErrorCode)
@@ -334,7 +334,7 @@ class ApiClient {
                 } | undefined,
               });
             }
-
+            
             throw new ApiError(apiError, status);
           }
 

@@ -46,7 +46,8 @@ export default function ProjectMembersPage({ params }: ProjectMembersPageProps) 
   const [editingMember, setEditingMember] = useState<ProjectMember | null>(null);
 
   const isLoading = projectLoading || membersLoading;
-  const members = membersData?.items || [];
+  // API returns array directly
+  const members = membersData || [];
 
   if (isLoading) {
     return (
@@ -115,7 +116,7 @@ export default function ProjectMembersPage({ params }: ProjectMembersPageProps) 
                     <div className="flex items-center gap-3">
                       <Avatar className="h-8 w-8">
                         <AvatarFallback className="bg-accent-primary/10 text-accent-primary text-xs">
-                          {(member.full_name || member.email)
+                          {(member.user_name || member.user_email)
                             .split(" ")
                             .map((n) => n[0])
                             .join("")
@@ -125,9 +126,9 @@ export default function ProjectMembersPage({ params }: ProjectMembersPageProps) 
                       </Avatar>
                       <div>
                         <p className="font-medium text-text-primary">
-                          {member.full_name || "—"}
+                          {member.user_name || "—"}
                         </p>
-                        <p className="text-sm text-text-muted">{member.email}</p>
+                        <p className="text-sm text-text-muted">{member.user_email}</p>
                       </div>
                     </div>
                   </TableCell>

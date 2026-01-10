@@ -34,3 +34,6 @@ export * from "./project-secret";
 // End Users (B2C)
 export * from "./end-user";
 
+// Plan Requests
+export * from "./plan-request";
+

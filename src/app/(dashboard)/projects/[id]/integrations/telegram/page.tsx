@@ -78,16 +78,16 @@ export default function TelegramPage({ params }: TelegramPageProps) {
       setTimeout(() => {
         setForm((prev) => ({
           ...prev,
-          bot_token: "", // Token is not returned from API for security
-          default_avatar_id: avatarId,
-          is_active: integration.is_active,
-          welcome_message: integration.welcome_message || "",
-          session_timeout_hours: integration.session_timeout_hours ?? 12,
-          user_rate_limit: integration.user_rate_limit ?? 10,
-          bot_rate_limit: integration.bot_rate_limit ?? 100,
-          rate_limit_window: integration.rate_limit_window ?? 60,
-          enable_history_command: integration.enable_history_command ?? true,
-          enable_clear_command: integration.enable_clear_command ?? true,
+        bot_token: "", // Token is not returned from API for security
+        default_avatar_id: avatarId,
+        is_active: integration.is_active,
+        welcome_message: integration.welcome_message || "",
+        session_timeout_hours: integration.session_timeout_hours ?? 12,
+        user_rate_limit: integration.user_rate_limit ?? 10,
+        bot_rate_limit: integration.bot_rate_limit ?? 100,
+        rate_limit_window: integration.rate_limit_window ?? 60,
+        enable_history_command: integration.enable_history_command ?? true,
+        enable_clear_command: integration.enable_clear_command ?? true,
         }));
       }, 0);
     }

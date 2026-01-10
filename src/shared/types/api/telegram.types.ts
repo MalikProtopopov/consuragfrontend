@@ -21,6 +21,7 @@ export interface TelegramIntegration {
   id: string;
   project_id: string;
   bot_username: string | null;
+  masked_bot_token: string | null; // Masked token like "1234***789:ABC***xyz"
   default_avatar_id: string | null;
   default_avatar: TelegramAvatarSummary | null; // Full avatar object
   welcome_message: string | null;

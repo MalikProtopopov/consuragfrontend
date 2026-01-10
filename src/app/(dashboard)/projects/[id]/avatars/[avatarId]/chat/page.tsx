@@ -108,7 +108,7 @@ export default function ChatPage({ params }: ChatPageProps) {
           {isInitializing ? (
             <Spinner className="mr-2 h-4 w-4" />
           ) : (
-            <RefreshCw className="mr-2 h-4 w-4" />
+          <RefreshCw className="mr-2 h-4 w-4" />
           )}
           Новый чат
         </Button>

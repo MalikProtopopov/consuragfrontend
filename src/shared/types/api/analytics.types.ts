@@ -37,31 +37,27 @@ export type AuditAction =
   | "delete"
   | "login"
   | "logout"
-  | "upload"
-  | "publish"
-  | "unpublish";
+  | "access"
+  | "export";
 
 // Audit log resource type
 export type AuditResourceType =
   | "user"
   | "project"
+  | "project_member"
   | "avatar"
-  | "document"
-  | "session"
-  | "member"
-  | "telegram";
+  | "document";
 
 // Audit log entry
 export interface AuditLogEntry {
   id: string;
-  user_id: string;
-  user_email: string;
+  user_id: string | null;
+  user_email: string | null;
   action: AuditAction;
-  resource_type: AuditResourceType;
+  resource_type: string; // Can be any string, not just the enum values
   resource_id: string | null;
+  changes: Record<string, unknown> | null;
   ip_address: string | null;
-  user_agent: string | null;
-  metadata: Record<string, unknown>;
   created_at: string;
 }
 
@@ -79,9 +75,7 @@ export interface AuditLogsParams {
   limit?: number;
   user_id?: string;
   action?: AuditAction;
-  resource_type?: AuditResourceType;
-  start_date?: string;
-  end_date?: string;
+  resource_type?: string;
 }
 
 // Project usage analytics

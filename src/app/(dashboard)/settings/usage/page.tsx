@@ -30,6 +30,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 
 /**
  * Format currency
@@ -313,14 +314,14 @@ export default function UsagePage() {
         </CardContent>
       </Card>
 
-      {/* Usage Breakdown by Projects */}
+      {/* Usage Breakdown */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Детализация по проектам</CardTitle>
+              <CardTitle>Детализация использования</CardTitle>
               <CardDescription>
-                Распределение использования токенов по проектам и аватарам
+                Распределение использования токенов по проектам, аватарам, операциям и моделям
               </CardDescription>
             </div>
             <FileText className="size-5 text-text-muted" />
@@ -333,48 +334,159 @@ export default function UsagePage() {
                 <Skeleton key={i} className="h-12 w-full" />
               ))}
             </div>
-          ) : !breakdown?.items?.length ? (
+          ) : !breakdown ? (
             <p className="text-center text-text-muted py-8">
               Нет данных об использовании
             </p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Проект / Аватар</TableHead>
-                  <TableHead className="text-right">Чат</TableHead>
-                  <TableHead className="text-right">Embeddings</TableHead>
-                  <TableHead className="text-right">Запросы</TableHead>
-                  <TableHead className="text-right">Стоимость</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {breakdown.items.map((item, index) => (
-                  <TableRow key={index}>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium text-text-primary">
-                          {item.project_name}
-                        </p>
-                        {item.avatar_name && (
-                          <p className="text-sm text-text-muted">{item.avatar_name}</p>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {item.chat_tokens.toLocaleString()}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {item.embedding_tokens.toLocaleString()}
-                    </TableCell>
-                    <TableCell className="text-right">{item.requests}</TableCell>
-                    <TableCell className="text-right">
-                      {formatCurrency(item.cost_usd)}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <Tabs defaultValue="by_operation" className="w-full">
+              <TabsList className="grid w-full grid-cols-4 mb-4">
+                <TabsTrigger value="by_operation">По операциям</TabsTrigger>
+                <TabsTrigger value="by_model">По моделям</TabsTrigger>
+                <TabsTrigger value="by_project">По проектам</TabsTrigger>
+                <TabsTrigger value="by_avatar">По аватарам</TabsTrigger>
+              </TabsList>
+
+              {/* By Operation */}
+              <TabsContent value="by_operation">
+                {!breakdown.by_operation?.length ? (
+                  <p className="text-center text-text-muted py-4">Нет данных</p>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Тип операции</TableHead>
+                        <TableHead className="text-right">Токены</TableHead>
+                        <TableHead className="text-right">Запросы</TableHead>
+                        <TableHead className="text-right">Стоимость</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {breakdown.by_operation.map((item, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium">
+                            {item.operation_type === "chat"
+                              ? "Чат"
+                              : item.operation_type === "embedding"
+                                ? "Embedding"
+                                : item.operation_type === "rerank"
+                                  ? "Rerank"
+                                  : item.operation_type}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {item.tokens.toLocaleString()}
+                          </TableCell>
+                          <TableCell className="text-right">{item.requests}</TableCell>
+                          <TableCell className="text-right">
+                            {formatCurrency(item.cost_usd)}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </TabsContent>
+
+              {/* By Model */}
+              <TabsContent value="by_model">
+                {!breakdown.by_model?.length ? (
+                  <p className="text-center text-text-muted py-4">Нет данных</p>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Модель</TableHead>
+                        <TableHead className="text-right">Токены</TableHead>
+                        <TableHead className="text-right">Запросы</TableHead>
+                        <TableHead className="text-right">Стоимость</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {breakdown.by_model.map((item, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium">{item.model}</TableCell>
+                          <TableCell className="text-right">
+                            {item.tokens.toLocaleString()}
+                          </TableCell>
+                          <TableCell className="text-right">{item.requests}</TableCell>
+                          <TableCell className="text-right">
+                            {formatCurrency(item.cost_usd)}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </TabsContent>
+
+              {/* By Project */}
+              <TabsContent value="by_project">
+                {!breakdown.by_project?.length ? (
+                  <p className="text-center text-text-muted py-4">Нет данных</p>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Проект ID</TableHead>
+                        <TableHead className="text-right">Токены</TableHead>
+                        <TableHead className="text-right">Запросы</TableHead>
+                        <TableHead className="text-right">Стоимость</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {breakdown.by_project.map((item, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium font-mono text-xs">
+                            {item.project_id}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {item.tokens.toLocaleString()}
+                          </TableCell>
+                          <TableCell className="text-right">{item.requests}</TableCell>
+                          <TableCell className="text-right">
+                            {formatCurrency(item.cost_usd)}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </TabsContent>
+
+              {/* By Avatar */}
+              <TabsContent value="by_avatar">
+                {!breakdown.by_avatar?.length ? (
+                  <p className="text-center text-text-muted py-4">Нет данных</p>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Аватар ID</TableHead>
+                        <TableHead className="text-right">Токены</TableHead>
+                        <TableHead className="text-right">Запросы</TableHead>
+                        <TableHead className="text-right">Стоимость</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {breakdown.by_avatar.map((item, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium font-mono text-xs">
+                            {item.avatar_id}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {item.tokens.toLocaleString()}
+                          </TableCell>
+                          <TableCell className="text-right">{item.requests}</TableCell>
+                          <TableCell className="text-right">
+                            {formatCurrency(item.cost_usd)}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </TabsContent>
+            </Tabs>
           )}
         </CardContent>
       </Card>

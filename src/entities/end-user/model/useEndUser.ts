@@ -276,7 +276,7 @@ export function useSendMessageToEndUser() {
       endUserId: string;
       data: SendMessageToEndUserRequest;
     }) => endUserApi.sendMessage(projectId, endUserId, data),
-    onSuccess: (_, { projectId }) => {
+    onSuccess: () => {
       // Invalidate conversations to refresh message counts
       queryClient.invalidateQueries({ queryKey: endUserKeys.all });
     },

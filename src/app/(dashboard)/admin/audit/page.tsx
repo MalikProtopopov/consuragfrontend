@@ -18,19 +18,16 @@ const actionLabels: Record<AuditAction, string> = {
   delete: "Удаление",
   login: "Вход",
   logout: "Выход",
-  upload: "Загрузка",
-  publish: "Публикация",
-  unpublish: "Снятие с публикации",
+  access: "Доступ",
+  export: "Экспорт",
 };
 
-const resourceLabels: Record<AuditResourceType, string> = {
+const resourceLabels: Record<AuditResourceType | string, string> = {
   user: "Пользователь",
   project: "Проект",
+  project_member: "Участник проекта",
   avatar: "Аватар",
   document: "Документ",
-  session: "Сессия",
-  member: "Участник",
-  telegram: "Telegram",
 };
 
 const actionColors: Record<AuditAction, "default" | "secondary" | "success" | "destructive" | "outline"> = {
@@ -39,15 +36,14 @@ const actionColors: Record<AuditAction, "default" | "secondary" | "success" | "d
   delete: "destructive",
   login: "secondary",
   logout: "secondary",
-  upload: "default",
-  publish: "success",
-  unpublish: "outline",
+  access: "outline",
+  export: "default",
 };
 
 export default function AuditLogsPage() {
   const [page, setPage] = useState(0);
   const [actionFilter, setActionFilter] = useState<AuditAction | "all">("all");
-  const [resourceFilter, setResourceFilter] = useState<AuditResourceType | "all">("all");
+  const [resourceFilter, setResourceFilter] = useState<string>("all");
   const limit = 50;
 
   const { data, isLoading } = useAuditLogs({
@@ -156,15 +152,17 @@ export default function AuditLogsPage() {
                         {formatDate(log.created_at)}
                       </TableCell>
                       <TableCell>
-                        <p className="text-sm">{log.user_email}</p>
+                        <p className="text-sm">{log.user_email || "—"}</p>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={actionColors[log.action]}>
-                          {actionLabels[log.action]}
+                        <Badge variant={actionColors[log.action] || "outline"}>
+                          {actionLabels[log.action] || log.action}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{resourceLabels[log.resource_type]}</Badge>
+                        <Badge variant="outline">
+                          {resourceLabels[log.resource_type] || log.resource_type}
+                        </Badge>
                       </TableCell>
                       <TableCell className="font-mono text-xs">
                         {log.resource_id ? log.resource_id.slice(0, 8) + "..." : "—"}

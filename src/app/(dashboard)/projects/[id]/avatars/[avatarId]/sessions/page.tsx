@@ -210,7 +210,7 @@ function SessionDetail({ sessionId }: { sessionId: string }) {
                 {message.role === "user" ? "Пользователь" : "Ассистент"}
               </Badge>
               <div className="flex items-center gap-2 text-xs text-text-muted">
-                <span>{message.tokens} токенов</span>
+                <span>{message.tokens_used ?? 0} токенов</span>
                 {message.feedback && (
                   <Badge variant={message.feedback === "positive" ? "success" : "destructive"}>
                     {message.feedback === "positive" ? "👍" : "👎"}

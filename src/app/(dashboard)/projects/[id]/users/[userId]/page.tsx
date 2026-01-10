@@ -24,7 +24,7 @@ import {
   useEndUserConversations,
 } from "@/entities/end-user";
 import { BlockUserDialog, SendMessageDialog } from "../_components";
-import { PageContainer, PageHeader } from "@/widgets/app-shell";
+import { PageContainer } from "@/widgets/app-shell";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";

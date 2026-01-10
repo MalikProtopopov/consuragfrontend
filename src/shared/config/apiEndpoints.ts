@@ -175,6 +175,12 @@ export const API_ENDPOINTS = {
       `/api/v1/projects/${projectId}/conversations/${conversationId}/end` as const,
   },
 
+  // Plan Requests
+  PLAN_REQUESTS: {
+    LIST: "/api/v1/plan-requests",
+    BY_ID: (id: string) => `/api/v1/plan-requests/${id}` as const,
+  },
+
   // Billing
   BILLING: {
     // OWNER endpoints

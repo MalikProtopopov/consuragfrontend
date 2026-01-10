@@ -30,8 +30,6 @@ export const analyticsApi = {
     if (params?.user_id) queryParams.set("user_id", params.user_id);
     if (params?.action) queryParams.set("action", params.action);
     if (params?.resource_type) queryParams.set("resource_type", params.resource_type);
-    if (params?.start_date) queryParams.set("start_date", params.start_date);
-    if (params?.end_date) queryParams.set("end_date", params.end_date);
 
     const query = queryParams.toString();
     const url = query

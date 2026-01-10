@@ -32,6 +32,9 @@ export * from "./config.types";
 // End Users (B2C)
 export * from "./end-user.types";
 
+// Plan Requests
+export * from "./plan-request.types";
+
 // Common list response type
 export interface PaginatedResponse<T> {
   items: T[];

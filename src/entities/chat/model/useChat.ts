@@ -183,23 +183,23 @@ export function useChat(avatarId: string, source: ChatSource = "web") {
       };
       setMessages((prev) => [...prev, tempUserMessage]);
       
-      setIsLoading(true);
-      try {
+    setIsLoading(true);
+    try {
         const response = await chatApi.sendMessage(avatarId, currentSessionId, content);
         // Replace temp message with real one and add assistant response
-        setMessages((prev) => [
+      setMessages((prev) => [
           ...prev.filter((m) => m.id !== tempUserMessage.id),
-          response.user_message,
-          response.assistant_message,
-        ]);
-        return response;
+        response.user_message,
+        response.assistant_message,
+      ]);
+      return response;
       } catch (error) {
         // Remove temp message on error
         setMessages((prev) => prev.filter((m) => m.id !== tempUserMessage.id));
         throw error;
-      } finally {
-        setIsLoading(false);
-      }
+    } finally {
+      setIsLoading(false);
+    }
     },
     [avatarId, createSession]
   );

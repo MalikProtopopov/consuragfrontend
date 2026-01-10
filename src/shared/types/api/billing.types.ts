@@ -70,26 +70,44 @@ export interface UsageHistory {
   data: DailyUsage[];
 }
 
-// Usage breakdown by project/avatar
-export interface UsageBreakdownItem {
+// Usage breakdown item types
+export interface ProjectBreakdownItem {
   project_id: string;
-  project_name: string;
-  avatar_id?: string;
-  avatar_name?: string;
-  chat_tokens: number;
-  embedding_tokens: number;
-  total_tokens: number;
-  requests: number;
+  tokens: number;
   cost_usd: number;
+  requests: number;
 }
 
+export interface AvatarBreakdownItem {
+  avatar_id: string;
+  project_id: string;
+  tokens: number;
+  cost_usd: number;
+  requests: number;
+}
+
+export interface OperationBreakdownItem {
+  operation_type: "chat" | "embedding" | "rerank";
+  tokens: number;
+  cost_usd: number;
+  requests: number;
+}
+
+export interface ModelBreakdownItem {
+  model: string;
+  tokens: number;
+  cost_usd: number;
+  requests: number;
+}
+
+// Usage breakdown response (matches API structure)
 export interface UsageBreakdown {
-  items: UsageBreakdownItem[];
-  total_chat_tokens: number;
-  total_embedding_tokens: number;
-  total_tokens: number;
-  total_requests: number;
-  total_cost_usd: number;
+  period_start: string;
+  period_end: string;
+  by_project: ProjectBreakdownItem[];
+  by_avatar: AvatarBreakdownItem[];
+  by_operation: OperationBreakdownItem[];
+  by_model: ModelBreakdownItem[];
 }
 
 // Plan info response
@@ -110,13 +128,16 @@ export interface PlanInfo {
 // Limits response
 export interface BillingLimits {
   plan: BillingPlan;
-  chat_tokens_limit: number;
-  embedding_tokens_limit: number;
+  monthly_chat_limit: number;
+  monthly_embedding_limit: number;
   max_projects: number;
   max_avatars_per_project: number;
   max_documents_per_avatar: number;
   hard_limit_enabled: boolean;
+  alert_threshold_percent: number;
   overage_allowed: boolean;
+  overage_price_per_1k_chat: number;
+  overage_price_per_1k_embedding: number;
 }
 
 // ==================== Admin Types ====================
@@ -137,54 +158,73 @@ export interface PlatformUsage {
   users_by_plan: Record<BillingPlan, number>;
 }
 
-// User usage for admin
+// User usage for admin (matches backend UserUsageResponse)
 export interface UserUsage {
   user_id: string;
-  email: string;
-  full_name: string | null;
   plan: BillingPlan;
   chat_tokens_used: number;
   chat_tokens_limit: number;
-  chat_usage_percent: number;
   embedding_tokens_used: number;
   embedding_tokens_limit: number;
-  embedding_usage_percent: number;
-  total_usage_percent: number;
+  total_tokens_used: number;
+  usage_percent: number;
+  cost_usd: number;
   period_start: string;
   period_end: string;
-  days_remaining: number;
 }
 
-// Users usage list response (admin)
+// Users usage list response (admin) - matches backend UsersUsageListResponse
 export interface UsersUsageResponse {
-  items: UserUsage[];
+  users: UserUsage[];
   total: number;
   skip: number;
   limit: number;
 }
 
-// User budget (admin)
+// User budget (admin) - full response from API
 export interface UserBudget {
   user_id: string;
   plan: BillingPlan;
-  chat_tokens_limit: number;
-  chat_bonus_tokens: number;
-  embedding_tokens_limit: number;
-  embedding_bonus_tokens: number;
-  hard_limit_enabled: boolean;
-  overage_allowed: boolean;
   period_start: string;
   period_end: string;
+
+  // Chat tokens
+  monthly_chat_limit: number;
+  chat_tokens_used: number;
+  bonus_chat_tokens: number;
+
+  // Embedding tokens
+  monthly_embedding_limit: number;
+  embedding_tokens_used: number;
+  bonus_embedding_tokens: number;
+
+  // Resource limits
+  max_projects: number;
+  max_avatars_per_project: number;
+  max_documents_per_avatar: number;
+
+  // Settings
+  hard_limit_enabled: boolean;
+  alert_threshold_percent: number;
+  auto_topup_enabled: boolean;
+
+  // Usage percentages
+  chat_usage_percent: number;
+  embedding_usage_percent: number;
+  total_usage_percent: number;
 }
 
 // ==================== Request Types ====================
 
 // Update user limits request (admin)
 export interface UpdateUserLimitsRequest {
-  chat_tokens_limit?: number;
-  embedding_tokens_limit?: number;
+  monthly_chat_limit?: number;
+  monthly_embedding_limit?: number;
+  max_projects?: number;
+  max_avatars_per_project?: number;
+  max_documents_per_avatar?: number;
   hard_limit_enabled?: boolean;
-  overage_allowed?: boolean;
+  alert_threshold_percent?: number;
 }
 
 // Update user plan request (admin)
