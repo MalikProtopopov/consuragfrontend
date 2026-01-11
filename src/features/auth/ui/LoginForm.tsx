@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useLogin } from "@/entities/auth";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
+import { PasswordInput } from "@/shared/ui/password-input";
 import { Label } from "@/shared/ui/label";
 import { Alert, AlertDescription } from "@/shared/ui/alert";
 import { Spinner } from "@/shared/ui/spinner";
@@ -58,12 +59,12 @@ export function LoginForm() {
         <div className="flex items-center justify-between">
           <Label htmlFor="password">Пароль</Label>
         </div>
-        <Input
+        <PasswordInput
           id="password"
-          type="password"
           placeholder="••••••••"
           autoComplete="current-password"
           disabled={isPending}
+          error={!!errors.password}
           {...register("password")}
         />
         {errors.password && (

@@ -60,16 +60,29 @@ export function useLogin() {
 }
 
 /**
- * Hook for registration
+ * Hook for registration with auto-login
  */
 export function useRegister() {
+  const queryClient = useQueryClient();
   const router = useRouter();
+  const { setUser } = useAuthStore();
 
   return useMutation({
-    mutationFn: authApi.register,
-    onSuccess: () => {
-      // Redirect to login after registration
-      router.push("/login?registered=true");
+    mutationFn: async (data: { email: string; password: string; full_name?: string }) => {
+      // Register user
+      await authApi.register(data);
+      
+      // Auto-login after successful registration
+      await authApi.login({ email: data.email, password: data.password });
+      
+      // Fetch user data
+      const user = await authApi.getMe();
+      return user;
+    },
+    onSuccess: (user) => {
+      setUser(user);
+      queryClient.setQueryData(authKeys.me(), user);
+      router.push("/projects");
     },
   });
 }

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRegister } from "@/entities/auth";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
+import { PasswordInput } from "@/shared/ui/password-input";
 import { Label } from "@/shared/ui/label";
 import { Alert, AlertDescription } from "@/shared/ui/alert";
 import { Spinner } from "@/shared/ui/spinner";
@@ -77,12 +78,12 @@ export function RegisterForm() {
 
       <div className="space-y-2">
         <Label htmlFor="password">Пароль</Label>
-        <Input
+        <PasswordInput
           id="password"
-          type="password"
           placeholder="••••••••"
           autoComplete="new-password"
           disabled={isPending}
+          error={!!errors.password}
           {...register("password")}
         />
         {errors.password && (
@@ -95,12 +96,12 @@ export function RegisterForm() {
 
       <div className="space-y-2">
         <Label htmlFor="confirmPassword">Подтверждение пароля</Label>
-        <Input
+        <PasswordInput
           id="confirmPassword"
-          type="password"
           placeholder="••••••••"
           autoComplete="new-password"
           disabled={isPending}
+          error={!!errors.confirmPassword}
           {...register("confirmPassword")}
         />
         {errors.confirmPassword && (

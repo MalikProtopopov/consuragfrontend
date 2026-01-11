@@ -27,32 +27,32 @@ export function AvatarCard({ avatar, projectId }: AvatarCardProps) {
     <Card className="h-full flex flex-col">
       <CardHeader className="pb-3">
         <div className="flex items-start gap-3">
-          <div
+            <div
             className="flex size-12 shrink-0 items-center justify-center rounded-xl"
-            style={{
-              backgroundColor: avatar.primary_color
-                ? `${avatar.primary_color}20`
-                : "var(--color-accent-primary-10)",
-            }}
-          >
-            {avatar.avatar_image_url ? (
-              <img
-                src={avatar.avatar_image_url}
-                alt={avatar.name}
-                className="size-8 rounded-lg object-cover"
-              />
-            ) : (
-              <Bot
-                className="size-6"
-                style={{ color: avatar.primary_color || "var(--color-accent-primary)" }}
-              />
-            )}
-          </div>
+              style={{
+                backgroundColor: avatar.primary_color
+                  ? `${avatar.primary_color}20`
+                  : "var(--color-accent-primary-10)",
+              }}
+            >
+              {avatar.avatar_image_url ? (
+                <img
+                  src={avatar.avatar_image_url}
+                  alt={avatar.name}
+                  className="size-8 rounded-lg object-cover"
+                />
+              ) : (
+                <Bot
+                  className="size-6"
+                  style={{ color: avatar.primary_color || "var(--color-accent-primary)" }}
+                />
+              )}
+            </div>
           <div className="min-w-0 flex-1">
             <h3 className="font-semibold text-text-primary line-clamp-1">{avatar.name}</h3>
             <div className="flex flex-wrap items-center gap-2 mt-1">
-              <Badge variant={status.variant}>{status.label}</Badge>
-              {avatar.is_published && <Badge variant="success">Опубликован</Badge>}
+                <Badge variant={status.variant}>{status.label}</Badge>
+                {avatar.is_published && <Badge variant="success">Опубликован</Badge>}
             </div>
           </div>
         </div>

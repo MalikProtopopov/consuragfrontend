@@ -120,7 +120,7 @@ export function getApiErrorMessage(error: unknown): string {
     // Handle flat structure: { code: ... }
     if (apiError.code) {
       return getErrorMessage(apiError.code);
-    }
+  }
     
     // Fallback to message if available
     if (apiError.error?.message) {
