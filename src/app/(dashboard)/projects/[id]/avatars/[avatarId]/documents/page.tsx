@@ -118,9 +118,12 @@ export default function DocumentsPage({ params }: DocumentsPageProps) {
                 accept={{
                   "application/pdf": [".pdf"],
                   "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
+                  "application/msword": [".doc"],
                   "text/plain": [".txt"],
                   "text/markdown": [".md"],
-                  "text/html": [".html"],
+                  "text/html": [".html", ".htm"],
+                  "text/csv": [".csv"],
+                  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
                 }}
                 maxSize={50 * 1024 * 1024}
                 maxFiles={10}
@@ -141,7 +144,7 @@ export default function DocumentsPage({ params }: DocumentsPageProps) {
         <CardHeader>
           <CardTitle>Документы ({documents.length})</CardTitle>
           <CardDescription>
-            Поддерживаемые форматы: PDF, DOCX, TXT, MD, HTML
+            Поддерживаемые форматы: PDF, DOC, DOCX, TXT, MD, HTML, CSV, XLSX
           </CardDescription>
         </CardHeader>
         <CardContent>
