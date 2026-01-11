@@ -35,109 +35,72 @@ if [ -d "./certbot/conf/live/$DOMAIN" ]; then
     fi
 fi
 
-# Create temporary nginx config for ACME challenge
-echo "🔧 Creating temporary nginx config for ACME challenge..."
-cat > ./nginx/conf.d/temp-acme.conf << 'NGINX_CONF'
-server {
-    listen 80;
-    server_name admin.parmenid.tech;
-
-    location /.well-known/acme-challenge/ {
-        root /var/www/certbot;
-    }
-
-    location / {
-        return 200 'SSL setup in progress...';
-        add_header Content-Type text/plain;
-    }
-}
-NGINX_CONF
-
-# Replace domain in temp config
-sed -i.bak "s/admin.parmenid.tech/$DOMAIN/g" ./nginx/conf.d/temp-acme.conf
-rm -f ./nginx/conf.d/temp-acme.conf.bak
-
-# Temporarily disable the main admin.conf
-if [ -f "./nginx/conf.d/admin.conf" ]; then
-    mv ./nginx/conf.d/admin.conf ./nginx/conf.d/admin.conf.disabled
-fi
-
-# Stop existing containers to apply new config
+# Stop existing containers
 echo "🛑 Stopping existing containers..."
 docker compose -f docker-compose.prod.yml down 2>/dev/null || true
 
-# Start only nginx for ACME challenge (without app dependency)
+# Start nginx with minimal SSL-init config (no app dependency)
 echo "🚀 Starting nginx for ACME challenge..."
-docker compose -f docker-compose.prod.yml up -d --no-deps nginx
+docker run -d --rm \
+    --name parmenid_nginx_ssl_init \
+    -p 80:80 \
+    -v "$(pwd)/nginx/nginx-ssl-init.conf:/etc/nginx/nginx.conf:ro" \
+    -v "$(pwd)/certbot/www:/var/www/certbot:ro" \
+    nginx:alpine
 
 # Wait for nginx to start
 echo "⏳ Waiting for nginx to start..."
-sleep 5
-
-# Reload nginx config to pick up temp-acme.conf
-echo "🔄 Reloading nginx configuration..."
-docker compose -f docker-compose.prod.yml exec nginx nginx -s reload 2>/dev/null || true
-sleep 2
+sleep 3
 
 # Check if nginx is running
-if ! docker compose -f docker-compose.prod.yml ps nginx | grep -q "Up"; then
+if ! docker ps | grep -q "parmenid_nginx_ssl_init"; then
     echo "❌ Nginx failed to start. Check logs:"
-    docker compose -f docker-compose.prod.yml logs nginx
+    docker logs parmenid_nginx_ssl_init 2>/dev/null || echo "Container not found"
     exit 1
 fi
 
 # Verify ACME challenge endpoint is accessible
 echo "🔍 Verifying ACME challenge endpoint..."
-ACME_TEST=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/.well-known/acme-challenge/test 2>/dev/null || echo "000")
-if [ "$ACME_TEST" = "000" ]; then
-    # Try with domain
-    ACME_TEST=$(curl -s -o /dev/null -w "%{http_code}" http://$DOMAIN/.well-known/acme-challenge/test 2>/dev/null || echo "000")
+ACME_TEST=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/ 2>/dev/null || echo "000")
+echo "   HTTP status: $ACME_TEST (200 expected)"
+
+if [ "$ACME_TEST" != "200" ]; then
+    echo "⚠️  Warning: nginx may not be responding correctly"
+    docker logs parmenid_nginx_ssl_init --tail=10
 fi
-echo "   ACME endpoint status: $ACME_TEST (404 is expected, means nginx is serving)"
 
 # Get certificate
 echo "📜 Requesting certificate from Let's Encrypt..."
+
+CERTBOT_CMD="certonly --webroot -w /var/www/certbot -d $DOMAIN --email $EMAIL --agree-tos --no-eff-email"
+
 if [ -f "./certbot/conf/live/$DOMAIN/fullchain.pem" ]; then
-    # Certificate exists - renew it
     echo "🔄 Renewing existing certificate..."
-    docker compose -f docker-compose.prod.yml run --rm certbot certonly \
-        --webroot \
-        -w /var/www/certbot \
-        -d "$DOMAIN" \
-        --email "$EMAIL" \
-        --agree-tos \
-        --no-eff-email \
-        --force-renewal
+    CERTBOT_CMD="$CERTBOT_CMD --force-renewal"
 else
-    # Certificate doesn't exist - create new one
     echo "🆕 Creating new certificate..."
-    docker compose -f docker-compose.prod.yml run --rm certbot certonly \
-        --webroot \
-        -w /var/www/certbot \
-        -d "$DOMAIN" \
-        --email "$EMAIL" \
-        --agree-tos \
-        --no-eff-email
 fi
+
+docker run --rm \
+    -v "$(pwd)/certbot/conf:/etc/letsencrypt" \
+    -v "$(pwd)/certbot/www:/var/www/certbot" \
+    certbot/certbot $CERTBOT_CMD
+
+# Stop SSL init nginx
+echo "🛑 Stopping SSL init nginx..."
+docker stop parmenid_nginx_ssl_init 2>/dev/null || true
 
 # Check if certificate was obtained
 if [ ! -f "./certbot/conf/live/$DOMAIN/fullchain.pem" ]; then
     echo "❌ Failed to obtain certificate!"
+    echo "Check logs above for details."
     exit 1
 fi
 
 echo "✅ SSL certificate obtained successfully!"
 
-# Remove temporary config and restore admin.conf
-echo "🔧 Restoring nginx configuration..."
-rm -f ./nginx/conf.d/temp-acme.conf
-if [ -f "./nginx/conf.d/admin.conf.disabled" ]; then
-    mv ./nginx/conf.d/admin.conf.disabled ./nginx/conf.d/admin.conf
-fi
-
-# Restart all services with proper config
-echo "🔄 Restarting services with SSL..."
-docker compose -f docker-compose.prod.yml down
+# Start all services with proper config
+echo "🚀 Starting services with SSL..."
 docker compose -f docker-compose.prod.yml up -d --build
 
 echo ""
