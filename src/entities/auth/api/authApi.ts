@@ -25,6 +25,12 @@ export const authApi = {
     // Save tokens to localStorage with expiration time
     tokenManager.setTokens(response.access_token, response.refresh_token, response.expires_in);
     
+    // Also save to cookies for middleware (server-side) access
+    if (typeof document !== "undefined") {
+      const maxAge = response.expires_in || 1800; // default 30 min
+      document.cookie = `access_token=${response.access_token}; path=/; max-age=${maxAge}; SameSite=Lax; Secure`;
+    }
+    
     return response;
   },
 
@@ -53,6 +59,11 @@ export const authApi = {
     } finally {
       // Always clear tokens, even if API call fails
       tokenManager.clearTokens();
+      
+      // Clear cookie
+      if (typeof document !== "undefined") {
+        document.cookie = "access_token=; path=/; max-age=0; SameSite=Lax; Secure";
+      }
     }
   },
 
@@ -63,6 +74,13 @@ export const authApi = {
     const response = await apiClient.post<void, TokenResponse>(API_ENDPOINTS.AUTH.REFRESH);
     // Save new tokens with expiration time
     tokenManager.setTokens(response.access_token, response.refresh_token, response.expires_in);
+    
+    // Update cookie for middleware
+    if (typeof document !== "undefined") {
+      const maxAge = response.expires_in || 1800;
+      document.cookie = `access_token=${response.access_token}; path=/; max-age=${maxAge}; SameSite=Lax; Secure`;
+    }
+    
     return response;
   },
 
