@@ -23,14 +23,14 @@ export function ProjectCard({ project }: ProjectCardProps) {
     <Link href={`/projects/${project.id}`}>
       <Card className="h-full transition-all hover:border-accent-primary/50 hover:shadow-md cursor-pointer">
         <CardHeader className="pb-3">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-lg bg-accent-primary/10">
+          <div className="flex flex-wrap items-start gap-2">
+            <div className="flex items-center gap-3 flex-1 min-w-[150px]">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-accent-primary/10">
                 <FolderKanban className="size-5 text-accent-primary" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <h3 className="font-semibold text-text-primary line-clamp-1">{project.name}</h3>
-                <p className="text-xs text-text-muted">{project.slug}</p>
+                <p className="text-xs text-text-muted line-clamp-1">{project.slug}</p>
               </div>
             </div>
             <Badge variant={status.variant}>{status.label}</Badge>

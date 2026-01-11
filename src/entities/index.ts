@@ -37,3 +37,6 @@ export * from "./end-user";
 // Plan Requests
 export * from "./plan-request";
 
+// Notifications
+export * from "./notification";
+

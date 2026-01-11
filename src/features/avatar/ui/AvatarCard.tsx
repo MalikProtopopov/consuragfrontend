@@ -26,35 +26,33 @@ export function AvatarCard({ avatar, projectId }: AvatarCardProps) {
   return (
     <Card className="h-full flex flex-col">
       <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div
-              className="flex size-12 items-center justify-center rounded-xl"
-              style={{
-                backgroundColor: avatar.primary_color
-                  ? `${avatar.primary_color}20`
-                  : "var(--color-accent-primary-10)",
-              }}
-            >
-              {avatar.avatar_image_url ? (
-                <img
-                  src={avatar.avatar_image_url}
-                  alt={avatar.name}
-                  className="size-8 rounded-lg object-cover"
-                />
-              ) : (
-                <Bot
-                  className="size-6"
-                  style={{ color: avatar.primary_color || "var(--color-accent-primary)" }}
-                />
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-text-primary truncate">{avatar.name}</h3>
-              <div className="flex items-center gap-2 mt-1">
-                <Badge variant={status.variant}>{status.label}</Badge>
-                {avatar.is_published && <Badge variant="success">Опубликован</Badge>}
-              </div>
+        <div className="flex items-start gap-3">
+          <div
+            className="flex size-12 shrink-0 items-center justify-center rounded-xl"
+            style={{
+              backgroundColor: avatar.primary_color
+                ? `${avatar.primary_color}20`
+                : "var(--color-accent-primary-10)",
+            }}
+          >
+            {avatar.avatar_image_url ? (
+              <img
+                src={avatar.avatar_image_url}
+                alt={avatar.name}
+                className="size-8 rounded-lg object-cover"
+              />
+            ) : (
+              <Bot
+                className="size-6"
+                style={{ color: avatar.primary_color || "var(--color-accent-primary)" }}
+              />
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="font-semibold text-text-primary line-clamp-1">{avatar.name}</h3>
+            <div className="flex flex-wrap items-center gap-2 mt-1">
+              <Badge variant={status.variant}>{status.label}</Badge>
+              {avatar.is_published && <Badge variant="success">Опубликован</Badge>}
             </div>
           </div>
         </div>
@@ -73,14 +71,14 @@ export function AvatarCard({ avatar, projectId }: AvatarCardProps) {
             <span>{avatar.sessions_count} сессий</span>
           </div>
         </div>
-        <div className="flex gap-2 mt-auto">
-          <Button variant="outline" size="sm" className="flex-1" asChild>
+        <div className="flex flex-wrap gap-2 mt-auto">
+          <Button variant="outline" size="sm" asChild>
             <Link href={baseUrl}>Настройки</Link>
           </Button>
-          <Button variant="outline" size="sm" className="flex-1" asChild>
+          <Button variant="outline" size="sm" asChild>
             <Link href={`${baseUrl}/documents`}>Документы</Link>
           </Button>
-          <Button variant="default" size="sm" className="flex-1" asChild>
+          <Button variant="default" size="sm" asChild>
             <Link href={`${baseUrl}/chat`}>Чат</Link>
           </Button>
         </div>

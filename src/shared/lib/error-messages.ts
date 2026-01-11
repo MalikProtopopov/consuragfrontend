@@ -15,6 +15,7 @@ export const ERROR_MESSAGES: Record<string, string> = {
   AUTH_EMAIL_NOT_VERIFIED: "Email не подтверждён",
   AUTH_WEAK_PASSWORD: "Пароль слишком простой",
   AUTH_WRONG_PASSWORD: "Неверный текущий пароль",
+  AUTH_PASSWORD_MISMATCH: "Неверный текущий пароль",
 
   // Validation errors
   VALIDATION_ERROR: "Ошибка валидации",
@@ -91,15 +92,60 @@ export function getErrorMessage(code: string): string {
 }
 
 /**
+ * API error structure from backend
+ */
+interface ApiErrorResponse {
+  code?: string;
+  message?: string;
+  field?: string;
+  error?: {
+    code?: string;
+    message?: string;
+    field?: string;
+  };
+}
+
+/**
  * Get error message from API error response
  */
 export function getApiErrorMessage(error: unknown): string {
-  if (error && typeof error === "object" && "code" in error) {
-    return getErrorMessage(error.code as string);
+  if (error && typeof error === "object") {
+    const apiError = error as ApiErrorResponse;
+    
+    // Handle nested error structure: { error: { code: ... } }
+    if (apiError.error?.code) {
+      return getErrorMessage(apiError.error.code);
+    }
+    
+    // Handle flat structure: { code: ... }
+    if (apiError.code) {
+      return getErrorMessage(apiError.code);
+    }
+    
+    // Fallback to message if available
+    if (apiError.error?.message) {
+      return apiError.error.message;
+    }
+    if (apiError.message) {
+      return apiError.message;
+    }
   }
+  
   if (error instanceof Error) {
     return error.message;
   }
+  
   return getErrorMessage("UNKNOWN_ERROR");
+}
+
+/**
+ * Get field name from API error response (for form field errors)
+ */
+export function getApiErrorField(error: unknown): string | undefined {
+  if (error && typeof error === "object") {
+    const apiError = error as ApiErrorResponse;
+    return apiError.error?.field ?? apiError.field;
+  }
+  return undefined;
 }
 

@@ -13,7 +13,7 @@ import { Label } from "@/shared/ui/label";
 import { Alert, AlertDescription } from "@/shared/ui/alert";
 import { Spinner } from "@/shared/ui/spinner";
 import { toast } from "sonner";
-import { getApiErrorMessage } from "@/shared/lib";
+import { getApiErrorMessage, getApiErrorField } from "@/shared/lib";
 
 export default function ChangePasswordPage() {
   const { mutate: changePassword, isPending, error } = useChangePassword();
@@ -22,6 +22,7 @@ export default function ChangePasswordPage() {
     register,
     handleSubmit,
     reset,
+    setError,
     formState: { errors },
   } = useForm<ChangePasswordFormData>({
     resolver: zodResolver(changePasswordSchema),
@@ -44,7 +45,18 @@ export default function ChangePasswordPage() {
           reset();
         },
         onError: (error) => {
-          toast.error(getApiErrorMessage(error));
+          const errorMessage = getApiErrorMessage(error);
+          const errorField = getApiErrorField(error);
+          
+          // Show error under specific field if provided
+          if (errorField && errorField in data) {
+            setError(errorField as keyof ChangePasswordFormData, {
+              type: "server",
+              message: errorMessage,
+            });
+          } else {
+            toast.error(errorMessage);
+          }
         },
       }
     );

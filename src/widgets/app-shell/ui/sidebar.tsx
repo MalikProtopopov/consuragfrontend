@@ -7,6 +7,7 @@ import { usePathname, useParams } from "next/navigation";
 
 import {
   BarChart3,
+  Bell,
   Bot,
   ChevronDown,
   ChevronLeft,
@@ -203,6 +204,18 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
             title: "Настройки платформы",
             href: "/admin/settings/platform",
             icon: Key,
+            adminOnly: true,
+          },
+          {
+            title: "Telegram-боты",
+            href: "/admin/settings/telegram-notifications",
+            icon: Send,
+            adminOnly: true,
+          },
+          {
+            title: "Логи уведомлений",
+            href: "/admin/notifications/logs",
+            icon: Bell,
             adminOnly: true,
           },
           { title: "Аудит логи", href: "/admin/audit", icon: Shield, adminOnly: true },
@@ -446,9 +459,26 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Link
+                      href="/settings/notifications"
+                      className={cn(
+                        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-text-secondary hover:bg-bg-hover hover:text-text-primary",
+                        pathname === "/settings/notifications" && "bg-accent-primary/10 text-accent-primary",
+                        collapsed && "justify-center px-2"
+                      )}
+                    >
+                      <Bell className="size-5" />
+                      {!collapsed && <span>Уведомления</span>}
+                    </Link>
+                  </TooltipTrigger>
+                  {collapsed && <TooltipContent side="right">Уведомления</TooltipContent>}
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link
                       href="/settings/profile"
                       className={cn(
                         "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-text-secondary hover:bg-bg-hover hover:text-text-primary",
+                        pathname === "/settings/profile" && "bg-accent-primary/10 text-accent-primary",
                         collapsed && "justify-center px-2"
                       )}
                     >

@@ -21,8 +21,8 @@ const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(
     return (
       <Card ref={ref} className={cn(className)} {...props}>
         <CardContent className="pt-6">
-          <div className="flex items-start justify-between">
-            <div className="space-y-1">
+          <div className="flex flex-wrap items-start gap-3">
+            <div className="space-y-1 flex-1 min-w-[100px]">
               <p className="text-sm font-medium text-text-muted">{title}</p>
               <p className="text-2xl font-bold text-text-primary">{value}</p>
               {description && (

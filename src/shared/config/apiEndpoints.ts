@@ -181,6 +181,22 @@ export const API_ENDPOINTS = {
     BY_ID: (id: string) => `/api/v1/plan-requests/${id}` as const,
   },
 
+  // Notifications
+  NOTIFICATIONS: {
+    // OWNER endpoints
+    STATUS: "/api/v1/notifications/telegram/status",
+    LINK: "/api/v1/notifications/telegram/link",
+    UNLINK: "/api/v1/notifications/telegram/link",
+    TOGGLE: "/api/v1/notifications/telegram/notifications",
+
+    // ADMIN endpoints
+    CONFIG: "/api/v1/notifications/admin/telegram/config",
+    ADMIN_BOT: "/api/v1/notifications/admin/telegram/admin-bot",
+    USER_BOT: "/api/v1/notifications/admin/telegram/user-bot",
+    TEST: "/api/v1/notifications/admin/telegram/test",
+    LOGS: "/api/v1/notifications/admin/notifications/logs",
+  },
+
   // Billing
   BILLING: {
     // OWNER endpoints

@@ -35,6 +35,9 @@ export * from "./end-user.types";
 // Plan Requests
 export * from "./plan-request.types";
 
+// Notifications
+export * from "./notification.types";
+
 // Common list response type
 export interface PaginatedResponse<T> {
   items: T[];
