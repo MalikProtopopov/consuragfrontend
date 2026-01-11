@@ -79,14 +79,28 @@ fi
 
 # Get certificate
 echo "📜 Requesting certificate from Let's Encrypt..."
-docker compose -f docker-compose.prod.yml run --rm certbot certonly \
-    --webroot \
-    -w /var/www/certbot \
-    -d "$DOMAIN" \
-    --email "$EMAIL" \
-    --agree-tos \
-    --no-eff-email \
-    --force-renewal
+if [ -f "./certbot/conf/live/$DOMAIN/fullchain.pem" ]; then
+    # Certificate exists - renew it
+    echo "🔄 Renewing existing certificate..."
+    docker compose -f docker-compose.prod.yml run --rm certbot certonly \
+        --webroot \
+        -w /var/www/certbot \
+        -d "$DOMAIN" \
+        --email "$EMAIL" \
+        --agree-tos \
+        --no-eff-email \
+        --force-renewal
+else
+    # Certificate doesn't exist - create new one
+    echo "🆕 Creating new certificate..."
+    docker compose -f docker-compose.prod.yml run --rm certbot certonly \
+        --webroot \
+        -w /var/www/certbot \
+        -d "$DOMAIN" \
+        --email "$EMAIL" \
+        --agree-tos \
+        --no-eff-email
+fi
 
 # Check if certificate was obtained
 if [ ! -f "./certbot/conf/live/$DOMAIN/fullchain.pem" ]; then
