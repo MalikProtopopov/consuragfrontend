@@ -1,0 +1,47 @@
+# Frontend - Dev Server (HTTP only)
+# Usage: docker compose -f docker-compose.dev.yml up -d --build
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://api.parmenid.tech}
+    container_name: parmenid_admin_dev
+    restart: unless-stopped
+    expose:
+      - "3000"
+    env_file:
+      - .env.dev
+    networks:
+      - frontend_network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  nginx:
+    image: nginx:alpine
+    container_name: parmenid_nginx_dev
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx-dev.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - app
+    networks:
+      - frontend_network
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  frontend_network:
+    driver: bridge
+
