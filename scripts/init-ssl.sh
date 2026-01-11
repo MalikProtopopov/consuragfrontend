@@ -62,13 +62,22 @@ if [ -f "./nginx/conf.d/admin.conf" ]; then
     mv ./nginx/conf.d/admin.conf ./nginx/conf.d/admin.conf.disabled
 fi
 
-# Start nginx for ACME challenge
+# Stop existing containers to apply new config
+echo "🛑 Stopping existing containers..."
+docker compose -f docker-compose.prod.yml down 2>/dev/null || true
+
+# Start only nginx for ACME challenge (without app dependency)
 echo "🚀 Starting nginx for ACME challenge..."
-docker compose -f docker-compose.prod.yml up -d nginx
+docker compose -f docker-compose.prod.yml up -d --no-deps nginx
 
 # Wait for nginx to start
 echo "⏳ Waiting for nginx to start..."
 sleep 5
+
+# Reload nginx config to pick up temp-acme.conf
+echo "🔄 Reloading nginx configuration..."
+docker compose -f docker-compose.prod.yml exec nginx nginx -s reload 2>/dev/null || true
+sleep 2
 
 # Check if nginx is running
 if ! docker compose -f docker-compose.prod.yml ps nginx | grep -q "Up"; then
@@ -76,6 +85,15 @@ if ! docker compose -f docker-compose.prod.yml ps nginx | grep -q "Up"; then
     docker compose -f docker-compose.prod.yml logs nginx
     exit 1
 fi
+
+# Verify ACME challenge endpoint is accessible
+echo "🔍 Verifying ACME challenge endpoint..."
+ACME_TEST=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/.well-known/acme-challenge/test 2>/dev/null || echo "000")
+if [ "$ACME_TEST" = "000" ]; then
+    # Try with domain
+    ACME_TEST=$(curl -s -o /dev/null -w "%{http_code}" http://$DOMAIN/.well-known/acme-challenge/test 2>/dev/null || echo "000")
+fi
+echo "   ACME endpoint status: $ACME_TEST (404 is expected, means nginx is serving)"
 
 # Get certificate
 echo "📜 Requesting certificate from Let's Encrypt..."
