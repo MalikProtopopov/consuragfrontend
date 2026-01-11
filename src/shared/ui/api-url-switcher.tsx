@@ -25,7 +25,7 @@ interface ApiUrlSwitcherProps {
 export function ApiUrlSwitcher({ className }: ApiUrlSwitcherProps) {
   const [currentUrl, setCurrentUrl] = React.useState<string>("");
   const [hasOverride, setHasOverride] = React.useState(false);
-  const [isVisible, setIsVisible] = React.useState(true);
+  const [isVisible, setIsVisible] = React.useState(false);
 
   React.useEffect(() => {
     setCurrentUrl(apiUrlManager.getApiUrl());
