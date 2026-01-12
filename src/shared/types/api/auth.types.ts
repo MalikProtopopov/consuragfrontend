@@ -66,6 +66,27 @@ export interface ChangePasswordRequest {
   new_password: string;
 }
 
+// Email verification response
+export interface VerifyEmailResponse {
+  message: string;
+  email: string;
+}
+
+// Resend verification request
+export interface ResendVerificationRequest {
+  email: string;
+}
+
+// Resend verification response
+export interface ResendVerificationResponse {
+  message: string;
+}
+
+// Resend verification error details (for cooldown)
+export interface ResendVerificationErrorDetails {
+  wait_seconds: number;
+}
+
 // Admin: Create user request
 export interface AdminCreateUserRequest {
   email: string;

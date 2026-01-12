@@ -16,6 +16,8 @@ export const ERROR_MESSAGES: Record<string, string> = {
   AUTH_WEAK_PASSWORD: "Пароль слишком простой",
   AUTH_WRONG_PASSWORD: "Неверный текущий пароль",
   AUTH_PASSWORD_MISMATCH: "Неверный текущий пароль",
+  AUTH_EMAIL_ALREADY_VERIFIED: "Email уже подтверждён. Вы можете войти в систему",
+  AUTH_EMAIL_RESEND_COOLDOWN: "Подождите перед повторной отправкой",
 
   // Validation errors
   VALIDATION_ERROR: "Ошибка валидации",

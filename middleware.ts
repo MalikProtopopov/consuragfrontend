@@ -13,7 +13,7 @@ const ADMIN_PREFIXES = ["/admin"];
 /**
  * Auth routes (redirect to /projects if authenticated)
  */
-const AUTH_ROUTES = ["/login", "/register"];
+const AUTH_ROUTES = ["/login", "/register", "/verify-email"];
 
 /**
  * Check if path matches any prefix

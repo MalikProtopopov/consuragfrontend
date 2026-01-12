@@ -1,6 +1,7 @@
 // UI
 export { LoginForm } from "./ui/LoginForm";
 export { RegisterForm } from "./ui/RegisterForm";
+export { ResendVerificationButton } from "./ui/ResendVerificationButton";
 
 // Validation
 export {

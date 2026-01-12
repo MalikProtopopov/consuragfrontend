@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Save } from "lucide-react";
+import { Save, AlertTriangle } from "lucide-react";
 import { useAuthStore, useUpdateProfile } from "@/entities/auth";
+import { ResendVerificationButton } from "@/features/auth";
 import { PageContainer, PageHeader } from "@/widgets/app-shell";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/shared/ui/alert";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
@@ -69,6 +71,25 @@ export default function ProfilePage() {
     <PageContainer maxWidth="lg">
       <PageHeader title="Профиль" description="Управление личными данными" />
 
+      {/* Email Verification Warning */}
+      {!user.is_email_verified && (
+        <Alert variant="warning" className="mb-6">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Email не подтверждён</AlertTitle>
+          <AlertDescription className="mt-2">
+            <p className="mb-3">
+              Для полного доступа к функциям платформы подтвердите ваш email адрес.
+              Проверьте почту {user.email} или запросите новое письмо.
+            </p>
+            <ResendVerificationButton
+              email={user.email}
+              variant="outline"
+              size="sm"
+            />
+          </AlertDescription>
+        </Alert>
+      )}
+
       {/* Profile Header */}
       <Card className="mb-6">
         <CardContent className="pt-6">
@@ -82,9 +103,13 @@ export default function ProfilePage() {
             <div>
               <h2 className="text-xl font-semibold text-text-primary">{displayName}</h2>
               <p className="text-text-muted">{user.email}</p>
-              <div className="flex gap-2 mt-2">
+              <div className="flex gap-2 mt-2 flex-wrap">
                 <Badge variant="outline">{roleLabels[user.role] || user.role}</Badge>
-                {user.is_email_verified && <Badge variant="success">Email подтверждён</Badge>}
+                {user.is_email_verified ? (
+                  <Badge variant="success">Email подтверждён</Badge>
+                ) : (
+                  <Badge variant="warning">Email не подтверждён</Badge>
+                )}
               </div>
             </div>
           </div>

@@ -12,6 +12,8 @@ export const API_ENDPOINTS = {
     ME: "/api/v1/auth/me",
     UPDATE_ME: "/api/v1/auth/me",
     CHANGE_PASSWORD: "/api/v1/auth/me/password",
+    VERIFY_EMAIL: (token: string) => `/api/v1/auth/verify-email/${token}` as const,
+    RESEND_VERIFICATION: "/api/v1/auth/resend-verification",
   },
 
   // Users (Admin only)

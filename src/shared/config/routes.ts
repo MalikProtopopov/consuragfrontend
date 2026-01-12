@@ -11,6 +11,7 @@ export const ROUTES = {
   LOGIN: "/login",
   REGISTER: "/register",
   FORGOT_PASSWORD: "/forgot-password",
+  VERIFY_EMAIL: "/verify-email",
 
   // Admin routes (SAAS_ADMIN only)
   ADMIN: {
@@ -92,4 +93,4 @@ export const ADMIN_ROUTES = ["/admin"];
 /**
  * Public routes (no authentication required)
  */
-export const PUBLIC_ROUTES = ["/login", "/register", "/forgot-password", "/"];
+export const PUBLIC_ROUTES = ["/login", "/register", "/forgot-password", "/verify-email", "/"];

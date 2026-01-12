@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { Mail, CheckCircle2 } from "lucide-react";
 import { useRegister } from "@/entities/auth";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
@@ -12,8 +14,10 @@ import { Alert, AlertDescription } from "@/shared/ui/alert";
 import { Spinner } from "@/shared/ui/spinner";
 import { getApiErrorMessage } from "@/shared/lib";
 import { registerSchema, type RegisterFormData } from "../lib/validation";
+import { ResendVerificationButton } from "./ResendVerificationButton";
 
 export function RegisterForm() {
+  const [registeredEmail, setRegisteredEmail] = useState<string | null>(null);
   const { mutate: registerUser, isPending, error } = useRegister();
 
   const {
@@ -31,12 +35,73 @@ export function RegisterForm() {
   });
 
   const onSubmit = (data: RegisterFormData) => {
-    registerUser({
-      email: data.email,
-      password: data.password,
-      full_name: data.full_name || undefined,
-    });
+    registerUser(
+      {
+        email: data.email,
+        password: data.password,
+        full_name: data.full_name || undefined,
+      },
+      {
+        onSuccess: ({ email }) => {
+          setRegisteredEmail(email);
+        },
+      }
+    );
   };
+
+  // Show email verification screen after successful registration
+  if (registeredEmail) {
+    return (
+      <div className="text-center space-y-6">
+        <div className="mx-auto w-16 h-16 rounded-full bg-accent-primary/10 flex items-center justify-center">
+          <Mail className="w-8 h-8 text-accent-primary" />
+        </div>
+
+        <div className="space-y-2">
+          <h2 className="text-xl font-semibold text-text-primary">
+            Подтвердите ваш email
+          </h2>
+          <p className="text-text-secondary">
+            Мы отправили письмо на адрес:
+          </p>
+          <p className="font-medium text-text-primary">{registeredEmail}</p>
+        </div>
+
+        <div className="p-4 bg-bg-tertiary rounded-lg text-sm text-text-secondary space-y-2">
+          <div className="flex items-start gap-2">
+            <CheckCircle2 className="w-4 h-4 text-success mt-0.5 flex-shrink-0" />
+            <p>Перейдите по ссылке в письме для активации аккаунта</p>
+          </div>
+          <div className="flex items-start gap-2">
+            <CheckCircle2 className="w-4 h-4 text-success mt-0.5 flex-shrink-0" />
+            <p>Ссылка действительна 24 часа</p>
+          </div>
+        </div>
+
+        <div className="pt-2">
+          <ResendVerificationButton
+            email={registeredEmail}
+            variant="outline"
+            className="w-full"
+            initialCooldown={300}
+          />
+        </div>
+
+        <p className="text-sm text-text-muted">
+          Не получили письмо? Проверьте папку «Спам»
+        </p>
+
+        <div className="pt-2 border-t border-border">
+          <p className="text-sm text-text-secondary pt-4">
+            Уже подтвердили email?{" "}
+            <Link href="/login" className="text-accent-primary hover:underline">
+              Войти в систему
+            </Link>
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -129,4 +194,3 @@ export function RegisterForm() {
     </form>
   );
 }
-

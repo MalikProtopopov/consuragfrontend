@@ -10,6 +10,8 @@ export {
   useLogout,
   useUpdateProfile,
   useChangePassword,
+  useVerifyEmail,
+  useResendVerification,
   authKeys,
 } from "./model/useAuth";
 

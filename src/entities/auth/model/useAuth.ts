@@ -60,29 +60,14 @@ export function useLogin() {
 }
 
 /**
- * Hook for registration with auto-login
+ * Hook for registration (no auto-login - email verification required)
  */
 export function useRegister() {
-  const queryClient = useQueryClient();
-  const router = useRouter();
-  const { setUser } = useAuthStore();
-
   return useMutation({
     mutationFn: async (data: { email: string; password: string; full_name?: string }) => {
-      // Register user
-      await authApi.register(data);
-      
-      // Auto-login after successful registration
-      await authApi.login({ email: data.email, password: data.password });
-      
-      // Fetch user data
-      const user = await authApi.getMe();
-      return user;
-    },
-    onSuccess: (user) => {
-      setUser(user);
-      queryClient.setQueryData(authKeys.me(), user);
-      router.push("/projects");
+      // Register user - email will be sent automatically by backend
+      const user = await authApi.register(data);
+      return { user, email: data.email };
     },
   });
 }
@@ -134,6 +119,24 @@ export function useUpdateProfile() {
 export function useChangePassword() {
   return useMutation({
     mutationFn: (data: ChangePasswordRequest) => authApi.changePassword(data),
+  });
+}
+
+/**
+ * Hook for email verification
+ */
+export function useVerifyEmail() {
+  return useMutation({
+    mutationFn: (token: string) => authApi.verifyEmail(token),
+  });
+}
+
+/**
+ * Hook for resending verification email
+ */
+export function useResendVerification() {
+  return useMutation({
+    mutationFn: (email: string) => authApi.resendVerification(email),
   });
 }
 

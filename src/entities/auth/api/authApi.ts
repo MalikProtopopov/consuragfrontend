@@ -7,6 +7,9 @@ import type {
   RegisterRequest,
   UpdateProfileRequest,
   ChangePasswordRequest,
+  VerifyEmailResponse,
+  ResendVerificationRequest,
+  ResendVerificationResponse,
 } from "@/shared/types/api";
 
 /**
@@ -108,6 +111,25 @@ export const authApi = {
     await apiClient.post<ChangePasswordRequest, void>(
       API_ENDPOINTS.AUTH.CHANGE_PASSWORD,
       data
+    );
+  },
+
+  /**
+   * Verify email with token from email link
+   */
+  verifyEmail: async (token: string): Promise<VerifyEmailResponse> => {
+    return apiClient.post<void, VerifyEmailResponse>(
+      API_ENDPOINTS.AUTH.VERIFY_EMAIL(token)
+    );
+  },
+
+  /**
+   * Resend verification email
+   */
+  resendVerification: async (email: string): Promise<ResendVerificationResponse> => {
+    return apiClient.post<ResendVerificationRequest, ResendVerificationResponse>(
+      API_ENDPOINTS.AUTH.RESEND_VERIFICATION,
+      { email }
     );
   },
 };
