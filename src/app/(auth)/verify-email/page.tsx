@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { Suspense, useEffect, useState, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle2, XCircle, Loader2, Mail } from "lucide-react";
@@ -21,7 +21,7 @@ interface ApiErrorWithDetails {
   code?: string;
 }
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token");
@@ -231,3 +231,23 @@ export default function VerifyEmailPage() {
   );
 }
 
+function VerifyEmailFallback() {
+  return (
+    <div className="text-center space-y-4">
+      <div className="mx-auto w-12 h-12 rounded-full bg-accent-primary/10 flex items-center justify-center">
+        <Loader2 className="w-6 h-6 text-accent-primary animate-spin" />
+      </div>
+      <h2 className="text-xl font-semibold text-text-primary">
+        Загрузка...
+      </h2>
+    </div>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<VerifyEmailFallback />}>
+      <VerifyEmailContent />
+    </Suspense>
+  );
+}
