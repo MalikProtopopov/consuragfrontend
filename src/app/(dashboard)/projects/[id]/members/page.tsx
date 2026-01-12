@@ -22,6 +22,7 @@ import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
 import { Badge } from "@/shared/ui/badge";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Spinner } from "@/shared/ui/spinner";
+import { AccessDenied, isPermissionError } from "@/shared/ui/access-denied";
 import { toast } from "sonner";
 import { getApiErrorMessage } from "@/shared/lib";
 import type { ProjectMember, UserRole } from "@/shared/types/api";
@@ -41,13 +42,26 @@ const roleLabels: Record<UserRole, string> = {
 export default function ProjectMembersPage({ params }: ProjectMembersPageProps) {
   const { id: projectId } = use(params);
   const { data: project, isLoading: projectLoading } = useProject(projectId);
-  const { data: membersData, isLoading: membersLoading } = useProjectMembers(projectId);
+  const { data: membersData, isLoading: membersLoading, error: membersError } = useProjectMembers(projectId);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<ProjectMember | null>(null);
 
   const isLoading = projectLoading || membersLoading;
   // API returns array directly
   const members = membersData || [];
+
+  // Handle permission error
+  if (membersError && isPermissionError(membersError)) {
+    return (
+      <PageContainer>
+        <PageHeader title="Участники проекта" description={project?.name || ""} />
+        <AccessDenied
+          message="У вас нет прав для просмотра участников этого проекта. Обратитесь к администратору для получения доступа."
+          backHref={`/projects/${projectId}`}
+        />
+      </PageContainer>
+    );
+  }
 
   if (isLoading) {
     return (

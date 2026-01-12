@@ -129,7 +129,8 @@ export default function SessionsPage({ params }: SessionsPageProps) {
 
 function SessionRow({ session }: { session: ChatSession }) {
   const [detailOpen, setDetailOpen] = useState(false);
-  const SourceIcon = sourceIcons[session.source];
+  const SourceIcon = session.source ? sourceIcons[session.source] : Globe;
+  const sourceLabel = session.source ? sourceLabels[session.source] : "Неизвестно";
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -148,7 +149,7 @@ function SessionRow({ session }: { session: ChatSession }) {
       <TableCell>
         <div className="flex items-center gap-2">
           <SourceIcon className="h-4 w-4 text-text-muted" />
-          <span>{sourceLabels[session.source]}</span>
+          <span>{sourceLabel}</span>
         </div>
       </TableCell>
       <TableCell>{session.messages_count}</TableCell>
@@ -195,10 +196,16 @@ function SessionDetail({ sessionId }: { sessionId: string }) {
     return <p className="text-text-muted">Сессия не найдена</p>;
   }
 
+  const messages = session.messages || [];
+
+  if (messages.length === 0) {
+    return <p className="text-text-muted">Сообщения не найдены</p>;
+  }
+
   return (
     <ScrollArea className="h-[400px]">
       <div className="space-y-4 pr-4">
-        {session.messages.map((message) => (
+        {messages.map((message) => (
           <div
             key={message.id}
             className={`p-4 rounded-lg border border-border ${

@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/shared/ui/slider";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Spinner } from "@/shared/ui/spinner";
+import { AccessDenied, isPermissionError } from "@/shared/ui/access-denied";
 import { toast } from "sonner";
 import { getApiErrorMessage } from "@/shared/lib";
 import type { ProjectSettings, UpdateProjectSettingsRequest } from "@/shared/types/api";
@@ -24,7 +25,7 @@ interface ProjectSettingsPageProps {
 export default function ProjectSettingsPage({ params }: ProjectSettingsPageProps) {
   const { id: projectId } = use(params);
   const { data: project, isLoading: projectLoading } = useProject(projectId);
-  const { data: settings, isLoading: settingsLoading } = useProjectSettings(projectId);
+  const { data: settings, isLoading: settingsLoading, error: settingsError } = useProjectSettings(projectId);
   const { mutate: updateProject, isPending: updatingProject } = useUpdateProject();
   const { mutate: updateSettings, isPending: updatingSettings } = useUpdateProjectSettings();
 
@@ -44,6 +45,19 @@ export default function ProjectSettingsPage({ params }: ProjectSettingsPageProps
   }
 
   const isLoading = projectLoading || settingsLoading;
+
+  // Handle permission error
+  if (settingsError && isPermissionError(settingsError)) {
+    return (
+      <PageContainer>
+        <PageHeader title="Настройки проекта" description={project?.name || ""} />
+        <AccessDenied
+          message="У вас нет прав для просмотра настроек этого проекта. Обратитесь к администратору для получения доступа."
+          backHref={`/projects/${projectId}`}
+        />
+      </PageContainer>
+    );
+  }
 
   const handleUpdateBasic = () => {
     updateProject(

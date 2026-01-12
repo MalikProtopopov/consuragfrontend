@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useEffect } from "react";
+import { use, useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { ArrowLeft, Trash2, Globe, X } from "lucide-react";
 import {
@@ -45,10 +45,12 @@ export default function AvatarSettingsPage({ params }: AvatarSettingsPageProps) 
 
   const [form, setForm] = useState<UpdateAvatarRequest>({});
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const isFormInitializedRef = useRef(false);
 
-  // Initialize form when avatar loads
+  // Initialize form only once when avatar first loads
   useEffect(() => {
-    if (avatar) {
+    if (avatar && !isFormInitializedRef.current) {
+      isFormInitializedRef.current = true;
       setForm({
         name: avatar.name,
         description: avatar.description || "",

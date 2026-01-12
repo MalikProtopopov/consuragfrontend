@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { useCreateAvatar } from "@/entities/avatar";
@@ -37,6 +37,7 @@ export default function CreateAvatarPage({ params }: CreateAvatarPageProps) {
   const { data: project, isLoading: projectLoading } = useProject(projectId);
   const { mutate: createAvatar, isPending } = useCreateAvatar();
 
+  const isSubmittingRef = useRef(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<CreateAvatarRequest>({
     name: "",
@@ -77,6 +78,9 @@ export default function CreateAvatarPage({ params }: CreateAvatarPageProps) {
   };
 
   const handleSubmit = () => {
+    if (isSubmittingRef.current || isPending) return;
+    isSubmittingRef.current = true;
+
     createAvatar(
       { projectId, data: formData },
       {
@@ -85,6 +89,9 @@ export default function CreateAvatarPage({ params }: CreateAvatarPageProps) {
         },
         onError: (error) => {
           toast.error(getApiErrorMessage(error));
+        },
+        onSettled: () => {
+          isSubmittingRef.current = false;
         },
       }
     );

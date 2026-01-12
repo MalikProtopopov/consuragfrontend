@@ -3,8 +3,10 @@
 import { use, useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, Send, RefreshCw, ThumbsUp, ThumbsDown, Bot, User } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 import { useAvatar } from "@/entities/avatar";
 import { useChat } from "@/entities/chat";
+import { useAuthStore } from "@/entities/auth";
 import { PageContainer } from "@/widgets/app-shell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
@@ -14,6 +16,7 @@ import { Spinner } from "@/shared/ui/spinner";
 import { Badge } from "@/shared/ui/badge";
 import { cn } from "@/shared/lib";
 import type { ChatMessage } from "@/shared/types/api";
+import type { Avatar as AvatarType } from "@/shared/types/api";
 
 interface ChatPageProps {
   params: Promise<{ id: string; avatarId: string }>;
@@ -22,6 +25,7 @@ interface ChatPageProps {
 export default function ChatPage({ params }: ChatPageProps) {
   const { id: projectId, avatarId } = use(params);
   const { data: avatar, isLoading: avatarLoading } = useAvatar(projectId, avatarId);
+  const { user } = useAuthStore();
   const {
     sessionId,
     messages,
@@ -118,17 +122,25 @@ export default function ChatPage({ params }: ChatPageProps) {
         <CardHeader className="border-b border-border py-4">
           <div className="flex items-center gap-3">
             <div
-              className="flex size-10 items-center justify-center rounded-xl"
+              className="flex size-10 items-center justify-center rounded-xl overflow-hidden"
               style={{
                 backgroundColor: avatar.primary_color
                   ? `${avatar.primary_color}20`
                   : "var(--color-accent-primary-10)",
               }}
             >
-              <Bot
-                className="size-5"
-                style={{ color: avatar.primary_color || "var(--color-accent-primary)" }}
-              />
+              {avatar.avatar_image_url ? (
+                <img 
+                  src={avatar.avatar_image_url} 
+                  alt={avatar.name}
+                  className="size-full object-cover"
+                />
+              ) : (
+                <Bot
+                  className="size-5"
+                  style={{ color: avatar.primary_color || "var(--color-accent-primary)" }}
+                />
+              )}
             </div>
             <div>
               <CardTitle className="text-base">{avatar.name}</CardTitle>
@@ -161,6 +173,7 @@ export default function ChatPage({ params }: ChatPageProps) {
                     created_at: new Date().toISOString(),
                   }}
                   avatar={avatar}
+                  userAvatarUrl={user?.avatar_url}
                 />
               )}
 
@@ -170,6 +183,7 @@ export default function ChatPage({ params }: ChatPageProps) {
                   key={message.id}
                   message={message}
                   avatar={avatar}
+                  userAvatarUrl={user?.avatar_url}
                   onFeedback={(feedback) => sendFeedback({ messageId: message.id, feedback })}
                 />
               ))}
@@ -178,19 +192,28 @@ export default function ChatPage({ params }: ChatPageProps) {
               {(chatLoading || isSending) && (
                 <div className="flex items-start gap-3">
                   <div
-                    className="flex size-8 items-center justify-center rounded-lg shrink-0"
+                    className="flex size-9 items-center justify-center rounded-full shrink-0 overflow-hidden border-2"
                     style={{
                       backgroundColor: avatar.primary_color
-                        ? `${avatar.primary_color}20`
-                        : "var(--color-accent-primary-10)",
+                        ? `${avatar.primary_color}15`
+                        : "var(--color-bg-secondary)",
+                      borderColor: avatar.primary_color || "var(--color-accent-primary)",
                     }}
                   >
-                    <Bot
-                      className="size-4"
-                      style={{ color: avatar.primary_color || "var(--color-accent-primary)" }}
-                    />
+                    {avatar.avatar_image_url ? (
+                      <img 
+                        src={avatar.avatar_image_url} 
+                        alt={avatar.name}
+                        className="size-full object-cover"
+                      />
+                    ) : (
+                      <Bot
+                        className="size-4"
+                        style={{ color: avatar.primary_color || "var(--color-accent-primary)" }}
+                      />
+                    )}
                   </div>
-                  <div className="flex items-center gap-2 p-3 rounded-lg bg-bg-secondary">
+                  <div className="flex items-center gap-2 p-3 rounded-2xl rounded-tl-md bg-bg-tertiary border border-border">
                     <Spinner className="h-4 w-4" />
                     <span className="text-sm text-text-muted">Думаю...</span>
                   </div>
@@ -225,10 +248,12 @@ export default function ChatPage({ params }: ChatPageProps) {
 function MessageBubble({
   message,
   avatar,
+  userAvatarUrl,
   onFeedback,
 }: {
   message: ChatMessage;
-  avatar: { name: string; primary_color: string | null };
+  avatar: AvatarType;
+  userAvatarUrl?: string | null;
   onFeedback?: (feedback: "positive" | "negative") => void;
 }) {
   const isUser = message.role === "user";
@@ -238,21 +263,36 @@ function MessageBubble({
       {/* Avatar */}
       <div
         className={cn(
-          "flex size-8 items-center justify-center rounded-lg shrink-0",
-          isUser ? "bg-text-muted/20" : ""
+          "flex size-9 items-center justify-center rounded-full shrink-0 overflow-hidden",
+          isUser ? "bg-text-muted/20" : "border-2"
         )}
         style={
           !isUser
             ? {
                 backgroundColor: avatar.primary_color
-                  ? `${avatar.primary_color}20`
-                  : "var(--color-accent-primary-10)",
+                  ? `${avatar.primary_color}15`
+                  : "var(--color-bg-secondary)",
+                borderColor: avatar.primary_color || "var(--color-accent-primary)",
               }
             : undefined
         }
       >
         {isUser ? (
-          <User className="size-4 text-text-muted" />
+          userAvatarUrl ? (
+            <img 
+              src={userAvatarUrl} 
+              alt="Вы" 
+              className="size-full object-cover"
+            />
+          ) : (
+            <User className="size-4 text-text-muted" />
+          )
+        ) : avatar.avatar_image_url ? (
+          <img 
+            src={avatar.avatar_image_url} 
+            alt={avatar.name}
+            className="size-full object-cover"
+          />
         ) : (
           <Bot
             className="size-4"
@@ -265,11 +305,19 @@ function MessageBubble({
       <div className={cn("max-w-[80%] space-y-2", isUser && "items-end")}>
         <div
           className={cn(
-            "p-3 rounded-lg",
-            isUser ? "bg-accent-primary text-accent-contrast" : "bg-bg-secondary"
+            "p-3 rounded-2xl relative",
+            isUser 
+              ? "bg-accent-primary text-accent-contrast rounded-tr-md" 
+              : "bg-bg-tertiary border border-border rounded-tl-md"
           )}
         >
-          <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+          {isUser ? (
+            <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+          ) : (
+            <div className="text-sm prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-pre:my-2 prose-pre:bg-bg-secondary prose-pre:text-text-primary prose-code:text-accent-primary prose-code:before:content-none prose-code:after:content-none">
+              <ReactMarkdown>{message.content}</ReactMarkdown>
+            </div>
+          )}
         </div>
 
         {/* Sources */}

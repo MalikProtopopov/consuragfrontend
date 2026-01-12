@@ -21,9 +21,13 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "UI Kit 2026 | AI Avatar Platform",
-  description: "Modern Design System for AI-powered applications - Neo-Minimal with Depth",
-  keywords: ["design system", "ui kit", "ai avatar", "tailwind", "react"],
+  title: "AI Avatar Platform - Админ-панель",
+  description: "Управление AI-консультантами и аватарами",
+  robots: "noindex, nofollow",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({

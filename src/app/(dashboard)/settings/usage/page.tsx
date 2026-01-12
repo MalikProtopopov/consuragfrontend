@@ -582,7 +582,11 @@ export default function UsagePage() {
                 {/* Upgrade Button */}
                 {summary?.plan !== "enterprise" && (
                   <div className="pt-4 border-t border-border">
-                    <Button>
+                    <Button
+                      onClick={() => {
+                        window.location.href = "mailto:support@parmenid.tech?subject=Запрос на улучшение плана";
+                      }}
+                    >
                       <TrendingUp className="size-4 mr-2" />
                       Улучшить план
                     </Button>

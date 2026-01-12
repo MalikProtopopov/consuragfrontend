@@ -303,7 +303,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                             />
                           </button>
                           {isExpanded && (
-                            <div className="ml-4 mt-1 space-y-1 border-l border-border pl-3">
+                            <div className="ml-4 mt-1 space-y-1 border-l border-border pl-3 overflow-hidden">
                               {sidebarProjects.map((project) => {
                                 const isProjectActive = pathname?.startsWith(`/projects/${project.id}`);
                                 return (
@@ -312,14 +312,14 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                                       <Link
                                         href={`/projects/${project.id}`}
                                         className={cn(
-                                          "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all overflow-hidden min-w-0",
+                                          "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all overflow-hidden min-w-0 max-w-full",
                                           isProjectActive
                                             ? "bg-accent-primary/10 text-accent-primary"
                                             : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
                                         )}
                                       >
                                         <Folder className={cn("size-4 shrink-0", isProjectActive && "text-accent-primary")} />
-                                        <span className="truncate">{project.name}</span>
+                                        <span className="truncate flex-1 min-w-0">{project.name}</span>
                                       </Link>
                                     </TooltipTrigger>
                                     <TooltipContent side="right">{project.name}</TooltipContent>

@@ -14,6 +14,7 @@ import {
   Skeleton,
   type ConfigFormData,
 } from "@/shared/ui";
+import { AccessDenied, isPermissionError } from "@/shared/ui/access-denied";
 import type {
   ProjectSecret,
   ProjectSecretType,
@@ -178,6 +179,22 @@ export default function ProjectSecretsPage({ params }: PageProps) {
   };
 
   if (error) {
+    // Handle permission error
+    if (isPermissionError(error)) {
+      return (
+        <PageContainer>
+          <PageHeader
+            title="Секреты проекта"
+            description="Управление токенами и API-ключами проекта"
+          />
+          <AccessDenied
+            message="У вас нет прав для просмотра секретов этого проекта. Обратитесь к администратору для получения доступа."
+            backHref={`/projects/${projectId}`}
+          />
+        </PageContainer>
+      );
+    }
+
     return (
       <PageContainer>
         <PageHeader

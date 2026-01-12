@@ -33,6 +33,10 @@ export const ERROR_MESSAGES: Record<string, string> = {
   PROJECT_MEMBER_EXISTS: "Участник уже добавлен",
   PROJECT_MEMBER_NOT_FOUND: "Участник не найден",
 
+  // Member errors
+  MEMBER_USER_NOT_FOUND: "Пользователь не найден. Он должен сначала зарегистрироваться в системе",
+  MEMBER_INSUFFICIENT_PERMISSIONS: "Недостаточно прав доступа. Обратитесь к администратору проекта",
+
   // Avatar errors
   AVATAR_NOT_FOUND: "Аватар не найден",
   AVATAR_ACCESS_DENIED: "Нет доступа к аватару",

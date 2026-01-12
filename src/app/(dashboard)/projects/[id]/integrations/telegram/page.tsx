@@ -32,6 +32,7 @@ import { Checkbox } from "@/shared/ui/checkbox";
 import { ROUTES } from "@/shared/config";
 import { toast } from "sonner";
 import { getApiErrorMessage } from "@/shared/lib";
+import { AccessDenied, isPermissionError } from "@/shared/ui/access-denied";
 
 interface TelegramPageProps {
   params: Promise<{ id: string }>;
@@ -185,6 +186,22 @@ export default function TelegramPage({ params }: TelegramPageProps) {
   };
 
   const isLoading = projectLoading || integrationLoading;
+
+  // Handle permission error for telegram integration
+  if (integrationError && isPermissionError(integrationError)) {
+    return (
+      <PageContainer>
+        <PageHeader
+          title="Telegram интеграция"
+          description="Подключите бота Telegram к вашему AI-аватару"
+        />
+        <AccessDenied
+          message="У вас нет прав для просмотра настроек Telegram интеграции. Обратитесь к администратору для получения доступа."
+          backHref={`/projects/${projectId}`}
+        />
+      </PageContainer>
+    );
+  }
 
   if (isLoading) {
     return (
