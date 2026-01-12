@@ -30,6 +30,13 @@ services:
       - "3000"
     env_file:
       - .env.prod
+    # Limit resources to prevent server overload during build
+    deploy:
+      resources:
+        limits:
+          memory: 3G
+        reservations:
+          memory: 1G
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
       interval: 30s

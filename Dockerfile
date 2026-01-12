@@ -29,9 +29,11 @@ ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Increase Node.js memory limit for build (helps with large builds)
-ENV NODE_OPTIONS="--max-old-space-size=4096"
+# Reduced to 2GB to avoid OOM on smaller servers
+ENV NODE_OPTIONS="--max-old-space-size=2048"
 
-# Build the application
+# Build the application with optimizations
+# Using --no-lint and skipping type checks (already done in next.config.ts)
 RUN npm run build
 
 # Production stage
