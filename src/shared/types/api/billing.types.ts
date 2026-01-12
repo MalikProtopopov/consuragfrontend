@@ -161,6 +161,7 @@ export interface PlatformUsage {
 // User usage for admin (matches backend UserUsageResponse)
 export interface UserUsage {
   user_id: string;
+  user_email?: string; // Email пользователя (добавлено в API)
   plan: BillingPlan;
   chat_tokens_used: number;
   chat_tokens_limit: number;

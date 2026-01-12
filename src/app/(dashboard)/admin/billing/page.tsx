@@ -270,7 +270,7 @@ export default function AdminBillingPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID пользователя</TableHead>
+                  <TableHead>Пользователь</TableHead>
                   <TableHead>План</TableHead>
                   <TableHead>Чат токены</TableHead>
                   <TableHead>Embeddings</TableHead>
@@ -292,12 +292,17 @@ export default function AdminBillingPage() {
                     <TableRow key={userItem.user_id}>
                       <TableCell>
                         <div>
-                          <p className="font-mono text-sm text-text-primary">
-                            {userItem.user_id.slice(0, 8)}...
+                          <p className="font-medium text-sm text-text-primary">
+                            {userItem.user_email || userItem.user_id.slice(0, 8) + "..."}
                           </p>
                           <p className="text-xs text-text-muted">
                             {new Date(userItem.period_start).toLocaleDateString("ru-RU")} — {new Date(userItem.period_end).toLocaleDateString("ru-RU")}
                           </p>
+                          {userItem.user_email && (
+                            <p className="text-xs text-text-muted font-mono mt-0.5">
+                              ID: {userItem.user_id.slice(0, 8)}...
+                            </p>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -522,7 +527,16 @@ function UserManageDialog({ user, open, onOpenChange }: UserManageDialogProps) {
         <DialogHeader>
           <DialogTitle>Управление пользователем</DialogTitle>
           <DialogDescription>
-            <span className="font-mono text-xs">{user.user_id}</span>
+            {user.user_email ? (
+              <>
+                <span className="font-medium">{user.user_email}</span>
+                <span className="text-xs text-text-muted font-mono ml-2">
+                  ({user.user_id.slice(0, 8)}...)
+                </span>
+              </>
+            ) : (
+              <span className="font-mono text-xs">{user.user_id}</span>
+            )}
           </DialogDescription>
         </DialogHeader>
 
