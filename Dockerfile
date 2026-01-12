@@ -14,6 +14,11 @@ WORKDIR /app
 
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
+
+# Copy package files first for better caching
+COPY package.json package-lock.json* ./
+
+# Copy source code
 COPY . .
 
 # Build args for environment variables (passed at build time)
@@ -22,6 +27,9 @@ ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
 # Disable telemetry during build
 ENV NEXT_TELEMETRY_DISABLED=1
+
+# Increase Node.js memory limit for build (helps with large builds)
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 # Build the application
 RUN npm run build
