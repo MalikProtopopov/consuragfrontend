@@ -8,6 +8,7 @@ import {
   useUsageBreakdown,
   usePlanInfo,
 } from "@/entities/billing";
+import { useCreatePlanRequest } from "@/entities/plan-request";
 import { PageContainer, PageHeader } from "@/widgets/app-shell";
 import {
   Card,
@@ -31,6 +32,25 @@ import {
   TableRow,
 } from "@/shared/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/shared/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/ui/select";
+import { Textarea } from "@/shared/ui/textarea";
+import { Label } from "@/shared/ui/label";
+import { Spinner } from "@/shared/ui/spinner";
+import type { BillingPlan } from "@/shared/types/api";
 
 /**
  * Format currency
@@ -54,8 +74,18 @@ function formatDate(dateStr: string): string {
   });
 }
 
+const AVAILABLE_PLANS: { value: BillingPlan; label: string }[] = [
+  { value: "starter", label: "Starter" },
+  { value: "growth", label: "Growth" },
+  { value: "scale", label: "Scale" },
+  { value: "enterprise", label: "Enterprise" },
+];
+
 export default function UsagePage() {
   const [chartPeriod, setChartPeriod] = React.useState<UsageChartPeriod>("30d");
+  const [upgradeDialogOpen, setUpgradeDialogOpen] = React.useState(false);
+  const [selectedPlan, setSelectedPlan] = React.useState<BillingPlan | "">("");
+  const [upgradeMessage, setUpgradeMessage] = React.useState("");
 
   const { data: summary, isLoading: summaryLoading } = useUsageSummary();
   const { data: history, isLoading: historyLoading } = useUsageHistory(
@@ -63,8 +93,28 @@ export default function UsagePage() {
   );
   const { data: breakdown, isLoading: breakdownLoading } = useUsageBreakdown();
   const { data: planInfo, isLoading: planLoading } = usePlanInfo();
+  const { mutate: createPlanRequest, isPending: isSubmitting } = useCreatePlanRequest();
 
   const isLoading = summaryLoading || planLoading;
+
+  const handleUpgradeSubmit = () => {
+    if (!selectedPlan) return;
+    
+    createPlanRequest(
+      {
+        request_type: "plan_upgrade",
+        requested_plan: selectedPlan,
+        message: upgradeMessage || undefined,
+      },
+      {
+        onSuccess: () => {
+          setUpgradeDialogOpen(false);
+          setSelectedPlan("");
+          setUpgradeMessage("");
+        },
+      }
+    );
+  };
 
   return (
     <PageContainer>
@@ -582,16 +632,78 @@ export default function UsagePage() {
                 {/* Upgrade Button */}
                 {summary?.plan !== "enterprise" && (
                   <div className="pt-4 border-t border-border">
-                    <Button
-                      onClick={() => {
-                        window.location.href = "mailto:support@parmenid.tech?subject=Запрос на улучшение плана";
-                      }}
-                    >
+                    <Button onClick={() => setUpgradeDialogOpen(true)}>
                       <TrendingUp className="size-4 mr-2" />
                       Улучшить план
                     </Button>
                   </div>
                 )}
+
+                {/* Plan Upgrade Dialog */}
+                <Dialog open={upgradeDialogOpen} onOpenChange={setUpgradeDialogOpen}>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Улучшить план</DialogTitle>
+                      <DialogDescription>
+                        Выберите желаемый план и отправьте заявку. Мы свяжемся с вами в ближайшее время.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="plan">Желаемый план</Label>
+                        <Select
+                          value={selectedPlan}
+                          onValueChange={(value) => setSelectedPlan(value as BillingPlan)}
+                        >
+                          <SelectTrigger id="plan">
+                            <SelectValue placeholder="Выберите план" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {AVAILABLE_PLANS.filter(
+                              (p) => p.value !== summary?.plan && p.value !== "starter"
+                            ).map((plan) => (
+                              <SelectItem key={plan.value} value={plan.value}>
+                                {plan.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="message">Сообщение (необязательно)</Label>
+                        <Textarea
+                          id="message"
+                          placeholder="Расскажите о ваших потребностях..."
+                          value={upgradeMessage}
+                          onChange={(e) => setUpgradeMessage(e.target.value)}
+                          rows={3}
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button
+                        variant="outline"
+                        onClick={() => setUpgradeDialogOpen(false)}
+                        disabled={isSubmitting}
+                      >
+                        Отмена
+                      </Button>
+                      <Button
+                        onClick={handleUpgradeSubmit}
+                        disabled={!selectedPlan || isSubmitting}
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <Spinner className="mr-2 size-4" />
+                            Отправка...
+                          </>
+                        ) : (
+                          "Отправить заявку"
+                        )}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
             )
           )}

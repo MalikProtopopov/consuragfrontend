@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useRef } from "react";
+import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { useCreateAvatar } from "@/entities/avatar";
@@ -37,7 +37,7 @@ export default function CreateAvatarPage({ params }: CreateAvatarPageProps) {
   const { data: project, isLoading: projectLoading } = useProject(projectId);
   const { mutate: createAvatar, isPending } = useCreateAvatar();
 
-  const isSubmittingRef = useRef(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<CreateAvatarRequest>({
     name: "",
@@ -78,20 +78,19 @@ export default function CreateAvatarPage({ params }: CreateAvatarPageProps) {
   };
 
   const handleSubmit = () => {
-    if (isSubmittingRef.current || isPending) return;
-    isSubmittingRef.current = true;
+    if (isSubmitting || isPending) return;
+    setIsSubmitting(true);
 
     createAvatar(
       { projectId, data: formData },
       {
         onSuccess: () => {
           toast.success("Аватар успешно создан");
+          // Не сбрасываем isSubmitting - редирект произойдет автоматически из useCreateAvatar
         },
         onError: (error) => {
           toast.error(getApiErrorMessage(error));
-        },
-        onSettled: () => {
-          isSubmittingRef.current = false;
+          setIsSubmitting(false);
         },
       }
     );
@@ -171,8 +170,8 @@ export default function CreateAvatarPage({ params }: CreateAvatarPageProps) {
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             ) : (
-              <Button onClick={handleSubmit} disabled={isPending || !canGoNext()}>
-                {isPending ? (
+              <Button onClick={handleSubmit} disabled={isSubmitting || isPending || !canGoNext()}>
+                {isSubmitting || isPending ? (
                   <>
                     <Spinner className="mr-2 h-4 w-4" />
                     Создание...

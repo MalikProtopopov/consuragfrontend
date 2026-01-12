@@ -127,9 +127,11 @@ const Header = React.forwardRef<HTMLElement, HeaderProps>(
           )}
 
           {/* Notifications */}
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="size-5" />
-            <span className="sr-only">Уведомления</span>
+          <Button variant="ghost" size="icon" className="relative" asChild>
+            <Link href="/settings/notifications">
+              <Bell className="size-5" />
+              <span className="sr-only">Уведомления</span>
+            </Link>
           </Button>
 
           {/* User menu */}
