@@ -37,6 +37,7 @@ export function ProjectForm({
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<ProjectFormData>({
     resolver: zodResolver(projectSchema),
@@ -47,6 +48,13 @@ export function ProjectForm({
       ...defaultValues,
     },
   });
+
+  const slugRegister = register("slug");
+
+  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const lowercaseValue = e.target.value.toLowerCase();
+    setValue("slug", lowercaseValue, { shouldValidate: true });
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -67,7 +75,10 @@ export function ProjectForm({
           id="slug"
           placeholder="my-project"
           disabled={isLoading}
-          {...register("slug")}
+          autoCapitalize="none"
+          autoCorrect="off"
+          {...slugRegister}
+          onChange={handleSlugChange}
         />
         {errors.slug && <p className="text-sm text-error">{errors.slug.message}</p>}
         <p className="text-xs text-text-muted">

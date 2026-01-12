@@ -307,19 +307,23 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                               {sidebarProjects.map((project) => {
                                 const isProjectActive = pathname?.startsWith(`/projects/${project.id}`);
                                 return (
-                                  <Link
-                                    key={project.id}
-                                    href={`/projects/${project.id}`}
-                                    className={cn(
-                                      "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all",
-                                      isProjectActive
-                                        ? "bg-accent-primary/10 text-accent-primary"
-                                        : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
-                                    )}
-                                  >
-                                    <Folder className={cn("size-4 shrink-0", isProjectActive && "text-accent-primary")} />
-                                    <span className="truncate">{project.name}</span>
-                                  </Link>
+                                  <Tooltip key={project.id}>
+                                    <TooltipTrigger asChild>
+                                      <Link
+                                        href={`/projects/${project.id}`}
+                                        className={cn(
+                                          "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all overflow-hidden min-w-0",
+                                          isProjectActive
+                                            ? "bg-accent-primary/10 text-accent-primary"
+                                            : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
+                                        )}
+                                      >
+                                        <Folder className={cn("size-4 shrink-0", isProjectActive && "text-accent-primary")} />
+                                        <span className="truncate">{project.name}</span>
+                                      </Link>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="right">{project.name}</TooltipContent>
+                                  </Tooltip>
                                 );
                               })}
                               <Link
