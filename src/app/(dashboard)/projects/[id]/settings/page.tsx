@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useRef, useEffect } from "react";
 import { useProject, useProjectSettings, useUpdateProject, useUpdateProjectSettings } from "@/entities/project";
 import { PageContainer, PageHeader } from "@/widgets/app-shell";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/ui/card";
@@ -34,15 +34,20 @@ export default function ProjectSettingsPage({ params }: ProjectSettingsPageProps
     description: "",
     slug: "",
   });
+  
+  const isFormInitialized = useRef(false);
 
-  // Initialize form when project loads
-  if (project && basicForm.name === "") {
-    setBasicForm({
-      name: project.name,
-      description: project.description || "",
-      slug: project.slug,
-    });
-  }
+  // Initialize form when project loads (only once)
+  useEffect(() => {
+    if (project && !isFormInitialized.current) {
+      setBasicForm({
+        name: project.name,
+        description: project.description || "",
+        slug: project.slug,
+      });
+      isFormInitialized.current = true;
+    }
+  }, [project]);
 
   const isLoading = projectLoading || settingsLoading;
 
