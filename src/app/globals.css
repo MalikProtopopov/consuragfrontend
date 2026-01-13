@@ -351,27 +351,49 @@
   }
 
   /* Typography Scale - F0 Design System */
-  h1, h2, h3, h4 {
-    font-family: var(--font-heading);
+  /* Ensure heading font is always applied */
+  h1, h2, h3, h4, h5, h6,
+  .font-heading {
+    font-family: var(--font-heading) !important;
   }
 
   h1 {
-    @apply text-4xl font-bold tracking-tight;
+    @apply font-bold tracking-tight;
+    font-size: clamp(2.5rem, 5vw, 4.5rem); /* 40px - 72px responsive */
+    line-height: 0.9;
     letter-spacing: -0.02em;
   }
 
   h2 {
-    @apply text-3xl font-semibold tracking-tight;
+    @apply font-bold tracking-tight;
+    font-size: clamp(2rem, 4vw, 3rem); /* 32px - 48px responsive */
+    line-height: 0.95;
     letter-spacing: -0.01em;
   }
 
   h3 {
-    @apply text-2xl font-semibold;
+    @apply font-semibold;
+    font-size: clamp(1.5rem, 3vw, 2rem); /* 24px - 32px responsive */
+    line-height: 1.1;
     letter-spacing: -0.01em;
   }
 
   h4 {
-    @apply text-xl font-medium;
+    @apply font-semibold;
+    font-size: clamp(1.25rem, 2vw, 1.5rem); /* 20px - 24px responsive */
+    line-height: 1.2;
+  }
+
+  h5 {
+    @apply font-semibold;
+    font-size: 1.125rem; /* 18px */
+    line-height: 1.3;
+  }
+
+  h6 {
+    @apply font-medium;
+    font-size: 1rem; /* 16px */
+    line-height: 1.4;
   }
 
   p {
