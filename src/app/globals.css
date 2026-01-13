@@ -351,10 +351,10 @@
   }
 
   /* Typography Scale - F0 Design System */
-  /* Ensure heading font is always applied */
+  /* Heading font applied via CSS specificity */
   h1, h2, h3, h4, h5, h6,
   .font-heading {
-    font-family: var(--font-heading) !important;
+    font-family: var(--font-heading);
   }
 
   h1 {
