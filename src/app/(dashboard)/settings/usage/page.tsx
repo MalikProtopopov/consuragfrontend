@@ -196,7 +196,7 @@ export default function UsagePage() {
             )}
             {summary && (
               <p className="text-xs text-text-muted mt-1">
-                {summary.total_tokens_used.toLocaleString()} токенов
+                {(summary.total_tokens_used ?? 0).toLocaleString()} токенов
               </p>
             )}
           </CardContent>
@@ -257,20 +257,20 @@ export default function UsagePage() {
                     <div>
                       <p className="text-text-muted">Осталось</p>
                       <p className="font-medium text-text-primary">
-                        {summary.chat_tokens_remaining.toLocaleString()}
+                        {(summary.chat_tokens_remaining ?? 0).toLocaleString()}
                       </p>
                     </div>
                     <div>
                       <p className="text-text-muted">Бонусные</p>
                       <p className="font-medium text-text-primary">
-                        {summary.chat_bonus_tokens.toLocaleString()}
+                        {(summary.chat_bonus_tokens ?? 0).toLocaleString()}
                       </p>
                     </div>
                   </div>
-                  {summary.chat_overage_tokens > 0 && (
+                  {(summary.chat_overage_tokens ?? 0) > 0 && (
                     <div className="rounded-lg bg-warning/10 p-3 text-sm">
                       <p className="text-warning font-medium">
-                        Перерасход: {summary.chat_overage_tokens.toLocaleString()} токенов
+                        Перерасход: {(summary.chat_overage_tokens ?? 0).toLocaleString()} токенов
                       </p>
                       {summary.overage_price_per_1k_chat && (
                         <p className="text-text-muted mt-1">
@@ -313,20 +313,20 @@ export default function UsagePage() {
                     <div>
                       <p className="text-text-muted">Осталось</p>
                       <p className="font-medium text-text-primary">
-                        {summary.embedding_tokens_remaining.toLocaleString()}
+                        {(summary.embedding_tokens_remaining ?? 0).toLocaleString()}
                       </p>
                     </div>
                     <div>
                       <p className="text-text-muted">Бонусные</p>
                       <p className="font-medium text-text-primary">
-                        {summary.embedding_bonus_tokens.toLocaleString()}
+                        {(summary.embedding_bonus_tokens ?? 0).toLocaleString()}
                       </p>
                     </div>
                   </div>
-                  {summary.embedding_overage_tokens > 0 && (
+                  {(summary.embedding_overage_tokens ?? 0) > 0 && (
                     <div className="rounded-lg bg-warning/10 p-3 text-sm">
                       <p className="text-warning font-medium">
-                        Перерасход: {summary.embedding_overage_tokens.toLocaleString()} токенов
+                        Перерасход: {(summary.embedding_overage_tokens ?? 0).toLocaleString()} токенов
                       </p>
                       {summary.overage_price_per_1k_embedding && (
                         <p className="text-text-muted mt-1">
@@ -424,7 +424,7 @@ export default function UsagePage() {
                                   : item.operation_type}
                           </TableCell>
                           <TableCell className="text-right">
-                            {item.tokens.toLocaleString()}
+                            {(item.tokens ?? 0).toLocaleString()}
                           </TableCell>
                           <TableCell className="text-right">{item.requests}</TableCell>
                           <TableCell className="text-right">
@@ -456,7 +456,7 @@ export default function UsagePage() {
                         <TableRow key={index}>
                           <TableCell className="font-medium">{item.model}</TableCell>
                           <TableCell className="text-right">
-                            {item.tokens.toLocaleString()}
+                            {(item.tokens ?? 0).toLocaleString()}
                           </TableCell>
                           <TableCell className="text-right">{item.requests}</TableCell>
                           <TableCell className="text-right">
@@ -490,7 +490,7 @@ export default function UsagePage() {
                             {item.project_id}
                           </TableCell>
                           <TableCell className="text-right">
-                            {item.tokens.toLocaleString()}
+                            {(item.tokens ?? 0).toLocaleString()}
                           </TableCell>
                           <TableCell className="text-right">{item.requests}</TableCell>
                           <TableCell className="text-right">
@@ -524,7 +524,7 @@ export default function UsagePage() {
                             {item.avatar_id}
                           </TableCell>
                           <TableCell className="text-right">
-                            {item.tokens.toLocaleString()}
+                            {(item.tokens ?? 0).toLocaleString()}
                           </TableCell>
                           <TableCell className="text-right">{item.requests}</TableCell>
                           <TableCell className="text-right">
@@ -568,13 +568,13 @@ export default function UsagePage() {
                   <div className="rounded-lg border border-border p-4">
                     <p className="text-sm text-text-muted">Токены чата / мес.</p>
                     <p className="text-xl font-bold text-text-primary">
-                      {planInfo.monthly_chat_limit.toLocaleString()}
+                      {(planInfo.monthly_chat_limit ?? 0).toLocaleString()}
                     </p>
                   </div>
                   <div className="rounded-lg border border-border p-4">
                     <p className="text-sm text-text-muted">Токены embeddings / мес.</p>
                     <p className="text-xl font-bold text-text-primary">
-                      {planInfo.monthly_embedding_limit.toLocaleString()}
+                      {(planInfo.monthly_embedding_limit ?? 0).toLocaleString()}
                     </p>
                   </div>
                   <div className="rounded-lg border border-border p-4">

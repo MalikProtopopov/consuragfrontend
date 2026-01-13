@@ -239,7 +239,7 @@ export default function DashboardPage() {
                         {avatar.status}
                       </Badge>
                     </TableCell>
-                    <TableCell>{avatar.conversations.toLocaleString()}</TableCell>
+                    <TableCell>{(avatar.conversations ?? 0).toLocaleString()}</TableCell>
                     <TableCell className="text-muted-foreground">{avatar.lastActive}</TableCell>
                     <TableCell>
                       <DropdownMenu>

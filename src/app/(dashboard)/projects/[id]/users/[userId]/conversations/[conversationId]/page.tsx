@@ -333,7 +333,7 @@ export default function ConversationDetailPage({ params }: ConversationDetailPag
               <div>
                 <p className="text-sm text-text-muted">Токенов</p>
                 <p className="font-medium text-text-primary">
-                  {conversation.total_tokens.toLocaleString()}
+                  {(conversation.total_tokens ?? 0).toLocaleString()}
                 </p>
               </div>
             </div>

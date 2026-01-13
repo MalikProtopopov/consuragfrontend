@@ -240,8 +240,8 @@ export function PlanRequestDetailDialog({
                     <div className="flex justify-between text-sm">
                       <span className="text-text-muted">Chat токены</span>
                       <span>
-                        {request.current_budget.chat_tokens_used.toLocaleString()} /{" "}
-                        {request.current_budget.chat_tokens_limit.toLocaleString()}
+                        {(request.current_budget.chat_tokens_used ?? 0).toLocaleString()} /{" "}
+                        {(request.current_budget.chat_tokens_limit ?? 0).toLocaleString()}
                       </span>
                     </div>
                     <Progress
@@ -258,8 +258,8 @@ export function PlanRequestDetailDialog({
                     <div className="flex justify-between text-sm">
                       <span className="text-text-muted">Embedding токены</span>
                       <span>
-                        {request.current_budget.embedding_tokens_used.toLocaleString()} /{" "}
-                        {request.current_budget.embedding_tokens_limit.toLocaleString()}
+                        {(request.current_budget.embedding_tokens_used ?? 0).toLocaleString()} /{" "}
+                        {(request.current_budget.embedding_tokens_limit ?? 0).toLocaleString()}
                       </span>
                     </div>
                     <Progress

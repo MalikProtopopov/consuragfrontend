@@ -427,7 +427,7 @@ export default function EndUserDetailPage({ params }: EndUserDetailPageProps) {
                   <div>
                     <p className="text-sm text-text-muted">Токенов</p>
                     <p className="font-medium text-text-primary">
-                      {user.stats.total_tokens_used.toLocaleString()}
+                      {(user.stats.total_tokens_used ?? 0).toLocaleString()}
                     </p>
                   </div>
                 </div>
@@ -551,8 +551,8 @@ export default function EndUserDetailPage({ params }: EndUserDetailPageProps) {
                       }
                     />
                     <p className="text-xs text-text-muted text-right">
-                      {user.limits.tokens_used_today.toLocaleString()} /{" "}
-                      {user.limits.daily_tokens_limit.toLocaleString()}
+                      {(user.limits.tokens_used_today ?? 0).toLocaleString()} /{" "}
+                      {(user.limits.daily_tokens_limit ?? 0).toLocaleString()}
                     </p>
                   </div>
                 )}
@@ -584,8 +584,8 @@ export default function EndUserDetailPage({ params }: EndUserDetailPageProps) {
                       }
                     />
                     <p className="text-xs text-text-muted text-right">
-                      {user.limits.tokens_used_month.toLocaleString()} /{" "}
-                      {user.limits.monthly_tokens_limit.toLocaleString()}
+                      {(user.limits.tokens_used_month ?? 0).toLocaleString()} /{" "}
+                      {(user.limits.monthly_tokens_limit ?? 0).toLocaleString()}
                     </p>
                   </div>
                 )}
@@ -712,7 +712,7 @@ export default function EndUserDetailPage({ params }: EndUserDetailPageProps) {
                         </span>
                         <span className="flex items-center gap-1">
                           <Zap className="h-3 w-3" />
-                          {conv.total_tokens.toLocaleString()} токенов
+                          {(conv.total_tokens ?? 0).toLocaleString()} токенов
                         </span>
                         <span className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />

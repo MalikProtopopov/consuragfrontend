@@ -179,11 +179,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
             href: `/projects/${projectId}/avatars/${avatarId}/chat`,
             icon: MessageSquare,
           },
-          {
-            title: "История сессий",
-            href: `/projects/${projectId}/avatars/${avatarId}/sessions`,
-            icon: FileText,
-          },
+          // История сессий временно скрыта - требует доработки
         ];
         sections.push({ title: "Аватар", items: avatarItems });
       }
@@ -303,7 +299,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                             />
                           </button>
                           {isExpanded && (
-                            <div className="ml-4 mt-1 space-y-1 border-l border-border pl-3 overflow-hidden">
+                            <div className="ml-4 mt-1 space-y-1 border-l border-border pl-3 overflow-hidden max-w-full">
                               {sidebarProjects.map((project) => {
                                 const isProjectActive = pathname?.startsWith(`/projects/${project.id}`);
                                 return (
@@ -312,14 +308,14 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                                       <Link
                                         href={`/projects/${project.id}`}
                                         className={cn(
-                                          "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all overflow-hidden min-w-0 max-w-full",
+                                          "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all overflow-hidden min-w-0",
                                           isProjectActive
                                             ? "bg-accent-primary/10 text-accent-primary"
                                             : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
                                         )}
                                       >
                                         <Folder className={cn("size-4 shrink-0", isProjectActive && "text-accent-primary")} />
-                                        <span className="truncate flex-1 min-w-0">{project.name}</span>
+                                        <span className="truncate">{project.name}</span>
                                       </Link>
                                     </TooltipTrigger>
                                     <TooltipContent side="right">{project.name}</TooltipContent>
@@ -494,8 +490,10 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Link
-                      href="#"
+                    <a
+                      href="https://parmenid.tech/docs"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className={cn(
                         "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-text-secondary hover:bg-bg-hover hover:text-text-primary",
                         collapsed && "justify-center px-2"
@@ -503,7 +501,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                     >
                       <HelpCircle className="size-5" />
                       {!collapsed && <span>Помощь</span>}
-                    </Link>
+                    </a>
                   </TooltipTrigger>
                   {collapsed && <TooltipContent side="right">Помощь</TooltipContent>}
                 </Tooltip>

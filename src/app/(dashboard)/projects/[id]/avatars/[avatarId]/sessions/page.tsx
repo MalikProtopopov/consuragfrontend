@@ -153,7 +153,7 @@ function SessionRow({ session }: { session: ChatSession }) {
         </div>
       </TableCell>
       <TableCell>{session.messages_count}</TableCell>
-      <TableCell>{session.tokens_used.toLocaleString()}</TableCell>
+      <TableCell>{(session.tokens_used ?? 0).toLocaleString()}</TableCell>
       <TableCell>
         <Badge variant={session.is_active ? "success" : "secondary"}>
           {session.is_active ? "Активна" : "Закрыта"}

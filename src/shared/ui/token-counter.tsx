@@ -39,7 +39,9 @@ interface TokenCounterProps {
 
 const TokenCounter = React.forwardRef<HTMLAnchorElement, TokenCounterProps>(
   ({ chatUsed, chatLimit, showDetails = false, compact = false, className }, ref) => {
-    const percent = chatLimit > 0 ? Math.round((chatUsed / chatLimit) * 100) : 0;
+    const safeUsed = chatUsed ?? 0;
+    const safeLimit = chatLimit ?? 0;
+    const percent = safeLimit > 0 ? Math.round((safeUsed / safeLimit) * 100) : 0;
     const usageColor = getUsageColor(percent);
 
     if (compact) {
@@ -57,7 +59,7 @@ const TokenCounter = React.forwardRef<HTMLAnchorElement, TokenCounterProps>(
             >
               <Coins className="size-4" />
               <span className={usageColor}>
-                {formatCompact(chatUsed)} / {formatCompact(chatLimit)}
+                {formatCompact(safeUsed)} / {formatCompact(safeLimit)}
               </span>
             </Link>
           </TooltipTrigger>
@@ -65,7 +67,7 @@ const TokenCounter = React.forwardRef<HTMLAnchorElement, TokenCounterProps>(
             <div className="space-y-1">
               <p className="font-medium">Использование токенов</p>
               <p className="text-text-muted">
-                {chatUsed.toLocaleString()} / {chatLimit.toLocaleString()} ({percent}%)
+                {safeUsed.toLocaleString()} / {safeLimit.toLocaleString()} ({percent}%)
               </p>
               <p className="text-xs text-text-muted">Нажмите для подробностей</p>
             </div>
@@ -94,7 +96,7 @@ const TokenCounter = React.forwardRef<HTMLAnchorElement, TokenCounterProps>(
           </div>
           {showDetails && (
             <p className="text-xs text-text-muted truncate">
-              {formatCompact(chatUsed)} / {formatCompact(chatLimit)}
+              {formatCompact(safeUsed)} / {formatCompact(safeLimit)}
             </p>
           )}
         </div>
