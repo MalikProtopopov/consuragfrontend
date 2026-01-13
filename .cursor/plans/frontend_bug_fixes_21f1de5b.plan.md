@@ -37,7 +37,7 @@ const [isSubmitting, setIsSubmitting] = useState(false);
 
 ## 2. Модальное окно "Улучшить план"
 
-**Проблема:** Кнопка делает `mailto:`, нужно модальное окно с выбором плана и отправкой заявки через API.**Файл:** [`src/app/(dashboard)/settings/usage/page.tsx`](src/app/\\(dashboard)/settings/usage/page.tsx)**Решение:**
+**Проблема:** Кнопка делает `mailto:`, нужно модальное окно с выбором плана и отправкой заявки через API.**Файл:** [`src/app/(dashboard)/settings/usage/page.tsx`](src/app/\\\(dashboard)/settings/usage/page.tsx)**Решение:**
 
 - Создать компонент `PlanUpgradeDialog` с выбором плана и полем для сообщения
 - Использовать существующий хук `useCreatePlanRequest` из `@/entities/plan-request`
@@ -98,4 +98,3 @@ className={cn(
 
 1. Исправить дублирование при создании аватара (критично)
 2. Создать модальное окно для смены плана
-3. Исправить длинные названия в сайдбаре

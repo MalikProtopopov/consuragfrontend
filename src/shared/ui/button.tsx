@@ -11,25 +11,25 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        // Primary - Main CTAs, uses brand color
+        // Primary - Main CTAs, uses brand color (Hot Pink #FF006E)
         default:
-          "bg-primary text-primary-foreground shadow-sm hover:bg-primary-hover active:scale-[0.98]",
+          "bg-primary text-primary-foreground shadow-sm hover:bg-primary-hover hover:scale-[1.02] active:scale-[0.98]",
         // Secondary - Less emphasis, outlined style
         secondary:
-          "bg-secondary text-secondary-foreground border border-border shadow-sm hover:bg-secondary/80 active:scale-[0.98]",
+          "bg-secondary text-secondary-foreground border border-border shadow-sm hover:bg-secondary/80 hover:scale-[1.01] active:scale-[0.98]",
         // Ghost - Minimal chrome, transparent background
         ghost: "hover:bg-accent hover:text-accent-foreground active:bg-accent/80",
         // Destructive - Dangerous actions
         destructive:
-          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 active:scale-[0.98] focus-visible:ring-destructive",
+          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 hover:scale-[1.02] active:scale-[0.98] focus-visible:ring-destructive",
         // Outline - Border only
         outline:
-          "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground active:scale-[0.98]",
+          "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground hover:scale-[1.01] active:scale-[0.98]",
         // Link - Looks like a hyperlink
         link: "text-primary underline-offset-4 hover:underline p-0 h-auto",
         // Success - Positive actions
         success:
-          "bg-success text-success-foreground shadow-sm hover:bg-success/90 active:scale-[0.98] focus-visible:ring-success",
+          "bg-success text-success-foreground shadow-sm hover:bg-success/90 hover:scale-[1.02] active:scale-[0.98] focus-visible:ring-success",
       },
       size: {
         sm: "h-8 rounded-md px-3 text-xs gap-1.5 has-[>svg]:px-2",

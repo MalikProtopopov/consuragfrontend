@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Playfair_Display, Inter, JetBrains_Mono } from "next/font/google";
 
 import { QueryProvider, ThemeProvider } from "@/providers";
 import { Toaster } from "@/shared/ui/sonner";
@@ -8,8 +8,15 @@ import { ApiUrlSwitcher } from "@/shared/ui/api-url-switcher";
 
 import "./globals.css";
 
+const playfairDisplay = Playfair_Display({
+  subsets: ["latin", "cyrillic"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-heading",
+  display: "swap",
+});
+
 const inter = Inter({
-  subsets: ["latin"],
+  subsets: ["latin", "cyrillic"],
   variable: "--font-sans",
   display: "swap",
 });
@@ -37,7 +44,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
+      <body className={`${playfairDisplay.variable} ${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
         <ThemeProvider>
           <QueryProvider>
             <TokenLimitDialogProvider>

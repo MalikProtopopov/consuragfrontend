@@ -10,20 +10,21 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        // Default - Primary brand
+        // Default - Primary brand (Hot Pink)
         default: "border-transparent bg-primary text-primary-foreground",
-        // Secondary - Neutral
-        secondary: "border-transparent bg-secondary text-secondary-foreground",
+        // Secondary - Neutral, uses mono font for tag-like appearance
+        secondary: "border-transparent bg-muted text-muted-foreground font-mono",
         // Destructive / Error
         destructive: "border-transparent bg-destructive text-destructive-foreground",
-        // Outline - Border only
+        // Outline - Border only with brand color option
         outline: "border-border text-foreground bg-transparent",
+        "outline-primary": "border-primary text-primary bg-transparent font-mono",
         // Success - Positive states
-        success: "border-transparent bg-success text-success-foreground",
+        success: "border-transparent bg-success text-white",
         // Warning - Caution states
-        warning: "border-transparent bg-warning text-warning-foreground",
+        warning: "border-transparent bg-warning text-white",
         // Info - Informational
-        info: "border-transparent bg-info text-info-foreground",
+        info: "border-transparent bg-info text-white",
         // Status variants - for document/avatar pipeline states
         active: "border-transparent bg-status-active text-white",
         draft: "border-transparent bg-status-draft text-white",
@@ -36,6 +37,8 @@ const badgeVariants = cva(
           "border-destructive/20 bg-destructive/10 text-destructive dark:bg-destructive/20",
         "info-subtle": "border-info/20 bg-info/10 text-info dark:bg-info/20",
         "primary-subtle": "border-primary/20 bg-primary/10 text-primary dark:bg-primary/20",
+        // Tag variant - for F0 design system tags (mono font, muted colors)
+        tag: "border-transparent bg-muted text-muted-foreground font-mono rounded-md",
       },
       size: {
         sm: "text-[10px] px-1.5 py-0",

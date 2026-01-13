@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Server, RotateCcw } from "lucide-react";
+import { Server, RotateCcw, X } from "lucide-react";
 import { Button } from "./button";
 import {
   Select,
@@ -20,12 +20,13 @@ interface ApiUrlSwitcherProps {
 /**
  * API URL Switcher component
  * Shows a floating panel to switch between dev and prod API endpoints
- * Only visible in development mode (can be toggled)
+ * Visible by default in development mode, can be toggled with Ctrl+Shift+A
  */
 export function ApiUrlSwitcher({ className }: ApiUrlSwitcherProps) {
   const [currentUrl, setCurrentUrl] = React.useState<string>("");
   const [hasOverride, setHasOverride] = React.useState(false);
-  const [isVisible, setIsVisible] = React.useState(false);
+  // Show by default in development mode
+  const [isVisible, setIsVisible] = React.useState(process.env.NODE_ENV === "development");
 
   React.useEffect(() => {
     setCurrentUrl(apiUrlManager.getApiUrl());
@@ -38,6 +39,10 @@ export function ApiUrlSwitcher({ className }: ApiUrlSwitcherProps) {
 
   const handleReset = () => {
     apiUrlManager.clearOverride();
+  };
+
+  const handleClose = () => {
+    setIsVisible(false);
   };
 
   // Toggle visibility with keyboard shortcut (Ctrl+Shift+A)
@@ -69,16 +74,27 @@ export function ApiUrlSwitcher({ className }: ApiUrlSwitcherProps) {
       )}
     >
       <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-2">
-          <Server
-            className={cn(
-              "size-4",
-              isProd ? "text-success" : "text-warning"
-            )}
-          />
-          <span className="text-xs font-medium text-text-primary">
-            API: {isProd ? "PROD" : "DEV"}
-          </span>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Server
+              className={cn(
+                "size-4",
+                isProd ? "text-success" : "text-warning"
+              )}
+            />
+            <span className="text-xs font-medium text-text-primary">
+              API: {isProd ? "PROD" : "DEV"}
+            </span>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-6 -mr-1 -mt-1"
+            onClick={handleClose}
+            title="Скрыть панель"
+          >
+            <X className="size-3.5" />
+          </Button>
         </div>
 
         <div className="flex items-center gap-2">
@@ -109,7 +125,7 @@ export function ApiUrlSwitcher({ className }: ApiUrlSwitcherProps) {
         </div>
 
         <p className="text-[10px] text-text-muted">
-          Ctrl+Shift+A — скрыть панель
+          Ctrl+Shift+A — показать/скрыть
         </p>
       </div>
     </div>
