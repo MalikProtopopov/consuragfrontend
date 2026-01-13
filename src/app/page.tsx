@@ -1,207 +1,249 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 import {
   ArrowRight,
   Bot,
-  Code2,
-  Component,
   FileText,
-  Github,
-  Layout,
+  LogOut,
   Moon,
-  MousePointer2,
-  Palette,
+  Send,
+  Settings,
   Sun,
-  Users,
-  Zap,
+  User,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 
-import { Badge } from "@/shared/ui/badge";
+import { useAuthStore, useMe } from "@/entities/auth";
+import { useUsageSummary } from "@/entities/billing";
+import { authApi } from "@/entities/auth";
+import { tokenManager } from "@/shared/api";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
+import { PlanBadge } from "@/shared/ui/plan-badge";
+import { Skeleton } from "@/shared/ui/skeleton";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/shared/ui/dropdown-menu";
 
 export default function HomePage() {
+  const router = useRouter();
   const { theme, setTheme } = useTheme();
+  const { user, logout: logoutStore } = useAuthStore();
+  const { isLoading: userLoading } = useMe();
+  const { data: usageSummary, isLoading: usageLoading } = useUsageSummary();
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (typeof window !== "undefined" && !tokenManager.hasToken()) {
+      router.replace("/login");
+    }
+  }, [router]);
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
   };
 
+  const handleLogout = async () => {
+    try {
+      await authApi.logout();
+      logoutStore();
+      router.push("/login");
+    } catch {
+      // Still logout locally
+      logoutStore();
+      router.push("/login");
+    }
+  };
+
+  const isLoading = userLoading || usageLoading;
+  const currentPlan = usageSummary?.plan ?? "free";
+  const shouldShowUpgrade = currentPlan === "free" || currentPlan === "starter";
+
   const features = [
     {
-      icon: Palette,
-      title: "Design Tokens",
-      description:
-        "CSS custom properties for colors, typography, spacing, and motion—all theme-aware.",
+      icon: Bot,
+      title: "AI-аватары",
+      description: "Создавайте консультантов с уникальными промптами и настройками LLM",
     },
     {
-      icon: Component,
-      title: "40+ Components",
-      description:
-        "Buttons, inputs, cards, modals, and more—built with shadcn/ui and Radix primitives.",
+      icon: FileText,
+      title: "База знаний",
+      description: "Загружайте PDF, DOCX, TXT — аватар отвечает на их основе",
     },
     {
-      icon: Layout,
-      title: "App Shell",
-      description: "Ready-to-use sidebar, header, and content layout for admin dashboards.",
-    },
-    {
-      icon: MousePointer2,
-      title: "Micro-interactions",
-      description: "Smooth 120-240ms transitions with carefully crafted easing curves.",
-    },
-    {
-      icon: Code2,
-      title: "Developer Ready",
-      description: "TypeScript, Tailwind CSS v4, and full accessibility (WCAG AA) built-in.",
-    },
-    {
-      icon: Zap,
-      title: "Performance First",
-      description: "Tree-shakeable components, CSS variables for theming, minimal bundle size.",
+      icon: Send,
+      title: "Telegram",
+      description: "Подключите бота и общайтесь с аватаром в мессенджере",
     },
   ];
 
-  const stats = [
-    { value: "40+", label: "Components" },
-    { value: "2", label: "Themes" },
-    { value: "6", label: "Status Colors" },
-    { value: "100%", label: "TypeScript" },
-  ];
+  // Show loading while checking auth
+  if (!tokenManager.hasToken() && typeof window !== "undefined") {
+    return null;
+  }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-bg-primary">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 w-full border-b border-border bg-bg-primary/95 backdrop-blur supports-[backdrop-filter]:bg-bg-primary/60">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
+          {/* Logo */}
           <div className="flex items-center gap-3">
-            <div className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold">
-              UI
+            <div className="flex size-9 items-center justify-center rounded-lg bg-accent-primary text-accent-contrast font-bold">
+              A
             </div>
-            <span className="font-semibold text-lg">UI Kit 2026</span>
-            <Badge variant="primary-subtle" size="sm">
-              Beta
-            </Badge>
+            <span className="font-semibold text-lg text-text-primary">Avatar AI</span>
           </div>
 
+          {/* Navigation */}
           <nav className="hidden md:flex items-center gap-6">
             <Link
-              href="/design-system"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              href="/projects"
+              className="text-sm text-text-secondary hover:text-text-primary transition-colors"
             >
-              Components
+              Проекты
             </Link>
             <Link
-              href="/design-system/tokens"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              href="/settings/profile"
+              className="text-sm text-text-secondary hover:text-text-primary transition-colors"
             >
-              Tokens
-            </Link>
-            <Link
-              href="/design-system/patterns"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Patterns
+              Настройки
             </Link>
           </nav>
 
+          {/* Right side */}
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" onClick={toggleTheme}>
               {theme === "dark" ? <Sun className="size-5" /> : <Moon className="size-5" />}
             </Button>
-            <Button variant="ghost" size="icon" asChild>
-              <a href="https://github.com" target="_blank" rel="noopener noreferrer">
-                <Github className="size-5" />
-              </a>
-            </Button>
-            <Button asChild>
-              <Link href="/design-system">
-                View Components
-                <ArrowRight className="size-4 ml-1" />
-              </Link>
-            </Button>
+
+            {/* User Menu */}
+            {isLoading ? (
+              <Skeleton className="h-9 w-24" />
+            ) : (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="gap-2">
+                    <User className="size-4" />
+                    <span className="hidden sm:inline max-w-[120px] truncate">
+                      {user?.full_name || user?.email?.split("@")[0] || "Пользователь"}
+                    </span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <div className="px-2 py-1.5">
+                    <p className="text-sm font-medium text-text-primary truncate">
+                      {user?.full_name || "Пользователь"}
+                    </p>
+                    <p className="text-xs text-text-muted truncate">{user?.email}</p>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/settings/profile" className="cursor-pointer">
+                      <Settings className="size-4 mr-2" />
+                      Настройки
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="text-error cursor-pointer">
+                    <LogOut className="size-4 mr-2" />
+                    Выйти
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
       </header>
 
-      {/* Hero */}
+      {/* Hero Section */}
       <section className="relative overflow-hidden">
-        {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
+        {/* Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-accent-primary/5 via-transparent to-accent-secondary/5" />
 
-        <div className="container mx-auto px-4 py-24 md:py-32 relative">
-          <div className="max-w-3xl mx-auto text-center space-y-8">
-            <Badge variant="outline" className="px-4 py-1.5">
-              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-semibold">
-                Design System for AI Platforms
-              </span>
-            </Badge>
+        <div className="container mx-auto px-4 py-16 md:py-24 relative">
+          <div className="max-w-2xl mx-auto text-center space-y-6">
+            {/* Plan Badge */}
+            {isLoading ? (
+              <Skeleton className="h-6 w-20 mx-auto" />
+            ) : (
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-sm text-text-muted">Ваш тариф:</span>
+                <PlanBadge plan={currentPlan} size="md" />
+              </div>
+            )}
 
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
-              Build beautiful AI interfaces with{" "}
-              <span className="bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">
-                UI Kit 2026
-              </span>
+            {/* Title */}
+            <h1 className="text-3xl md:text-5xl font-bold text-text-primary tracking-tight">
+              AI Avatar Platform
             </h1>
 
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-              A comprehensive design system for AI avatar platforms. Neo-minimal design with warm
-              enterprise aesthetics, built on Next.js, Tailwind CSS v4, and shadcn/ui.
+            {/* Subtitle */}
+            <p className="text-lg text-text-secondary max-w-xl mx-auto">
+              Создавайте умных AI-консультантов на основе ваших документов. 
+              Интегрируйте в Telegram за минуты.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button size="xl" asChild>
-                <Link href="/design-system">
-                  Explore Components
-                  <ArrowRight className="size-5" />
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+              {shouldShowUpgrade ? (
+                <Button size="lg" asChild>
+                  <Link href="/settings/usage">
+                    Повысить тариф
+                    <ArrowRight className="size-4 ml-2" />
+                  </Link>
+                </Button>
+              ) : (
+                <Button size="lg" asChild>
+                  <Link href="/projects">
+                    Перейти к проектам
+                    <ArrowRight className="size-4 ml-2" />
+                  </Link>
+                </Button>
+              )}
+              <Button variant="outline" size="lg" asChild>
+                <Link href="/projects">
+                  Мои проекты
                 </Link>
               </Button>
-              <Button variant="outline" size="xl" asChild>
-                <Link href="/dashboard">View Demo Dashboard</Link>
-              </Button>
             </div>
-          </div>
-
-          {/* Stats */}
-          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-2xl mx-auto">
-            {stats.map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-primary">{stat.value}</div>
-                <div className="text-sm text-muted-foreground mt-1">{stat.label}</div>
-              </div>
-            ))}
           </div>
         </div>
       </section>
 
-      {/* Features */}
-      <section className="py-24 bg-surface-2/50">
+      {/* Features Section */}
+      <section className="py-16 bg-bg-secondary/50">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">Everything you need</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              A complete design system with tokens, components, patterns, and templates for building
-              modern AI-powered applications.
+          <div className="text-center mb-12">
+            <h2 className="text-2xl font-bold text-text-primary mb-2">Возможности платформы</h2>
+            <p className="text-text-secondary">
+              Всё необходимое для создания AI-консультантов
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             {features.map((feature) => {
               const Icon = feature.icon;
               return (
-                <Card key={feature.title} className="card-hover border-border/50">
+                <Card key={feature.title} className="border-border/50 hover:border-border transition-colors">
                   <CardHeader>
-                    <div className="size-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                      <Icon className="size-5 text-primary" />
+                    <div className="size-12 rounded-lg bg-accent-primary/10 flex items-center justify-center mb-4">
+                      <Icon className="size-6 text-accent-primary" />
                     </div>
-                    <CardTitle className="text-lg">{feature.title}</CardTitle>
+                    <CardTitle className="text-lg text-text-primary">{feature.title}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <CardDescription>{feature.description}</CardDescription>
+                    <CardDescription className="text-text-secondary">
+                      {feature.description}
+                    </CardDescription>
                   </CardContent>
                 </Card>
               );
@@ -210,204 +252,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Component Preview */}
-      <section className="py-24">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">Component Gallery</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Production-ready components designed for AI avatar platforms
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {/* Buttons Preview */}
-            <Card className="p-6">
-              <h3 className="font-semibold mb-4">Buttons</h3>
-              <div className="flex flex-wrap gap-2">
-                <Button>Primary</Button>
-                <Button variant="secondary">Secondary</Button>
-                <Button variant="outline">Outline</Button>
-                <Button variant="ghost">Ghost</Button>
-                <Button variant="destructive">Delete</Button>
-              </div>
-            </Card>
-
-            {/* Badges Preview */}
-            <Card className="p-6">
-              <h3 className="font-semibold mb-4">Badges</h3>
-              <div className="flex flex-wrap gap-2">
-                <Badge>Default</Badge>
-                <Badge variant="success">Active</Badge>
-                <Badge variant="warning">Pending</Badge>
-                <Badge variant="destructive">Failed</Badge>
-                <Badge variant="processing">Processing</Badge>
-                <Badge variant="info">Info</Badge>
-              </div>
-            </Card>
-
-            {/* Status Indicators */}
-            <Card className="p-6">
-              <h3 className="font-semibold mb-4">Status Indicators</h3>
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <span className="status-dot status-dot-active" />
-                  <span className="text-sm">Active</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="status-dot status-dot-processing" />
-                  <span className="text-sm">Processing</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="status-dot status-dot-draft" />
-                  <span className="text-sm">Draft</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="status-dot status-dot-failed" />
-                  <span className="text-sm">Failed</span>
-                </div>
-              </div>
-            </Card>
-
-            {/* Cards Preview */}
-            <Card className="p-6">
-              <h3 className="font-semibold mb-4">Data Visualization</h3>
-              <div className="flex gap-2">
-                <div className="size-8 rounded bg-chart-1" />
-                <div className="size-8 rounded bg-chart-2" />
-                <div className="size-8 rounded bg-chart-3" />
-                <div className="size-8 rounded bg-chart-4" />
-                <div className="size-8 rounded bg-chart-5" />
-                <div className="size-8 rounded bg-chart-6" />
-              </div>
-            </Card>
-
-            {/* Loading States */}
-            <Card className="p-6">
-              <h3 className="font-semibold mb-4">Loading States</h3>
-              <div className="space-y-3">
-                <div className="skeleton h-4 w-3/4" />
-                <div className="skeleton h-4 w-full" />
-                <div className="skeleton h-4 w-1/2" />
-                <div className="flex gap-2 mt-4">
-                  <div className="skeleton h-10 w-10 rounded-full" />
-                  <div className="flex-1 space-y-2">
-                    <div className="skeleton h-4 w-1/2" />
-                    <div className="skeleton h-3 w-3/4" />
-                  </div>
-                </div>
-              </div>
-            </Card>
-
-            {/* Typography */}
-            <Card className="p-6">
-              <h3 className="font-semibold mb-4">Typography</h3>
-              <div className="space-y-2">
-                <p className="text-2xl font-semibold">Heading</p>
-                <p className="text-base">
-                  Body text with <span className="font-medium">medium weight</span>
-                </p>
-                <p className="text-sm text-muted-foreground">Secondary text</p>
-                <p className="text-xs text-muted-foreground">Caption text</p>
-                <code className="text-sm font-mono bg-muted px-1 py-0.5 rounded">code snippet</code>
-              </div>
-            </Card>
-          </div>
-
-          <div className="text-center mt-12">
-            <Button size="lg" asChild>
-              <Link href="/design-system">
-                View All Components
-                <ArrowRight className="size-4" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Use Cases */}
-      <section className="py-24 bg-surface-2/50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">Built for AI Platforms</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Specialized components and patterns for AI avatar management, document processing, and
-              chat interfaces.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <div className="text-center space-y-4">
-              <div className="size-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
-                <Bot className="size-8 text-primary" />
-              </div>
-              <h3 className="font-semibold text-lg">AI Avatar Management</h3>
-              <p className="text-sm text-muted-foreground">
-                Create and manage AI avatars with multi-step wizards and configuration panels.
-              </p>
-            </div>
-            <div className="text-center space-y-4">
-              <div className="size-16 rounded-2xl bg-accent/10 flex items-center justify-center mx-auto">
-                <FileText className="size-8 text-accent" />
-              </div>
-              <h3 className="font-semibold text-lg">Document Pipeline</h3>
-              <p className="text-sm text-muted-foreground">
-                Upload, process, and visualize document chunks with progress indicators.
-              </p>
-            </div>
-            <div className="text-center space-y-4">
-              <div className="size-16 rounded-2xl bg-success/10 flex items-center justify-center mx-auto">
-                <Users className="size-8 text-success" />
-              </div>
-              <h3 className="font-semibold text-lg">Chat Interface</h3>
-              <p className="text-sm text-muted-foreground">
-                Test conversations with source attribution and feedback controls.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-24">
-        <div className="container mx-auto px-4">
-          <Card className="max-w-3xl mx-auto overflow-hidden">
-            <div className="bg-gradient-to-r from-primary to-accent p-8 md:p-12 text-center text-white">
-              <h2 className="text-2xl md:text-3xl font-bold mb-4">Ready to start building?</h2>
-              <p className="text-white/80 mb-8 max-w-lg mx-auto">
-                Explore the full component library and start building your AI platform today.
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Button
-                  size="lg"
-                  variant="secondary"
-                  className="bg-white text-primary hover:bg-white/90"
-                  asChild
-                >
-                  <Link href="/design-system">Browse Components</Link>
-                </Button>
-                <Button
-                  size="lg"
-                  variant="ghost"
-                  className="border border-white/30 text-white hover:bg-white/10 hover:text-white"
-                  asChild
-                >
-                  <Link href="/dashboard">View Dashboard Demo</Link>
-                </Button>
-              </div>
-            </div>
-          </Card>
-        </div>
-      </section>
-
       {/* Footer */}
-      <footer className="border-t py-12">
+      <footer className="border-t border-border py-8">
         <div className="container mx-auto px-4 text-center">
-          <p className="text-sm text-muted-foreground">
-            UI Kit 2026 — Design System for AI Avatar Platforms
-          </p>
-          <p className="text-xs text-muted-foreground mt-2">
-            Built with Next.js, Tailwind CSS v4, and shadcn/ui
+          <p className="text-sm text-text-muted">
+            © {new Date().getFullYear()} AI Avatar Platform
           </p>
         </div>
       </footer>
