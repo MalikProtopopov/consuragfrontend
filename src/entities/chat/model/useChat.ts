@@ -88,17 +88,14 @@ export function useChat(avatarId: string, source: ChatSource = "web") {
       setIsInitializing(true);
       try {
         const savedSessionId = getSavedSession();
-        console.log("[useChat] Initializing, saved session:", savedSessionId);
         
         if (savedSessionId && shouldRun) {
           // Try to load history from existing session
           try {
-            console.log("[useChat] Loading history for session:", savedSessionId);
             const messages = await chatApi.getHistory(avatarId, { 
               session_id: savedSessionId,
               limit: 50 
             });
-            console.log("[useChat] History loaded, messages:", messages.length);
             if (!shouldRun) return;
             
             // Session is valid, use it
@@ -109,7 +106,7 @@ export function useChat(avatarId: string, source: ChatSource = "web") {
           } catch (error) {
             if (!shouldRun) return;
             // Session expired or invalid, clear it
-            console.log("[useChat] Saved session invalid, creating new one", error);
+            console.warn("[useChat] Saved session invalid, creating new one", error);
             clearSession();
           }
         }
@@ -117,14 +114,11 @@ export function useChat(avatarId: string, source: ChatSource = "web") {
         if (!shouldRun) return;
         
         // No saved session or invalid, create new one
-        console.log("[useChat] Creating new session");
         const response = await chatApi.createSession(avatarId, source);
         if (!shouldRun) return;
-        console.log("[useChat] New session created:", response.id);
         setSessionId(response.id);
         sessionIdRef.current = response.id;
         saveSession(response.id);
-        console.log("[useChat] Session saved to localStorage");
         setMessages([]);
       } catch (error) {
         console.error("[useChat] Failed to initialize chat:", error);

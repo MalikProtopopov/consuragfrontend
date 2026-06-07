@@ -35,7 +35,6 @@ export const chatApi = {
   ): Promise<CreateSessionResponse> => {
     const url = `${API_ENDPOINTS.CHAT.CREATE_SESSION(avatarId)}?source=${source}`;
     const response = await apiClient.post<void, CreateSessionResponse>(url);
-    console.log("[chatApi] createSession response:", response);
     return response;
   },
 
@@ -64,7 +63,6 @@ export const chatApi = {
 
     const url = `${API_ENDPOINTS.CHAT.HISTORY(avatarId)}?${queryParams.toString()}`;
     const response = await apiClient.get<ChatHistoryResponse>(url);
-    console.log("[chatApi] getHistory response:", response);
     return response;
   },
 
