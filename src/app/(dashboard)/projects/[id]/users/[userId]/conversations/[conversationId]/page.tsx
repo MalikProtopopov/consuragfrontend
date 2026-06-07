@@ -2,19 +2,7 @@
 
 import { use, useState } from "react";
 import Link from "next/link";
-import {
-  ArrowLeft,
-  User,
-  Bot,
-  Calendar,
-  MessageSquare,
-  Zap,
-  Clock,
-  Send,
-  StopCircle,
-  ThumbsUp,
-  ThumbsDown,
-} from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import {
   useConversation,
   useConversationMessages,
@@ -23,12 +11,8 @@ import {
   useEndUser,
 } from "@/entities/end-user";
 import { PageContainer, PageHeader } from "@/widgets/app-shell";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
-import { ConversationStatusBadge } from "@/shared/ui/status-badge";
-import { Textarea } from "@/shared/ui/textarea";
 import { Skeleton } from "@/shared/ui/skeleton";
-import { ScrollArea } from "@/shared/ui/scroll-area";
 import {
   Dialog,
   DialogContent,
@@ -39,110 +23,17 @@ import {
 } from "@/shared/ui/dialog";
 import { ROUTES } from "@/shared/config";
 import { toast } from "sonner";
-import { getApiErrorMessage, cn, formatDate, formatTime, formatRelativeTime } from "@/shared/lib";
-import type { ConversationMessage } from "@/shared/types/api";
+import { getApiErrorMessage } from "@/shared/lib";
+import { ConversationInfoCard, ConversationMessages } from "./_components";
 
 interface ConversationDetailPageProps {
   params: Promise<{ id: string; userId: string; conversationId: string }>;
 }
 
-
-function MessageBubble({ message }: { message: ConversationMessage }) {
-  const isUser = message.direction === "in" || message.role === "user";
-  const isAssistant = message.role === "assistant";
-  const isAdmin = message.role === "admin";
-
-  return (
-    <div className="flex gap-3">
-      <div
-        className={cn(
-          "flex size-8 shrink-0 items-center justify-center rounded-full",
-          isUser
-            ? "bg-accent-primary/10"
-            : isAssistant
-              ? "bg-[#0088cc]/10"
-              : isAdmin
-                ? "bg-amber-500/10"
-                : "bg-bg-hover"
-        )}
-      >
-        {isUser ? (
-          <User className="size-4 text-accent-primary" />
-        ) : isAssistant ? (
-          <Bot className="size-4 text-[#0088cc]" />
-        ) : isAdmin ? (
-          <User className="size-4 text-amber-500" />
-        ) : (
-          <MessageSquare className="size-4 text-text-muted" />
-        )}
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="text-sm font-medium text-text-primary">
-            {isUser
-              ? "Пользователь"
-              : isAssistant
-                ? "AI Ассистент"
-                : isAdmin
-                  ? "Администратор"
-                  : "Система"}
-          </span>
-          <span className="text-xs text-text-muted">{formatTime(message.created_at)}</span>
-          {message.total_tokens > 0 && (
-            <span className="text-xs text-text-muted flex items-center gap-1">
-              <Zap className="h-3 w-3" />
-              {message.total_tokens}
-            </span>
-          )}
-          {message.model_used && (
-            <span className="text-xs text-text-muted">{message.model_used}</span>
-          )}
-          {message.feedback && (
-            <span
-              className={cn(
-                "flex items-center gap-1 text-xs",
-                message.feedback === "positive" ? "text-green-500" : "text-red-500"
-              )}
-            >
-              {message.feedback === "positive" ? (
-                <ThumbsUp className="h-3 w-3" />
-              ) : (
-                <ThumbsDown className="h-3 w-3" />
-              )}
-            </span>
-          )}
-        </div>
-        <div
-          className={cn(
-            "p-3 rounded-lg max-w-full",
-            isUser
-              ? "bg-accent-primary/10"
-              : isAssistant
-                ? "bg-bg-hover"
-                : isAdmin
-                  ? "bg-amber-500/10"
-                  : "bg-bg-secondary"
-          )}
-        >
-          <p
-            className="text-sm text-text-secondary whitespace-pre-wrap break-words"
-            style={{ wordBreak: "break-word", overflowWrap: "anywhere" }}
-          >
-            {message.content}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function ConversationDetailPage({ params }: ConversationDetailPageProps) {
   const { id: projectId, userId: endUserId, conversationId } = use(params);
 
-  const { data: conversation, isLoading: convLoading } = useConversation(
-    projectId,
-    conversationId
-  );
+  const { data: conversation, isLoading: convLoading } = useConversation(projectId, conversationId);
   const { data: messagesData, isLoading: messagesLoading } = useConversationMessages(
     projectId,
     conversationId,
@@ -243,142 +134,21 @@ export default function ConversationDetailPage({ params }: ConversationDetailPag
         description={conversation.avatar_name || "AI Аватар"}
       />
 
-      {/* Conversation Info */}
-      <Card className="mb-6">
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <CardTitle>Информация о диалоге</CardTitle>
-              <CardDescription>Статистика и метаданные</CardDescription>
-            </div>
-            {conversation.status === "active" && (
-              <Button
-                variant="outline"
-                onClick={() => setIsEndDialogOpen(true)}
-                disabled={isEnding}
-              >
-                <StopCircle className="mr-2 h-4 w-4" />
-                Завершить диалог
-              </Button>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-lg bg-bg-hover">
-                <ConversationStatusBadge
-                  status={conversation.status}
-                  className="px-3"
-                />
-              </div>
-              <div>
-                <p className="text-sm text-text-muted">Статус</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-lg bg-bg-hover">
-                <MessageSquare className="size-5 text-text-muted" />
-              </div>
-              <div>
-                <p className="text-sm text-text-muted">Сообщений</p>
-                <p className="font-medium text-text-primary">{conversation.messages_count}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-lg bg-bg-hover">
-                <Zap className="size-5 text-text-muted" />
-              </div>
-              <div>
-                <p className="text-sm text-text-muted">Токенов</p>
-                <p className="font-medium text-text-primary">
-                  {(conversation.total_tokens ?? 0).toLocaleString()}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-lg bg-bg-hover">
-                <Calendar className="size-5 text-text-muted" />
-              </div>
-              <div>
-                <p className="text-sm text-text-muted">Начат</p>
-                <p className="font-medium text-text-primary">
-                  {formatDate(conversation.started_at, "datetime")}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-lg bg-bg-hover">
-                <Clock className="size-5 text-text-muted" />
-              </div>
-              <div>
-                <p className="text-sm text-text-muted">Последняя активность</p>
-                <p className="font-medium text-text-primary">
-                  {formatRelativeTime(conversation.last_activity_at)}
-                </p>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <ConversationInfoCard
+        conversation={conversation}
+        isEnding={isEnding}
+        onEnd={() => setIsEndDialogOpen(true)}
+      />
 
-      {/* Messages */}
-      <Card>
-        <CardHeader>
-          <CardTitle>История сообщений</CardTitle>
-          <CardDescription>
-            {messages.length} сообщений • {conversation.user_messages_count} от пользователя,{" "}
-            {conversation.assistant_messages_count} от ассистента
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {messages.length === 0 ? (
-            <div className="text-center py-8">
-              <MessageSquare className="mx-auto h-10 w-10 text-text-muted mb-3" />
-              <p className="text-text-secondary">Нет сообщений</p>
-            </div>
-          ) : (
-            <ScrollArea className="h-[500px]">
-              <div className="space-y-4 pr-4">
-                {messages.map((message) => (
-                  <MessageBubble key={message.id} message={message} />
-                ))}
-              </div>
-            </ScrollArea>
-          )}
-
-          {/* Send message form */}
-          {conversation.status === "active" && user?.status === "active" && (
-            <div className="mt-4 pt-4 border-t border-border">
-              <div className="flex gap-2">
-                <Textarea
-                  placeholder="Написать сообщение от имени бота..."
-                  value={messageText}
-                  onChange={(e) => setMessageText(e.target.value)}
-                  rows={2}
-                  className="flex-1"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSendMessage();
-                    }
-                  }}
-                />
-                <Button
-                  onClick={handleSendMessage}
-                  disabled={!messageText.trim() || isSending}
-                  className="self-end"
-                >
-                  <Send className="h-4 w-4" />
-                </Button>
-              </div>
-              <p className="text-xs text-text-muted mt-2">
-                Сообщение будет отправлено от имени бота в {conversation.channel}
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <ConversationMessages
+        conversation={conversation}
+        messages={messages}
+        canSend={conversation.status === "active" && user?.status === "active"}
+        messageText={messageText}
+        isSending={isSending}
+        onMessageChange={setMessageText}
+        onSend={handleSendMessage}
+      />
 
       {/* End Conversation Dialog */}
       <Dialog open={isEndDialogOpen} onOpenChange={setIsEndDialogOpen}>
@@ -402,4 +172,3 @@ export default function ConversationDetailPage({ params }: ConversationDetailPag
     </PageContainer>
   );
 }
-

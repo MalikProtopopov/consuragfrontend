@@ -8,28 +8,23 @@ import { useProject } from "@/entities/project";
 import { PageContainer } from "@/widgets/app-shell";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
-import { Input } from "@/shared/ui/input";
-import { Textarea } from "@/shared/ui/textarea";
-import { Label } from "@/shared/ui/label";
-import { Slider } from "@/shared/ui/slider";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { Stepper, StepperItem } from "@/shared/ui/stepper";
 import { Spinner } from "@/shared/ui/spinner";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { toast } from "sonner";
 import { getApiErrorMessage } from "@/shared/lib";
 import type { CreateAvatarRequest } from "@/shared/types/api";
+import {
+  steps,
+  Step1Basic,
+  Step2Prompts,
+  Step3Appearance,
+  Step4LLM,
+} from "./_components";
 
 interface CreateAvatarPageProps {
   params: Promise<{ id: string }>;
 }
-
-const steps = [
-  { title: "Основное", description: "Название и описание" },
-  { title: "Промпты", description: "Настройки поведения" },
-  { title: "Внешний вид", description: "Оформление" },
-  { title: "LLM", description: "Параметры модели" },
-];
 
 export default function CreateAvatarPage({ params }: CreateAvatarPageProps) {
   const { id: projectId } = use(params);
@@ -144,18 +139,10 @@ export default function CreateAvatarPage({ params }: CreateAvatarPageProps) {
 
           {/* Step Content */}
           <div className="min-h-[300px]">
-            {currentStep === 0 && (
-              <Step1Basic formData={formData} updateForm={updateForm} />
-            )}
-            {currentStep === 1 && (
-              <Step2Prompts formData={formData} updateForm={updateForm} />
-            )}
-            {currentStep === 2 && (
-              <Step3Appearance formData={formData} updateForm={updateForm} />
-            )}
-            {currentStep === 3 && (
-              <Step4LLM formData={formData} updateForm={updateForm} />
-            )}
+            {currentStep === 0 && <Step1Basic formData={formData} updateForm={updateForm} />}
+            {currentStep === 1 && <Step2Prompts formData={formData} updateForm={updateForm} />}
+            {currentStep === 2 && <Step3Appearance formData={formData} updateForm={updateForm} />}
+            {currentStep === 3 && <Step4LLM formData={formData} updateForm={updateForm} />}
           </div>
 
           {/* Navigation */}
@@ -190,183 +177,3 @@ export default function CreateAvatarPage({ params }: CreateAvatarPageProps) {
     </PageContainer>
   );
 }
-
-// Step 1: Basic Info
-function Step1Basic({
-  formData,
-  updateForm,
-}: {
-  formData: CreateAvatarRequest;
-  updateForm: <K extends keyof CreateAvatarRequest>(key: K, value: CreateAvatarRequest[K]) => void;
-}) {
-  return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <Label htmlFor="name">Название аватара *</Label>
-        <Input
-          id="name"
-          value={formData.name}
-          onChange={(e) => updateForm("name", e.target.value)}
-          placeholder="Консультант по продуктам"
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="description">Описание</Label>
-        <Textarea
-          id="description"
-          value={formData.description || ""}
-          onChange={(e) => updateForm("description", e.target.value)}
-          placeholder="AI-консультант для ответов на вопросы о продуктах и услугах"
-          rows={4}
-        />
-      </div>
-    </div>
-  );
-}
-
-// Step 2: Prompts
-function Step2Prompts({
-  formData,
-  updateForm,
-}: {
-  formData: CreateAvatarRequest;
-  updateForm: <K extends keyof CreateAvatarRequest>(key: K, value: CreateAvatarRequest[K]) => void;
-}) {
-  return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <Label htmlFor="system_prompt">Системный промпт</Label>
-        <Textarea
-          id="system_prompt"
-          value={formData.system_prompt || ""}
-          onChange={(e) => updateForm("system_prompt", e.target.value)}
-          placeholder="Ты — вежливый AI-консультант. Отвечай кратко и по делу..."
-          rows={4}
-        />
-        <p className="text-xs text-text-muted">
-          Инструкции, определяющие поведение и стиль ответов аватара
-        </p>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="welcome_message">Приветственное сообщение</Label>
-        <Textarea
-          id="welcome_message"
-          value={formData.welcome_message || ""}
-          onChange={(e) => updateForm("welcome_message", e.target.value)}
-          placeholder="Здравствуйте! Я AI-консультант. Чем могу помочь?"
-          rows={2}
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="fallback_message">Сообщение при отсутствии ответа</Label>
-        <Textarea
-          id="fallback_message"
-          value={formData.fallback_message || ""}
-          onChange={(e) => updateForm("fallback_message", e.target.value)}
-          placeholder="К сожалению, я не нашёл информации по вашему вопросу..."
-          rows={2}
-        />
-      </div>
-    </div>
-  );
-}
-
-// Step 3: Appearance
-function Step3Appearance({
-  formData,
-  updateForm,
-}: {
-  formData: CreateAvatarRequest;
-  updateForm: <K extends keyof CreateAvatarRequest>(key: K, value: CreateAvatarRequest[K]) => void;
-}) {
-  return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <Label htmlFor="avatar_image_url">URL изображения</Label>
-        <Input
-          id="avatar_image_url"
-          value={formData.avatar_image_url || ""}
-          onChange={(e) => updateForm("avatar_image_url", e.target.value)}
-          placeholder="https://example.com/avatar.png"
-        />
-        <p className="text-xs text-text-muted">
-          URL изображения для аватара (рекомендуется квадратное)
-        </p>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="primary_color">Основной цвет</Label>
-        <div className="flex gap-3">
-          <Input
-            id="primary_color"
-            type="color"
-            value={formData.primary_color || "#ffcd33"}
-            onChange={(e) => updateForm("primary_color", e.target.value)}
-            className="w-16 h-10 p-1"
-          />
-          <Input
-            value={formData.primary_color || "#ffcd33"}
-            onChange={(e) => updateForm("primary_color", e.target.value)}
-            placeholder="#ffcd33"
-            className="flex-1"
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Step 4: LLM Settings
-function Step4LLM({
-  formData,
-  updateForm,
-}: {
-  formData: CreateAvatarRequest;
-  updateForm: <K extends keyof CreateAvatarRequest>(key: K, value: CreateAvatarRequest[K]) => void;
-}) {
-  return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <Label>Модель</Label>
-        <Select
-          value={formData.llm_model || "gpt-4-turbo-preview"}
-          onValueChange={(v) => updateForm("llm_model", v)}
-        >
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="gpt-4-turbo-preview">GPT-4 Turbo</SelectItem>
-            <SelectItem value="gpt-4">GPT-4</SelectItem>
-            <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
-          </SelectContent>
-        </Select>
-        <p className="text-xs text-text-muted">
-          Оставьте пустым для использования настроек проекта
-        </p>
-      </div>
-      <div className="space-y-2">
-        <Label>Температура: {formData.llm_temperature}</Label>
-        <Slider
-          value={[formData.llm_temperature || 0.7]}
-          onValueChange={([v]) => updateForm("llm_temperature", v)}
-          min={0}
-          max={2}
-          step={0.1}
-        />
-        <p className="text-xs text-text-muted">0 = детерминированный, 2 = креативный</p>
-      </div>
-      <div className="space-y-2">
-        <Label>Top K: {formData.rag_top_k}</Label>
-        <Slider
-          value={[formData.rag_top_k || 5]}
-          onValueChange={([v]) => updateForm("rag_top_k", v)}
-          min={1}
-          max={20}
-          step={1}
-        />
-        <p className="text-xs text-text-muted">Количество релевантных документов для контекста</p>
-      </div>
-    </div>
-  );
-}
-
