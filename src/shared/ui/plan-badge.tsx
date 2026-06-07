@@ -10,23 +10,23 @@ const planConfig: Record<
 > = {
   free: {
     label: "Free",
-    className: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
+    className: "bg-bg-hover text-text-secondary border-border font-mono",
   },
   starter: {
     label: "Starter",
-    className: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+    className: "bg-info/10 text-info border-info/20 font-mono",
   },
   growth: {
     label: "Growth",
-    className: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+    className: "bg-success/10 text-success-strong border-success/20 font-mono",
   },
   scale: {
     label: "Scale",
-    className: "bg-violet-500/10 text-violet-400 border-violet-500/20",
+    className: "bg-burgundy/10 text-burgundy border-burgundy/20 font-mono",
   },
   enterprise: {
     label: "Enterprise",
-    className: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+    className: "bg-[image:var(--gradient-primary)] text-[#0A0A0B] border-transparent font-mono",
     icon: "✦",
   },
 };

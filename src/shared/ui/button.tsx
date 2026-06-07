@@ -11,7 +11,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        // Primary - Main CTAs, uses brand color (Hot Pink #FF006E)
+        // Primary - Main CTAs, uses brand color (acid green #5BFF8F, black text)
         default:
           "bg-primary text-primary-foreground shadow-sm hover:bg-primary-hover hover:scale-[1.02] active:scale-[0.98]",
         // Secondary - Less emphasis, outlined style
@@ -30,6 +30,15 @@ const buttonVariants = cva(
         // Success - Positive actions
         success:
           "bg-success text-success-foreground shadow-sm hover:bg-success/90 hover:scale-[1.02] active:scale-[0.98] focus-visible:ring-success",
+        // Gradient - Premium acid-green CTA (black text)
+        gradient:
+          "bg-[image:var(--gradient-primary)] text-[var(--primary-foreground)] font-mono shadow-sm hover:brightness-105 active:scale-[0.98]",
+        // Gradient destructive - Premium dangerous action
+        "gradient-destructive":
+          "bg-[image:var(--gradient-destructive)] text-white font-mono shadow-sm hover:brightness-105 active:scale-[0.98]",
+        // Gradient burgundy - Premium accent
+        "gradient-burgundy":
+          "bg-[image:var(--gradient-burgundy)] text-white font-mono shadow-sm hover:brightness-110 active:scale-[0.98]",
       },
       size: {
         sm: "h-8 rounded-md px-3 text-xs gap-1.5 has-[>svg]:px-2",

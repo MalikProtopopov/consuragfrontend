@@ -140,12 +140,12 @@ const UsageChart = React.forwardRef<HTMLDivElement, UsageChartProps>(
               >
                 <defs>
                   <linearGradient id="chatGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#4ade80" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#4ade80" stopOpacity={0} />
+                    <stop offset="5%" stopColor="var(--chart-1)" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="var(--chart-1)" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="embeddingGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#60a5fa" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#60a5fa" stopOpacity={0} />
+                    <stop offset="5%" stopColor="var(--chart-5)" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="var(--chart-5)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid
@@ -177,7 +177,7 @@ const UsageChart = React.forwardRef<HTMLDivElement, UsageChartProps>(
                 <Area
                   type="monotone"
                   dataKey="chat_tokens"
-                  stroke="#4ade80"
+                  stroke="var(--chart-1)"
                   strokeWidth={2}
                   fill="url(#chatGradient)"
                   name="chat_tokens"
@@ -185,7 +185,7 @@ const UsageChart = React.forwardRef<HTMLDivElement, UsageChartProps>(
                 <Area
                   type="monotone"
                   dataKey="embedding_tokens"
-                  stroke="#60a5fa"
+                  stroke="var(--chart-5)"
                   strokeWidth={2}
                   fill="url(#embeddingGradient)"
                   name="embedding_tokens"

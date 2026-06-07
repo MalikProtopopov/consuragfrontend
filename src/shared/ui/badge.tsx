@@ -10,26 +10,28 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        // Default - Primary brand (Hot Pink)
-        default: "border-transparent bg-primary text-primary-foreground",
+        // Default - Primary brand (acid green, black text)
+        default: "border-transparent bg-primary text-primary-foreground font-mono",
         // Secondary - Neutral, uses mono font for tag-like appearance
         secondary: "border-transparent bg-muted text-muted-foreground font-mono",
         // Destructive / Error
-        destructive: "border-transparent bg-destructive text-destructive-foreground",
+        destructive: "border-transparent bg-destructive text-destructive-foreground font-mono",
         // Outline - Border only with brand color option
-        outline: "border-border text-foreground bg-transparent",
-        "outline-primary": "border-primary text-primary bg-transparent font-mono",
-        // Success - Positive states
-        success: "border-transparent bg-success text-white",
-        // Warning - Caution states
-        warning: "border-transparent bg-warning text-white",
+        outline: "border-border text-foreground bg-transparent font-mono",
+        "outline-primary": "border-primary text-primary-link bg-transparent font-mono",
+        // Burgundy - Premium accent
+        burgundy: "border-transparent bg-[var(--burgundy)] text-white font-mono",
+        // Success - Positive states (darker fill for white-text contrast)
+        success: "border-transparent bg-success-strong text-white font-mono",
+        // Warning - Caution states (dark text on amber for contrast)
+        warning: "border-transparent bg-warning text-[#0A0A0B] font-mono",
         // Info - Informational
-        info: "border-transparent bg-info text-white",
+        info: "border-transparent bg-info text-white font-mono",
         // Status variants - for document/avatar pipeline states
-        active: "border-transparent bg-status-active text-white",
-        draft: "border-transparent bg-status-draft text-white",
-        processing: "border-transparent bg-status-processing text-white",
-        failed: "border-transparent bg-status-failed text-white",
+        active: "border-transparent bg-success-strong text-white font-mono",
+        draft: "border-transparent bg-status-draft text-white font-mono",
+        processing: "border-transparent bg-status-processing text-white font-mono",
+        failed: "border-transparent bg-status-failed text-white font-mono",
         // Subtle variants - lighter backgrounds
         "success-subtle": "border-success/20 bg-success/10 text-success",
         "warning-subtle": "border-warning/20 bg-warning/10 text-warning",

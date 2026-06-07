@@ -14,7 +14,7 @@ function getColorScheme(percent: number): "green" | "yellow" | "red" {
 }
 
 const colorClasses = {
-  green: "bg-success",
+  green: "bg-[image:var(--gradient-primary)]",
   yellow: "bg-warning",
   red: "bg-error",
 } as const;
@@ -73,8 +73,8 @@ const UsageProgressBar = React.forwardRef<HTMLDivElement, UsageProgressBarProps>
               <span
                 className={cn(
                   "font-medium",
-                  actualColorScheme === "green" && "text-success",
-                  actualColorScheme === "yellow" && "text-warning",
+                  actualColorScheme === "green" && "text-success-strong",
+                  actualColorScheme === "yellow" && "text-warning-strong",
                   actualColorScheme === "red" && "text-error"
                 )}
               >

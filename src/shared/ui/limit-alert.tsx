@@ -28,9 +28,9 @@ const alertConfig: Record<
   },
   critical: {
     title: "Критический уровень использования",
-    bgClass: "bg-orange-500/10",
-    borderClass: "border-orange-500/30",
-    iconClass: "text-orange-500",
+    bgClass: "bg-warning/10",
+    borderClass: "border-warning/30",
+    iconClass: "text-warning-strong",
   },
   exceeded: {
     title: "Лимит токенов исчерпан",

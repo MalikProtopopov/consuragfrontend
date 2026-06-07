@@ -12,8 +12,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
  */
 function getUsageColor(percent: number): string {
   if (percent >= 90) return "text-error";
-  if (percent >= 70) return "text-warning";
-  return "text-success";
+  if (percent >= 70) return "text-warning-strong";
+  return "text-success-strong";
 }
 
 interface TokenCounterProps {
@@ -45,7 +45,7 @@ const TokenCounter = React.forwardRef<HTMLAnchorElement, TokenCounterProps>(
               )}
             >
               <Coins className="size-4" />
-              <span className={usageColor}>
+              <span className={cn("font-mono tabular-nums", usageColor)}>
                 {formatCompact(safeUsed)} / {formatCompact(safeLimit)}
               </span>
             </Link>
@@ -53,7 +53,7 @@ const TokenCounter = React.forwardRef<HTMLAnchorElement, TokenCounterProps>(
           <TooltipContent side="right">
             <div className="space-y-1">
               <p className="font-medium">Использование токенов</p>
-              <p className="text-text-muted">
+              <p className="font-mono tabular-nums text-text-muted">
                 {safeUsed.toLocaleString()} / {safeLimit.toLocaleString()} ({percent}%)
               </p>
               <p className="text-xs text-text-muted">Нажмите для подробностей</p>
@@ -79,10 +79,10 @@ const TokenCounter = React.forwardRef<HTMLAnchorElement, TokenCounterProps>(
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between">
             <span className="font-medium text-text-primary">Токены</span>
-            <span className={cn("text-xs font-medium", usageColor)}>{percent}%</span>
+            <span className={cn("text-xs font-medium font-mono tabular-nums", usageColor)}>{percent}%</span>
           </div>
           {showDetails && (
-            <p className="text-xs text-text-muted truncate">
+            <p className="text-xs font-mono tabular-nums text-text-muted truncate">
               {formatCompact(safeUsed)} / {formatCompact(safeLimit)}
             </p>
           )}

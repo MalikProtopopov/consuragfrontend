@@ -24,15 +24,15 @@ const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(
           <div className="flex flex-wrap items-start gap-3">
             <div className="space-y-1 flex-1 min-w-[100px]">
               <p className="text-sm font-medium text-text-muted">{title}</p>
-              <p className="text-2xl font-bold text-text-primary">{value}</p>
+              <p className="text-2xl font-bold font-mono tabular-nums text-text-primary">{value}</p>
               {description && (
                 <p className="text-xs text-text-muted">{description}</p>
               )}
               {trend && (
                 <div
                   className={cn(
-                    "flex items-center text-xs font-medium",
-                    trend.isPositive ? "text-success" : "text-error"
+                    "flex items-center text-xs font-medium font-mono tabular-nums",
+                    trend.isPositive ? "text-success-strong" : "text-error"
                   )}
                 >
                   <span>{trend.isPositive ? "↑" : "↓"}</span>
