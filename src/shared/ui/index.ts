@@ -49,6 +49,7 @@ export * from "./confirm-dialog";
 export * from "./usage-progress-bar";
 export * from "./token-counter";
 export * from "./plan-badge";
+export * from "./status-badge";
 export * from "./limit-alert";
 export * from "./usage-chart";
 export * from "./token-limit-dialog";

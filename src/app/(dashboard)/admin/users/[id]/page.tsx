@@ -11,6 +11,7 @@ import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/shared/ui/radio-group";
 import { Badge } from "@/shared/ui/badge";
+import { PlatformUserStatusBadge } from "@/shared/ui/status-badge";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Spinner } from "@/shared/ui/spinner";
 import { Checkbox } from "@/shared/ui/checkbox";
@@ -119,9 +120,7 @@ export default function UserDetailPage({ params }: UserDetailPageProps) {
               </h1>
               <p className="text-text-muted">{user.email}</p>
               <div className="flex gap-2 mt-2">
-                <Badge variant={user.status === "active" ? "success" : "secondary"}>
-                  {statuses.find((s) => s.value === user.status)?.label}
-                </Badge>
+                <PlatformUserStatusBadge status={user.status} />
                 <Badge variant="outline">{roles.find((r) => r.value === user.role)?.label}</Badge>
                 {user.is_email_verified && <Badge variant="success">Email подтверждён</Badge>}
               </div>

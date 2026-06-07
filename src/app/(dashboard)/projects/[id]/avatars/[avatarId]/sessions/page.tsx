@@ -9,6 +9,7 @@ import { PageContainer, PageHeader } from "@/widgets/app-shell";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
+import { ActiveStatusBadge } from "@/shared/ui/status-badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/shared/ui/dialog";
 import { ScrollArea } from "@/shared/ui/scroll-area";
@@ -145,9 +146,10 @@ function SessionRow({ session }: { session: ChatSession }) {
       <TableCell>{session.messages_count}</TableCell>
       <TableCell>{(session.tokens_used ?? 0).toLocaleString()}</TableCell>
       <TableCell>
-        <Badge variant={session.is_active ? "success" : "secondary"}>
-          {session.is_active ? "Активна" : "Закрыта"}
-        </Badge>
+        <ActiveStatusBadge
+          active={session.is_active}
+          label={session.is_active ? "Активна" : "Закрыта"}
+        />
       </TableCell>
       <TableCell>{formatDate(session.last_activity_at, "datetime-short")}</TableCell>
       <TableCell className="text-right">

@@ -7,7 +7,7 @@ import { useTelegramSessionDetail, useExportTelegramSession } from "@/entities/t
 import { PageContainer, PageHeader } from "@/widgets/app-shell";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
-import { Badge } from "@/shared/ui/badge";
+import { ActiveStatusBadge } from "@/shared/ui/status-badge";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { ScrollArea } from "@/shared/ui/scroll-area";
 import { Spinner } from "@/shared/ui/spinner";
@@ -146,9 +146,11 @@ export default function TelegramSessionDetailPage({ params }: TelegramSessionDet
             </div>
             <div className="flex items-center gap-3">
               <div className="flex size-10 items-center justify-center rounded-lg bg-bg-hover">
-                <Badge variant={session.is_active ? "success" : "secondary"} className="px-3">
-                  {session.is_active ? "Активна" : "Неактивна"}
-                </Badge>
+                <ActiveStatusBadge
+                  active={session.is_active}
+                  label={session.is_active ? "Активна" : "Неактивна"}
+                  className="px-3"
+                />
               </div>
               <div>
                 <p className="text-sm text-text-muted">Последнее сообщение</p>

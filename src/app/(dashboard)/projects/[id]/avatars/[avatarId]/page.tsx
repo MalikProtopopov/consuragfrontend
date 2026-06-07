@@ -21,6 +21,7 @@ import { Label } from "@/shared/ui/label";
 import { Slider } from "@/shared/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { Badge } from "@/shared/ui/badge";
+import { AvatarStatusBadge } from "@/shared/ui/status-badge";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Spinner } from "@/shared/ui/spinner";
 import { StatsCard } from "@/shared/ui/stats-card";
@@ -186,10 +187,10 @@ export default function AvatarSettingsPage({ params }: AvatarSettingsPageProps) 
 
       {/* Status Badge */}
       <div className="flex gap-2 mb-6">
-        <Badge variant={avatar.status === "active" ? "success" : "secondary"}>
-          {avatar.status === "active" ? "Активен" : avatar.status === "draft" ? "Черновик" : avatar.status === "inactive" ? "Неактивен" : avatar.status === "training" ? "Обучается" : avatar.status}
-        </Badge>
-        {avatar.is_published && <Badge variant="success">Опубликован</Badge>}
+        <AvatarStatusBadge status={avatar.status} />
+        {avatar.is_published && (
+          <Badge variant="success-subtle">Опубликован</Badge>
+        )}
       </div>
 
       <Tabs defaultValue="basic" className="space-y-6">

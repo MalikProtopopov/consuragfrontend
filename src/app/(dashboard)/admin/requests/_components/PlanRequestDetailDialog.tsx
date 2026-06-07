@@ -21,6 +21,7 @@ import {
   DialogTitle,
 } from "@/shared/ui/dialog";
 import { Badge } from "@/shared/ui/badge";
+import { PlanRequestStatusBadge } from "@/shared/ui/status-badge";
 import { Button } from "@/shared/ui/button";
 import { Textarea } from "@/shared/ui/textarea";
 import { Label } from "@/shared/ui/label";
@@ -57,16 +58,6 @@ const typeLabels: Record<PlanRequestType, string> = {
   plan_upgrade: "Повышение тарифа",
   demo_request: "Запрос демо",
   contact_sales: "Связь с продажами",
-};
-
-const statusColors: Record<
-  PlanRequestStatus,
-  "default" | "secondary" | "success" | "destructive" | "warning" | "outline"
-> = {
-  new: "warning",
-  in_progress: "default",
-  completed: "success",
-  rejected: "destructive",
 };
 
 const TypeIcon = ({ type }: { type: PlanRequestType }) => {
@@ -131,9 +122,10 @@ export function PlanRequestDetailDialog({
         <div className="space-y-6 py-4">
           {/* Status & Date */}
           <div className="flex items-center justify-between">
-            <Badge variant={statusColors[request.status]} className="text-sm">
-              {statusLabels[request.status]}
-            </Badge>
+            <PlanRequestStatusBadge
+              status={request.status}
+              className="text-sm"
+            />
             <div className="flex items-center gap-1.5 text-sm text-text-muted">
               <Clock className="size-4" />
               {formatDate(request.created_at, "datetime-long")}

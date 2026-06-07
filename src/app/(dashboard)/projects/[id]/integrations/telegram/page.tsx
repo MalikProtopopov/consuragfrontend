@@ -22,6 +22,7 @@ import { SecretInput } from "@/shared/ui/secret-input";
 import { Label } from "@/shared/ui/label";
 import { Switch } from "@/shared/ui/switch";
 import { Badge } from "@/shared/ui/badge";
+import { ActiveStatusBadge } from "@/shared/ui/status-badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Spinner } from "@/shared/ui/spinner";
@@ -262,9 +263,7 @@ export default function TelegramPage({ params }: TelegramPageProps) {
                     @{integration.bot_username || "bot"}
                   </p>
                   <div className="flex items-center gap-2 mt-1">
-                    <Badge variant={integration.is_active ? "success" : "secondary"}>
-                      {integration.is_active ? "Активен" : "Неактивен"}
-                    </Badge>
+                    <ActiveStatusBadge active={integration.is_active} />
                     {integration.is_webhook_active ? (
                       <Badge variant="success">
                         <Check className="mr-1 h-3 w-3" />

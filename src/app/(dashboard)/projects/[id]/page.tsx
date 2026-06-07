@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Badge } from "@/shared/ui/badge";
+import { AvatarStatusBadge } from "@/shared/ui/status-badge";
 import { StatsCard } from "@/shared/ui/stats-card";
 
 interface ProjectDashboardPageProps {
@@ -157,17 +158,11 @@ export default function ProjectDashboardPage({ params }: ProjectDashboardPagePro
                         </p>
                       </div>
                     </div>
-                    <Badge
-                      variant={
-                        avatar.status === "active"
-                          ? "success"
-                          : avatar.status === "draft"
-                            ? "secondary"
-                            : "outline"
-                      }
-                    >
-                      {avatar.is_published ? "Опубликован" : avatar.status === "active" ? "Активен" : avatar.status === "draft" ? "Черновик" : avatar.status === "inactive" ? "Неактивен" : avatar.status === "training" ? "Обучается" : avatar.status}
-                    </Badge>
+                    {avatar.is_published ? (
+                      <Badge variant="success-subtle">Опубликован</Badge>
+                    ) : (
+                      <AvatarStatusBadge status={avatar.status} />
+                    )}
                   </Link>
                 ))}
               </div>

@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/sha
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Badge } from "@/shared/ui/badge";
+import { EndUserStatusBadge } from "@/shared/ui/status-badge";
 import {
   Select,
   SelectContent,
@@ -239,21 +240,7 @@ export default function EndUsersPage({ params }: EndUsersPageProps) {
                           </span>
                         </TableCell>
                         <TableCell className="text-center">
-                          <Badge
-                            variant={
-                              user.status === "active"
-                                ? "success"
-                                : user.status === "blocked"
-                                  ? "destructive"
-                                  : "secondary"
-                            }
-                          >
-                            {user.status === "active"
-                              ? "Активен"
-                              : user.status === "blocked"
-                                ? "Заблокирован"
-                                : "Архив"}
-                          </Badge>
+                          <EndUserStatusBadge status={user.status} />
                         </TableCell>
                         <TableCell className="text-center">
                           <span className="font-medium">{user.conversations_count}</span>

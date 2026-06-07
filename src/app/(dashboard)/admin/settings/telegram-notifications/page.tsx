@@ -19,6 +19,7 @@ import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { Badge } from "@/shared/ui/badge";
+import { ActiveStatusBadge } from "@/shared/ui/status-badge";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Spinner } from "@/shared/ui/spinner";
 import { SecretInput } from "@/shared/ui/secret-input";
@@ -442,20 +443,23 @@ function StatusBadge({
   configured: boolean;
   username?: string;
 }) {
-  if (!configured) {
-    return (
-      <Badge variant="secondary">
-        <X className="mr-1 h-3 w-3" />
-        Не настроен
-      </Badge>
-    );
-  }
-
   return (
-    <Badge variant="success">
-      <Check className="mr-1 h-3 w-3" />
-      {username ? `@${username}` : "Настроен"}
-    </Badge>
+    <ActiveStatusBadge
+      active={configured}
+      label={
+        configured ? (
+          <>
+            <Check className="mr-1 h-3 w-3" />
+            {username ? `@${username}` : "Настроен"}
+          </>
+        ) : (
+          <>
+            <X className="mr-1 h-3 w-3" />
+            Не настроен
+          </>
+        )
+      }
+    />
   );
 }
 

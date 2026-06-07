@@ -28,6 +28,10 @@ import { PageContainer } from "@/widgets/app-shell";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
+import {
+  ConversationStatusBadge,
+  EndUserStatusBadge,
+} from "@/shared/ui/status-badge";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { Textarea } from "@/shared/ui/textarea";
@@ -243,21 +247,7 @@ export default function EndUserDetailPage({ params }: EndUserDetailPageProps) {
               <h1 className="text-2xl font-bold text-text-primary">
                 {user.display_name || "Без имени"}
               </h1>
-              <Badge
-                variant={
-                  user.status === "active"
-                    ? "success"
-                    : user.status === "blocked"
-                      ? "destructive"
-                      : "secondary"
-                }
-              >
-                {user.status === "active"
-                  ? "Активен"
-                  : user.status === "blocked"
-                    ? "Заблокирован"
-                    : "Архив"}
-              </Badge>
+              <EndUserStatusBadge status={user.status} />
             </div>
             {primaryIdentity && (
               <p className="text-text-muted mt-1">
@@ -667,12 +657,10 @@ export default function EndUserDetailPage({ params }: EndUserDetailPageProps) {
                         <span className="font-medium text-text-primary">
                           {conv.avatar_name || "AI Аватар"}
                         </span>
-                        <Badge
-                          variant={conv.status === "active" ? "success" : "secondary"}
+                        <ConversationStatusBadge
+                          status={conv.status}
                           className="text-xs"
-                        >
-                          {conv.status === "active" ? "Активен" : "Завершён"}
-                        </Badge>
+                        />
                       </div>
                       <div className="flex items-center gap-4 text-xs text-text-muted">
                         <span className="flex items-center gap-1">

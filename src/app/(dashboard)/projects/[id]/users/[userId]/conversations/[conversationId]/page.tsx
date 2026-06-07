@@ -25,7 +25,7 @@ import {
 import { PageContainer, PageHeader } from "@/widgets/app-shell";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
-import { Badge } from "@/shared/ui/badge";
+import { ConversationStatusBadge } from "@/shared/ui/status-badge";
 import { Textarea } from "@/shared/ui/textarea";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { ScrollArea } from "@/shared/ui/scroll-area";
@@ -267,16 +267,10 @@ export default function ConversationDetailPage({ params }: ConversationDetailPag
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <div className="flex items-center gap-3">
               <div className="flex size-10 items-center justify-center rounded-lg bg-bg-hover">
-                <Badge
-                  variant={conversation.status === "active" ? "success" : "secondary"}
+                <ConversationStatusBadge
+                  status={conversation.status}
                   className="px-3"
-                >
-                  {conversation.status === "active"
-                    ? "Активен"
-                    : conversation.status === "ended"
-                      ? "Завершён"
-                      : "Архив"}
-                </Badge>
+                />
               </div>
               <div>
                 <p className="text-sm text-text-muted">Статус</p>

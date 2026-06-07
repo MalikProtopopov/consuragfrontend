@@ -15,6 +15,7 @@ import { usePlanRequests, useDeletePlanRequest } from "@/entities/plan-request";
 import { PageContainer, PageHeader } from "@/widgets/app-shell";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/ui/card";
 import { Badge } from "@/shared/ui/badge";
+import { PlanRequestStatusBadge } from "@/shared/ui/status-badge";
 import {
   Table,
   TableBody,
@@ -54,16 +55,6 @@ const typeLabels: Record<PlanRequestType, string> = {
   plan_upgrade: "Повышение тарифа",
   demo_request: "Запрос демо",
   contact_sales: "Связь с продажами",
-};
-
-const statusColors: Record<
-  PlanRequestStatus,
-  "default" | "secondary" | "success" | "destructive" | "warning" | "outline"
-> = {
-  new: "warning",
-  in_progress: "default",
-  completed: "success",
-  rejected: "destructive",
 };
 
 const TypeIcon = ({ type }: { type: PlanRequestType }) => {
@@ -249,9 +240,7 @@ export default function PlanRequestsPage() {
                         )}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={statusColors[request.status]}>
-                          {statusLabels[request.status]}
-                        </Badge>
+                        <PlanRequestStatusBadge status={request.status} />
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">

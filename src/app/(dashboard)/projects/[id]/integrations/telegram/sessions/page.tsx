@@ -8,7 +8,7 @@ import { PageContainer, PageHeader } from "@/widgets/app-shell";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
-import { Badge } from "@/shared/ui/badge";
+import { ActiveStatusBadge } from "@/shared/ui/status-badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
 import { Skeleton } from "@/shared/ui/skeleton";
@@ -157,9 +157,10 @@ export default function TelegramSessionsPage({ params }: TelegramSessionsPagePro
                           </span>
                         </TableCell>
                         <TableCell className="text-center">
-                          <Badge variant={session.is_active ? "success" : "secondary"}>
-                            {session.is_active ? "Активна" : "Неактивна"}
-                          </Badge>
+                          <ActiveStatusBadge
+                            active={session.is_active}
+                            label={session.is_active ? "Активна" : "Неактивна"}
+                          />
                         </TableCell>
                       </TableRow>
                     ))}
