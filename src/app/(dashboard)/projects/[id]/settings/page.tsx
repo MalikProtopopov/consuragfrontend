@@ -13,7 +13,7 @@ import { AccessDenied, isPermissionError } from "@/shared/ui/access-denied";
 import { toast } from "sonner";
 import { getApiErrorMessage } from "@/shared/lib";
 import type { UpdateProjectSettingsRequest } from "@/shared/types/api";
-import { BasicSettings, TOVSettings, LLMSettings, RAGSettings } from "./_components";
+import { BasicSettings, TOVSettings, LLMSettings, RAGSettings, DangerZone } from "./_components";
 
 interface ProjectSettingsPageProps {
   params: Promise<{ id: string }>;
@@ -81,8 +81,9 @@ export default function ProjectSettingsPage({ params }: ProjectSettingsPageProps
           <TabsTrigger value="rag">RAG</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="basic">
+        <TabsContent value="basic" className="space-y-6">
           <BasicSettings key={project.id} projectId={projectId} project={project} />
+          <DangerZone project={project} />
         </TabsContent>
 
         <TabsContent value="tov">
