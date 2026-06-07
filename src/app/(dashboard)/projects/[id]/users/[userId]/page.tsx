@@ -36,8 +36,7 @@ import { Progress } from "@/shared/ui/progress";
 import { Separator } from "@/shared/ui/separator";
 import { ROUTES } from "@/shared/config";
 import { toast } from "sonner";
-import { getApiErrorMessage } from "@/shared/lib";
-import { cn } from "@/shared/lib";
+import { getApiErrorMessage, cn } from "@/shared/lib";
 import type { IdentityProvider, UpdateEndUserLimitsRequest } from "@/shared/types/api";
 // Hash removed from imports as unused
 
@@ -129,27 +128,23 @@ export default function EndUserDetailPage({ params }: EndUserDetailPageProps) {
   const [limitsForm, setLimitsForm] = useState<UpdateEndUserLimitsRequest>({});
   const [isLimitsModified, setIsLimitsModified] = useState(false);
 
-  // Initialize local state from user data
-  useState(() => {
-    if (user) {
-      setNotes(user.notes || "");
-      setTags(user.tags || []);
-      setLimitsForm({
-        daily_tokens_limit: user.limits.daily_tokens_limit,
-        monthly_tokens_limit: user.limits.monthly_tokens_limit,
-        daily_messages_limit: user.limits.daily_messages_limit,
-        monthly_messages_limit: user.limits.monthly_messages_limit,
-        rate_limit_per_minute: user.limits.rate_limit_per_minute,
-      });
-    }
-  });
-
-  // Sync state when user data changes
-  if (user && notes === "" && user.notes) {
-    setNotes(user.notes);
-  }
-  if (user && tags.length === 0 && user.tags.length > 0) {
-    setTags(user.tags);
+  // Initialize/refresh local state from the loaded user without an effect:
+  // adjust state during render when the loaded user changes.
+  const [initializedUserId, setInitializedUserId] = useState<string | null>(null);
+  if (user && user.id !== initializedUserId) {
+    setInitializedUserId(user.id);
+    setNotes(user.notes || "");
+    setTags(user.tags || []);
+    setLimitsForm({
+      daily_tokens_limit: user.limits.daily_tokens_limit,
+      monthly_tokens_limit: user.limits.monthly_tokens_limit,
+      daily_messages_limit: user.limits.daily_messages_limit,
+      monthly_messages_limit: user.limits.monthly_messages_limit,
+      rate_limit_per_minute: user.limits.rate_limit_per_minute,
+    });
+    setIsNotesModified(false);
+    setIsTagsModified(false);
+    setIsLimitsModified(false);
   }
 
   const conversations = conversationsData?.items || [];

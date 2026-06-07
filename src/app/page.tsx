@@ -17,9 +17,8 @@ import {
 } from "lucide-react";
 import { useTheme } from "next-themes";
 
-import { useAuthStore, useMe } from "@/entities/auth";
+import { useAuthStore, useMe, authApi } from "@/entities/auth";
 import { useUsageSummary } from "@/entities/billing";
-import { authApi } from "@/entities/auth";
 import { tokenManager } from "@/shared/api";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";

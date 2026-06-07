@@ -10,8 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./select";
-import { apiUrlManager, API_ENVIRONMENTS } from "@/shared/lib";
-import { cn } from "@/shared/lib";
+import { apiUrlManager, API_ENVIRONMENTS, cn } from "@/shared/lib";
 
 interface ApiUrlSwitcherProps {
   className?: string;

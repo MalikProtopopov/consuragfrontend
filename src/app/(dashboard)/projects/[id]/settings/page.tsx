@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useRef, useEffect } from "react";
+import { use, useState } from "react";
 import { useProject, useProjectSettings, useUpdateProject, useUpdateProjectSettings } from "@/entities/project";
 import { PageContainer, PageHeader } from "@/widgets/app-shell";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/ui/card";
@@ -35,19 +35,17 @@ export default function ProjectSettingsPage({ params }: ProjectSettingsPageProps
     slug: "",
   });
   
-  const isFormInitialized = useRef(false);
-
-  // Initialize form when project loads (only once)
-  useEffect(() => {
-    if (project && !isFormInitialized.current) {
-      setBasicForm({
-        name: project.name,
-        description: project.description || "",
-        slug: project.slug,
-      });
-      isFormInitialized.current = true;
-    }
-  }, [project]);
+  // Initialize the form from the loaded project without an effect:
+  // adjust state during render when the loaded project changes.
+  const [initializedProjectId, setInitializedProjectId] = useState<string | null>(null);
+  if (project && project.id !== initializedProjectId) {
+    setInitializedProjectId(project.id);
+    setBasicForm({
+      name: project.name,
+      description: project.description || "",
+      slug: project.slug,
+    });
+  }
 
   const isLoading = projectLoading || settingsLoading;
 

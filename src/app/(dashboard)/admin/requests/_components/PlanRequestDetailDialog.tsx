@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   TrendingUp,
   Calendar,
@@ -88,11 +88,14 @@ export function PlanRequestDetailDialog({
   const [adminNotes, setAdminNotes] = useState(request.admin_notes || "");
   const updateMutation = useUpdatePlanRequest();
 
-  // Reset form when request changes
-  useEffect(() => {
+  // Reset the form when the request changes, without an effect:
+  // adjust state during render when the request id changes.
+  const [initializedRequestId, setInitializedRequestId] = useState(request.id);
+  if (request.id !== initializedRequestId) {
+    setInitializedRequestId(request.id);
     setStatus(request.status);
     setAdminNotes(request.admin_notes || "");
-  }, [request]);
+  }
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);

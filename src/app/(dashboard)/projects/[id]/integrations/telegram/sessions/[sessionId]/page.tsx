@@ -13,8 +13,7 @@ import { ScrollArea } from "@/shared/ui/scroll-area";
 import { Spinner } from "@/shared/ui/spinner";
 import { ROUTES } from "@/shared/config";
 import { toast } from "sonner";
-import { getApiErrorMessage } from "@/shared/lib";
-import { cn } from "@/shared/lib";
+import { getApiErrorMessage, cn } from "@/shared/lib";
 
 interface TelegramSessionDetailPageProps {
   params: Promise<{ id: string; sessionId: string }>;

@@ -1,8 +1,8 @@
 "use client";
 
-import { use, useState, useEffect, useRef } from "react";
+import { use, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Trash2, Globe, X } from "lucide-react";
+import { ArrowLeft, Trash2, Globe, X, MessageSquare, Activity, FileText } from "lucide-react";
 import {
   useAvatar,
   useAvatarStats,
@@ -27,7 +27,6 @@ import { StatsCard } from "@/shared/ui/stats-card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/shared/ui/dialog";
 import { toast } from "sonner";
 import { getApiErrorMessage } from "@/shared/lib";
-import { MessageSquare, Activity, FileText } from "lucide-react";
 import type { UpdateAvatarRequest, AvatarStatus } from "@/shared/types/api";
 
 interface AvatarSettingsPageProps {
@@ -45,27 +44,26 @@ export default function AvatarSettingsPage({ params }: AvatarSettingsPageProps) 
 
   const [form, setForm] = useState<UpdateAvatarRequest>({});
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const isFormInitializedRef = useRef(false);
 
-  // Initialize form only once when avatar first loads
-  useEffect(() => {
-    if (avatar && !isFormInitializedRef.current) {
-      isFormInitializedRef.current = true;
-      setForm({
-        name: avatar.name,
-        description: avatar.description || "",
-        status: avatar.status,
-        system_prompt: avatar.system_prompt || "",
-        welcome_message: avatar.welcome_message || "",
-        fallback_message: avatar.fallback_message || "",
-        avatar_image_url: avatar.avatar_image_url || "",
-        primary_color: avatar.primary_color || "#ffcd33",
-        llm_model: avatar.llm_model || "",
-        llm_temperature: avatar.llm_temperature || 0.7,
-        rag_top_k: avatar.rag_top_k || 5,
-      });
-    }
-  }, [avatar]);
+  // Initialize the form from the loaded avatar without an effect:
+  // adjust state during render when the loaded avatar changes.
+  const [initializedAvatarId, setInitializedAvatarId] = useState<string | null>(null);
+  if (avatar && avatar.id !== initializedAvatarId) {
+    setInitializedAvatarId(avatar.id);
+    setForm({
+      name: avatar.name,
+      description: avatar.description || "",
+      status: avatar.status,
+      system_prompt: avatar.system_prompt || "",
+      welcome_message: avatar.welcome_message || "",
+      fallback_message: avatar.fallback_message || "",
+      avatar_image_url: avatar.avatar_image_url || "",
+      primary_color: avatar.primary_color || "#ffcd33",
+      llm_model: avatar.llm_model || "",
+      llm_temperature: avatar.llm_temperature || 0.7,
+      rag_top_k: avatar.rag_top_k || 5,
+    });
+  }
 
   const handleSave = (data: Partial<UpdateAvatarRequest>) => {
     updateAvatar(

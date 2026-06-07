@@ -86,7 +86,7 @@ function formatMaskedValue(maskedValue: string): string {
   if (lastDotIndex === -1) return maskedValue;
   
   const suffix = maskedValue.slice(lastDotIndex + 1);
-  return "•••••" + suffix;
+  return `•••••${  suffix}`;
 }
 
 const ConfigCard = React.forwardRef<HTMLDivElement, ConfigCardProps>(

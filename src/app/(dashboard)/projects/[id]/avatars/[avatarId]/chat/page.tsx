@@ -15,8 +15,7 @@ import { Skeleton } from "@/shared/ui/skeleton";
 import { Spinner } from "@/shared/ui/spinner";
 import { Badge } from "@/shared/ui/badge";
 import { cn } from "@/shared/lib";
-import type { ChatMessage } from "@/shared/types/api";
-import type { Avatar as AvatarType } from "@/shared/types/api";
+import type { ChatMessage, Avatar as AvatarType } from "@/shared/types/api";
 
 interface ChatPageProps {
   params: Promise<{ id: string; avatarId: string }>;

@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useEffect } from "react";
+import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Save } from "lucide-react";
 import { useUser, useUpdateUser } from "@/entities/user";
@@ -50,16 +50,18 @@ export default function UserDetailPage({ params }: UserDetailPageProps) {
     is_email_verified: false,
   });
 
-  useEffect(() => {
-    if (user) {
-      setForm({
-        full_name: user.full_name || "",
-        role: user.role,
-        status: user.status,
-        is_email_verified: user.is_email_verified,
-      });
-    }
-  }, [user]);
+  // Initialize/refresh the form from loaded data without an effect:
+  // adjust state during render when the loaded user changes.
+  const [initializedUserId, setInitializedUserId] = useState<string | null>(null);
+  if (user && user.id !== initializedUserId) {
+    setInitializedUserId(user.id);
+    setForm({
+      full_name: user.full_name || "",
+      role: user.role,
+      status: user.status,
+      is_email_verified: user.is_email_verified,
+    });
+  }
 
   const handleSave = () => {
     updateUser(

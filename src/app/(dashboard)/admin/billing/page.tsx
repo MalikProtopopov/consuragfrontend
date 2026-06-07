@@ -294,7 +294,7 @@ export default function AdminBillingPage() {
                       <TableCell>
                         <div>
                           <p className="font-medium text-sm text-text-primary">
-                            {userItem.user_email || userItem.user_id.slice(0, 8) + "..."}
+                            {userItem.user_email || `${userItem.user_id.slice(0, 8)  }...`}
                           </p>
                           <p className="text-xs text-text-muted">
                             {new Date(userItem.period_start).toLocaleDateString("ru-RU")} — {new Date(userItem.period_end).toLocaleDateString("ru-RU")}

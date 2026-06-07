@@ -17,7 +17,7 @@ interface StepperItemProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const Stepper = React.forwardRef<HTMLDivElement, StepperProps>(
-  ({ className, currentStep, children, ...props }, ref) => {
+  ({ className, currentStep: _currentStep, children, ...props }, ref) => {
     const steps = React.Children.toArray(children);
 
     return (

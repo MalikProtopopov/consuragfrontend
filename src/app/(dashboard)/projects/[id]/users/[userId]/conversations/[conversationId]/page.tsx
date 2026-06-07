@@ -39,8 +39,7 @@ import {
 } from "@/shared/ui/dialog";
 import { ROUTES } from "@/shared/config";
 import { toast } from "sonner";
-import { getApiErrorMessage } from "@/shared/lib";
-import { cn } from "@/shared/lib";
+import { getApiErrorMessage, cn } from "@/shared/lib";
 import type { ConversationMessage } from "@/shared/types/api";
 
 interface ConversationDetailPageProps {

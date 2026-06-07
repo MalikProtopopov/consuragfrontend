@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Save, AlertTriangle } from "lucide-react";
 import { useAuthStore, useUpdateProfile } from "@/entities/auth";
 import { ResendVerificationButton } from "@/features/auth";
@@ -34,14 +34,16 @@ export default function ProfilePage() {
     avatar_url: "",
   });
 
-  useEffect(() => {
-    if (user) {
-      setForm({
-        full_name: user.full_name || "",
-        avatar_url: user.avatar_url || "",
-      });
-    }
-  }, [user]);
+  // Initialize/refresh the form from loaded data without an effect:
+  // adjust state during render when the loaded user changes.
+  const [initializedUserId, setInitializedUserId] = useState<string | null>(null);
+  if (user && user.id !== initializedUserId) {
+    setInitializedUserId(user.id);
+    setForm({
+      full_name: user.full_name || "",
+      avatar_url: user.avatar_url || "",
+    });
+  }
 
   const handleSave = () => {
     updateProfile(form, {

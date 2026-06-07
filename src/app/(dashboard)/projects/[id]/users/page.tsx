@@ -205,7 +205,7 @@ export default function EndUsersPage({ params }: EndUsersPageProps) {
                       <TableHead className="text-center">Диалоги</TableHead>
                       <TableHead className="text-center">Сообщения</TableHead>
                       <TableHead>Последняя активность</TableHead>
-                      <TableHead className="w-[50px]"></TableHead>
+                      <TableHead className="w-[50px]" />
                     </TableRow>
                   </TableHeader>
                   <TableBody>

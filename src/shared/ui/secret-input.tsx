@@ -27,7 +27,7 @@ function formatMaskedValue(maskedValue: string): string {
   if (lastDotIndex === -1) return maskedValue;
   
   const suffix = maskedValue.slice(lastDotIndex + 1);
-  return "•••••" + suffix;
+  return `•••••${  suffix}`;
 }
 
 const SecretInput = React.forwardRef<HTMLInputElement, SecretInputProps>(
@@ -54,7 +54,11 @@ const SecretInput = React.forwardRef<HTMLInputElement, SecretInputProps>(
     // Clear value on unmount for security
     // Use ref to capture latest onChange to avoid dependency issues
     const onChangeRef = React.useRef(onChange);
-    onChangeRef.current = onChange;
+
+    // Keep ref in sync with the latest onChange outside of render.
+    React.useEffect(() => {
+      onChangeRef.current = onChange;
+    });
 
     React.useEffect(() => {
       return () => {

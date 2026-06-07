@@ -165,7 +165,7 @@ export default function AuditLogsPage() {
                         </Badge>
                       </TableCell>
                       <TableCell className="font-mono text-xs">
-                        {log.resource_id ? log.resource_id.slice(0, 8) + "..." : "—"}
+                        {log.resource_id ? `${log.resource_id.slice(0, 8)  }...` : "—"}
                       </TableCell>
                       <TableCell className="font-mono text-xs">{log.ip_address || "—"}</TableCell>
                     </TableRow>
