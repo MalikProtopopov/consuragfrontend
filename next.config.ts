@@ -21,11 +21,6 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   
-  eslint: {
-    // ESLint slows down builds significantly
-    // Run `npm run lint` separately in CI/CD
-    ignoreDuringBuilds: true,
-  },
 
   // Optimize package imports to reduce bundle size and build time
   experimental: {

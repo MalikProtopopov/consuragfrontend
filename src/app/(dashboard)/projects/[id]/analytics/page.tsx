@@ -8,7 +8,6 @@ import { PageContainer, PageHeader } from "@/widgets/app-shell";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/ui/card";
 import { StatsCard } from "@/shared/ui/stats-card";
 import { Skeleton } from "@/shared/ui/skeleton";
-import { UsageProgressBar } from "@/shared/ui/usage-progress-bar";
 import { AccessDenied, isPermissionError } from "@/shared/ui/access-denied";
 
 interface ProjectAnalyticsPageProps {
@@ -67,69 +66,23 @@ export default function ProjectAnalyticsPage({ params }: ProjectAnalyticsPagePro
         Период: {usage.period_start} — {usage.period_end}
       </p>
 
-      {/* Token Usage Cards */}
-      <div className="grid gap-6 lg:grid-cols-2 mb-8">
+      {/* Token Usage — бекенд отдаёт только total_tokens на уровне проекта,
+          разбивки chat/embedding и лимитов здесь нет (они в /settings/usage) */}
+      <div className="mb-8">
         <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
               <Zap className="size-5 text-accent-primary" />
-              <CardTitle className="text-base">Токены чата</CardTitle>
+              <CardTitle className="text-base">Токены за период</CardTitle>
             </div>
-            <CardDescription>Использование токенов для генерации ответов</CardDescription>
+            <CardDescription>
+              Суммарное использование токенов проектом (чат + индексация документов)
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <UsageProgressBar
-              used={usage.chat_tokens_used ?? 0}
-              limit={usage.chat_tokens_limit ?? 50000}
-              label="Использовано"
-              size="lg"
-            />
-            <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="text-text-muted">Осталось</p>
-                <p className="font-medium text-text-primary">
-                  {((usage.chat_tokens_limit ?? 50000) - (usage.chat_tokens_used ?? 0)).toLocaleString()}
-                </p>
-              </div>
-              <div>
-                <p className="text-text-muted">Лимит</p>
-                <p className="font-medium text-text-primary">
-                  {(usage.chat_tokens_limit ?? 50000).toLocaleString()}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-2">
-              <FileText className="size-5 text-accent-primary" />
-              <CardTitle className="text-base">Токены эмбеддингов</CardTitle>
-            </div>
-            <CardDescription>Использование токенов для индексации документов</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <UsageProgressBar
-              used={usage.embedding_tokens_used ?? 0}
-              limit={usage.embedding_tokens_limit ?? 100000}
-              label="Использовано"
-              size="lg"
-            />
-            <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="text-text-muted">Осталось</p>
-                <p className="font-medium text-text-primary">
-                  {((usage.embedding_tokens_limit ?? 100000) - (usage.embedding_tokens_used ?? 0)).toLocaleString()}
-                </p>
-              </div>
-              <div>
-                <p className="text-text-muted">Лимит</p>
-                <p className="font-medium text-text-primary">
-                  {(usage.embedding_tokens_limit ?? 100000).toLocaleString()}
-                </p>
-              </div>
-            </div>
+            <p className="text-3xl font-semibold text-text-primary">
+              {(usage.total_tokens ?? 0).toLocaleString()}
+            </p>
           </CardContent>
         </Card>
       </div>
