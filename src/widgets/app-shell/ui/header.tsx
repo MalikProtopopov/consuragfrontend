@@ -118,6 +118,20 @@ const Header = React.forwardRef<HTMLElement, HeaderProps>(
 
         {/* Actions */}
         <div className="flex items-center gap-2">
+          {/* N-03: триггер командной палитры (⌘K) */}
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new Event("open-command-palette"))}
+            aria-label="Поиск и быстрый переход (Ctrl+K)"
+            className="hidden items-center gap-2 rounded-lg border border-border px-2.5 py-1.5 text-sm text-text-muted transition-colors hover:bg-bg-hover hover:text-text-primary sm:flex"
+          >
+            <Search className="size-4" />
+            <span className="hidden md:inline">Переход…</span>
+            <kbd className="hidden rounded border border-border bg-bg-secondary px-1.5 font-mono text-[10px] md:inline">
+              ⌘K
+            </kbd>
+          </button>
+
           {/* Notifications (N-04): уведомления приходят в Telegram — поповер со статусом */}
           <Popover>
             <PopoverTrigger asChild>

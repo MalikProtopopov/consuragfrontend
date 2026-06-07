@@ -4,7 +4,7 @@ import { useState, useEffect, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useMe, useAuthStore } from "@/entities/auth";
 import { tokenManager } from "@/shared/api";
-import { AppShell } from "@/widgets/app-shell";
+import { AppShell, CommandPalette } from "@/widgets/app-shell";
 import { Spinner } from "@/shared/ui/spinner";
 
 interface DashboardLayoutProps {
@@ -55,6 +55,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       sidebarCollapsed={sidebarCollapsed}
       onSidebarCollapsedChange={setSidebarCollapsed}
     >
+      <CommandPalette />
       {children}
     </AppShell>
   );

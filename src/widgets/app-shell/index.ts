@@ -6,3 +6,5 @@ export type { HeaderProps, BreadcrumbItem } from "./ui/header";
 
 export { AppShell, PageContainer, PageHeader } from "./ui/app-shell";
 export type { AppShellProps, PageContainerProps, PageHeaderProps } from "./ui/app-shell";
+
+export { CommandPalette } from "./ui/command-palette";
