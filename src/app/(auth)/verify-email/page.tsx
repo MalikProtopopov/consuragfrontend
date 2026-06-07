@@ -7,20 +7,15 @@ import Link from "next/link";
 import { CheckCircle2, XCircle, Loader2, Mail } from "lucide-react";
 import { useVerifyEmail, useResendVerification } from "@/entities/auth";
 import { Button } from "@/shared/ui/button";
+import { Input } from "@/shared/ui/input";
 import { Alert, AlertDescription } from "@/shared/ui/alert";
-import { getApiErrorMessage } from "@/shared/lib";
+import { getApiErrorMessage, useCountdown } from "@/shared/lib";
+import {
+  getResendCooldownSeconds,
+  type ApiErrorWithDetails,
+} from "@/features/auth/lib/resend-cooldown";
 
 type VerificationStatus = "loading" | "success" | "error" | "no-token";
-
-interface ApiErrorWithDetails {
-  error?: {
-    code?: string;
-    details?: {
-      wait_seconds?: number;
-    };
-  };
-  code?: string;
-}
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
@@ -33,23 +28,16 @@ function VerifyEmailContent() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [errorCode, setErrorCode] = useState<string | null>(null);
   const [verifiedEmail, setVerifiedEmail] = useState<string | null>(null);
-  const [cooldown, setCooldown] = useState(0);
   const [resendEmail, setResendEmail] = useState("");
+  const {
+    isActive: cooldownActive,
+    formatted: cooldownFormatted,
+    start: startCooldown,
+  } = useCountdown();
 
   const { mutate: verifyEmail } = useVerifyEmail();
   const { mutate: resendVerification, isPending: resending } =
     useResendVerification();
-
-  // Countdown timer for cooldown
-  useEffect(() => {
-    if (cooldown > 0) {
-      const timer = setInterval(() => {
-        setCooldown((c) => c - 1);
-      }, 1000);
-      return () => clearInterval(timer);
-    }
-    return undefined;
-  }, [cooldown]);
 
   // Verify email on mount
   useEffect(() => {
@@ -70,29 +58,22 @@ function VerifyEmailContent() {
   }, [token, verifyEmail]);
 
   const handleResend = useCallback(() => {
-    if (!resendEmail || cooldown > 0) return;
+    if (!resendEmail || cooldownActive) return;
 
     resendVerification(resendEmail, {
       onSuccess: () => {
-        setCooldown(300); // 5 minutes
+        startCooldown(EMAIL_RESEND_COOLDOWN_SEC); // 5 minutes
       },
       onError: (error) => {
-        const apiError = error as ApiErrorWithDetails;
-        if (apiError.error?.code === "AUTH_EMAIL_RESEND_COOLDOWN") {
-          const waitSeconds = apiError.error.details?.wait_seconds || EMAIL_RESEND_COOLDOWN_SEC;
-          setCooldown(waitSeconds);
+        const waitSeconds = getResendCooldownSeconds(error);
+        if (waitSeconds !== null) {
+          startCooldown(waitSeconds);
         } else {
           setErrorMessage(getApiErrorMessage(error));
         }
       },
     });
-  }, [resendEmail, cooldown, resendVerification]);
-
-  const formatCooldown = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${minutes}:${secs.toString().padStart(2, "0")}`;
-  };
+  }, [resendEmail, cooldownActive, resendVerification, startCooldown]);
 
   // No token state
   if (status === "no-token") {
@@ -195,20 +176,19 @@ function VerifyEmailContent() {
               Введите ваш email для получения нового письма подтверждения
             </AlertDescription>
           </Alert>
-          <input
+          <Input
             type="email"
             placeholder="Ваш email"
             value={resendEmail}
             onChange={(e) => setResendEmail(e.target.value)}
-            className="w-full px-3 py-2 border border-border rounded-md bg-bg-primary text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-accent-primary"
           />
           <Button
             onClick={handleResend}
-            disabled={resending || cooldown > 0 || !resendEmail}
+            disabled={resending || cooldownActive || !resendEmail}
             className="w-full"
           >
-            {cooldown > 0
-              ? `Отправить повторно (${formatCooldown(cooldown)})`
+            {cooldownActive
+              ? `Отправить повторно (${cooldownFormatted})`
               : resending
                 ? "Отправка..."
                 : "Отправить письмо повторно"}

@@ -1,23 +1,17 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useCallback } from "react";
 import { EMAIL_RESEND_COOLDOWN_SEC } from "@/shared/config";
 import { Mail } from "lucide-react";
 import { useResendVerification } from "@/entities/auth";
 import { Button } from "@/shared/ui/button";
 import { Spinner } from "@/shared/ui/spinner";
 import { toast } from "sonner";
-import { getApiErrorMessage } from "@/shared/lib";
-
-interface ApiErrorWithDetails {
-  error?: {
-    code?: string;
-    details?: {
-      wait_seconds?: number;
-    };
-  };
-  code?: string;
-}
+import { getApiErrorMessage, useCountdown, formatDuration } from "@/shared/lib";
+import {
+  getResendCooldownSeconds,
+  type ApiErrorWithDetails,
+} from "@/features/auth/lib/resend-cooldown";
 
 interface ResendVerificationButtonProps {
   email: string;
@@ -36,43 +30,30 @@ export function ResendVerificationButton({
   showIcon = true,
   initialCooldown = 0,
 }: ResendVerificationButtonProps) {
-  const [cooldown, setCooldown] = useState(initialCooldown);
+  const {
+    isActive: cooldownActive,
+    formatted: cooldownFormatted,
+    start: startCooldown,
+  } = useCountdown(initialCooldown);
   const { mutate: resendVerification, isPending } = useResendVerification();
 
-  // Countdown timer
-  useEffect(() => {
-    if (cooldown > 0) {
-      const timer = setInterval(() => {
-        setCooldown((c) => c - 1);
-      }, 1000);
-      return () => clearInterval(timer);
-    }
-    return undefined;
-  }, [cooldown]);
-
-  const formatCooldown = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${minutes}:${secs.toString().padStart(2, "0")}`;
-  };
-
   const handleResend = useCallback(() => {
-    if (!email || cooldown > 0 || isPending) return;
+    if (!email || cooldownActive || isPending) return;
 
     resendVerification(email, {
       onSuccess: () => {
-        setCooldown(300); // 5 minutes
+        startCooldown(EMAIL_RESEND_COOLDOWN_SEC); // 5 minutes
         toast.success("Письмо отправлено", {
           description: "Проверьте вашу почту для подтверждения email",
         });
       },
       onError: (error) => {
         const apiError = error as ApiErrorWithDetails;
-        if (apiError.error?.code === "AUTH_EMAIL_RESEND_COOLDOWN") {
-          const waitSeconds = apiError.error.details?.wait_seconds || EMAIL_RESEND_COOLDOWN_SEC;
-          setCooldown(waitSeconds);
+        const waitSeconds = getResendCooldownSeconds(error);
+        if (waitSeconds !== null) {
+          startCooldown(waitSeconds);
           toast.info("Подождите", {
-            description: `Повторная отправка будет доступна через ${formatCooldown(waitSeconds)}`,
+            description: `Повторная отправка будет доступна через ${formatDuration(waitSeconds)}`,
           });
         } else if (apiError.error?.code === "AUTH_EMAIL_ALREADY_VERIFIED") {
           toast.success("Email уже подтверждён", {
@@ -85,9 +66,9 @@ export function ResendVerificationButton({
         }
       },
     });
-  }, [email, cooldown, isPending, resendVerification]);
+  }, [email, cooldownActive, isPending, resendVerification, startCooldown]);
 
-  const isDisabled = isPending || cooldown > 0 || !email;
+  const isDisabled = isPending || cooldownActive || !email;
 
   return (
     <Button
@@ -103,10 +84,10 @@ export function ResendVerificationButton({
           <Spinner className="mr-2 h-4 w-4" />
           Отправка...
         </>
-      ) : cooldown > 0 ? (
+      ) : cooldownActive ? (
         <>
           {showIcon && <Mail className="mr-2 h-4 w-4" />}
-          Повторно через {formatCooldown(cooldown)}
+          Повторно через {cooldownFormatted}
         </>
       ) : (
         <>
