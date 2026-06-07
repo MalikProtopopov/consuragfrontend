@@ -32,6 +32,12 @@ export const apiUrlManager = {
       return getDefaultApiUrl();
     }
 
+    // Security: в production localStorage-override игнорируется — ранее
+    // сохранённое переключение не должно уводить кабинет на другой API
+    if (process.env.NODE_ENV === "production") {
+      return getDefaultApiUrl();
+    }
+
     // Check localStorage for override
     const override = localStorage.getItem(API_URL_STORAGE_KEY);
     if (override) {

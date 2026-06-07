@@ -51,7 +51,9 @@ export default function RootLayout({
               {children}
             </TokenLimitDialogProvider>
             <Toaster />
-            <ApiUrlSwitcher />
+            {/* Переключатель API — только вне production (security: нельзя дать
+                пользователю увести кабинет на dev-API) */}
+            {process.env.NODE_ENV !== "production" && <ApiUrlSwitcher />}
           </QueryProvider>
         </ThemeProvider>
       </body>
