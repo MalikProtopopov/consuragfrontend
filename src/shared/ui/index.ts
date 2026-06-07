@@ -72,3 +72,4 @@ export * from "./text-scramble";
 export * from "./terminal";
 export * from "./avatar-identity";
 export * from "./dot-pattern";
+export * from "./ai-input";

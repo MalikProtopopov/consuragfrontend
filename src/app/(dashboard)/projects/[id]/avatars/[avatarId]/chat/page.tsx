@@ -2,14 +2,14 @@
 
 import { use, useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, Send, RefreshCw } from "lucide-react";
+import { ArrowLeft, RefreshCw } from "lucide-react";
 import { useAvatar } from "@/entities/avatar";
 import { useChat } from "@/entities/chat";
 import { useAuthStore } from "@/entities/auth";
 import { PageContainer } from "@/widgets/app-shell";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
-import { Input } from "@/shared/ui/input";
+import { AIInput } from "@/shared/ui/ai-input";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Spinner } from "@/shared/ui/spinner";
 import { ChatHeader, ChatMessages } from "./_components";
@@ -35,7 +35,7 @@ export default function ChatPage({ params }: ChatPageProps) {
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -61,13 +61,6 @@ export default function ChatPage({ params }: ChatPageProps) {
     } finally {
       setIsSending(false);
       inputRef.current?.focus();
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
     }
   };
 
@@ -130,23 +123,14 @@ export default function ChatPage({ params }: ChatPageProps) {
 
           {/* Input */}
           <div className="p-4 border-t border-border">
-            <div className="flex gap-2">
-              <Input
-                ref={inputRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Введите сообщение..."
-                disabled={isSending || isInitializing}
-                className="flex-1"
-              />
-              <Button
-                onClick={handleSend}
-                disabled={isSending || isInitializing || !input.trim()}
-              >
-                {isSending ? <Spinner className="h-4 w-4" /> : <Send className="h-4 w-4" />}
-              </Button>
-            </div>
+            <AIInput
+              ref={inputRef}
+              value={input}
+              onChange={setInput}
+              onSubmit={handleSend}
+              isSending={isSending}
+              disabled={isInitializing}
+            />
           </div>
         </CardContent>
       </Card>
