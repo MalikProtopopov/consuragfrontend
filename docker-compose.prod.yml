@@ -1,7 +1,7 @@
 # Frontend - Production (admin.parmenid.tech with SSL)
 # 
 # Initial setup:
-#   1. Configure DNS: admin.parmenid.tech -> 83.217.221.77
+#   1. Configure DNS: admin.parmenid.tech -> 95.140.159.9
 #   2. Create .env.prod file
 #   3. Get SSL certificate: ./scripts/init-ssl.sh admin.parmenid.tech
 #   4. Run: docker compose -f docker-compose.prod.yml up -d --build

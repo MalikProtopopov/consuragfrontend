@@ -1,5 +1,5 @@
 # Frontend Deployment Makefile
-# Server: 83.217.221.77
+# Server: 95.140.159.9
 # Domain: admin.parmenid.tech
 
 .PHONY: help dev prod down logs build deploy ssl-init ssl-renew clean ps
@@ -43,7 +43,7 @@ dev-build:
 
 deploy-dev: env-dev dev-build
 	@echo "✅ Dev deployment complete!"
-	@echo "   Access: http://83.217.221.77"
+	@echo "   Access: http://95.140.159.9"
 
 # ============== Production ==============
 

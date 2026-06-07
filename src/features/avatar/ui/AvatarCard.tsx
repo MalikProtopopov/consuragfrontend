@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Bot, FileText, MessageSquare } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/shared/ui/card";
 import { Badge } from "@/shared/ui/badge";
@@ -36,9 +37,11 @@ export function AvatarCard({ avatar, projectId }: AvatarCardProps) {
               }}
             >
               {avatar.avatar_image_url ? (
-                <img
+                <Image
                   src={avatar.avatar_image_url}
                   alt={avatar.name}
+                  width={32}
+                  height={32}
                   className="size-8 rounded-lg object-cover"
                 />
               ) : (

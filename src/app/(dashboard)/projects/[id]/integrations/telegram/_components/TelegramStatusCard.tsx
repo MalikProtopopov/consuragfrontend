@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Send, Check, X, Copy, Link2, Bot } from "lucide-react";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
@@ -114,15 +115,17 @@ export function TelegramStatusCard({
             <div className="flex items-center gap-3">
               {integration.default_avatar.avatar_image_url ? (
                 <div
-                  className="size-10 rounded-lg overflow-hidden flex-shrink-0"
+                  className="relative size-10 rounded-lg overflow-hidden flex-shrink-0"
                   style={integration.default_avatar.primary_color ? {
                     boxShadow: `0 0 0 2px ${integration.default_avatar.primary_color}20`
                   } : undefined}
                 >
-                  <img
+                  <Image
                     src={integration.default_avatar.avatar_image_url}
                     alt={integration.default_avatar.name}
-                    className="size-full object-cover"
+                    fill
+                    sizes="40px"
+                    className="object-cover"
                   />
                 </div>
               ) : (

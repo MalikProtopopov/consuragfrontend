@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Bot } from "lucide-react";
 import { Spinner } from "@/shared/ui/spinner";
 import type { Avatar as AvatarType } from "@/shared/types/api";
@@ -6,7 +7,7 @@ export function TypingIndicator({ avatar }: { avatar: AvatarType }) {
   return (
     <div className="flex items-start gap-3">
       <div
-        className="flex size-9 items-center justify-center rounded-full shrink-0 overflow-hidden border-2"
+        className="relative flex size-9 items-center justify-center rounded-full shrink-0 overflow-hidden border-2"
         style={{
           backgroundColor: avatar.primary_color
             ? `${avatar.primary_color}15`
@@ -15,10 +16,12 @@ export function TypingIndicator({ avatar }: { avatar: AvatarType }) {
         }}
       >
         {avatar.avatar_image_url ? (
-          <img
+          <Image
             src={avatar.avatar_image_url}
             alt={avatar.name}
-            className="size-full object-cover"
+            fill
+            sizes="36px"
+            className="object-cover"
           />
         ) : (
           <Bot

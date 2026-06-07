@@ -1,9 +1,34 @@
+"use client";
+
+import Image from "next/image";
+import dynamic from "next/dynamic";
+import type { Components } from "react-markdown";
 import { ThumbsUp, ThumbsDown, Bot, User } from "lucide-react";
-import ReactMarkdown from "react-markdown";
 import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
+import { Skeleton } from "@/shared/ui/skeleton";
 import { cn } from "@/shared/lib";
 import type { ChatMessage, Avatar as AvatarType } from "@/shared/types/api";
+
+// react-markdown тянет remark/rehype-граф — грузим его динамически, только на
+// странице чата, чтобы не утяжелять общий бандл (T-26). ssr:false + скелетон.
+const ReactMarkdown = dynamic(() => import("react-markdown"), {
+  ssr: false,
+  loading: () => <Skeleton className="h-4 w-40" />,
+});
+
+/**
+ * T-27: react-markdown v10 по умолчанию НЕ рендерит сырой HTML (rehype-raw не
+ * подключён) — `<img onerror=...>` экранируется. Для явности оставляем
+ * `skipHtml`. Ссылки открываем в новой вкладке с rel="noopener noreferrer".
+ */
+const markdownComponents: Components = {
+  a: ({ children, ...props }) => (
+    <a {...props} target="_blank" rel="noopener noreferrer">
+      {children}
+    </a>
+  ),
+};
 
 export function MessageBubble({
   message,
@@ -23,7 +48,7 @@ export function MessageBubble({
       {/* Avatar */}
       <div
         className={cn(
-          "flex size-9 items-center justify-center rounded-full shrink-0 overflow-hidden",
+          "relative flex size-9 items-center justify-center rounded-full shrink-0 overflow-hidden",
           isUser ? "bg-text-muted/20" : "border-2"
         )}
         style={
@@ -39,19 +64,23 @@ export function MessageBubble({
       >
         {isUser ? (
           userAvatarUrl ? (
-            <img
+            <Image
               src={userAvatarUrl}
               alt="Вы"
-              className="size-full object-cover"
+              fill
+              sizes="36px"
+              className="object-cover"
             />
           ) : (
             <User className="size-4 text-text-muted" />
           )
         ) : avatar.avatar_image_url ? (
-          <img
+          <Image
             src={avatar.avatar_image_url}
             alt={avatar.name}
-            className="size-full object-cover"
+            fill
+            sizes="36px"
+            className="object-cover"
           />
         ) : (
           <Bot
@@ -75,7 +104,9 @@ export function MessageBubble({
             <p className="text-sm whitespace-pre-wrap">{message.content}</p>
           ) : (
             <div className="text-sm prose prose-sm max-w-none prose-p:my-1 prose-pre:my-2 prose-pre:bg-bg-secondary prose-pre:text-text-primary prose-code:text-accent-primary prose-code:before:content-none prose-code:after:content-none">
-              <ReactMarkdown>{message.content}</ReactMarkdown>
+              <ReactMarkdown skipHtml components={markdownComponents}>
+                {message.content}
+              </ReactMarkdown>
             </div>
           )}
         </div>

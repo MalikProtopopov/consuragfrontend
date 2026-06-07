@@ -4,12 +4,19 @@ const nextConfig: NextConfig = {
   // Enable standalone output for Docker deployment
   output: "standalone",
   
-  // Allow images from external sources if needed
+  // Аватарки (avatar_image_url / user.avatar_url) приходят со стораджа бэкенда.
+  // Единственные реальные хосты — прод-API и локальный dev-API; раньше тут стоял
+  // hostname: "**" (любой https-домен) — сужено до реальных источников (T-26).
   images: {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "**",
+        hostname: "api.parmenid.tech",
+      },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "8000",
       },
     ],
   },

@@ -1,83 +1,70 @@
 /**
- * Auth API types based on OpenAPI specification
+ * Auth API types.
+ *
+ * ── Паттерн миграции на сгенерированные типы (T-24) ──────────────────────────
+ * Базовые типы — алиасы на `components["schemas"][...]` из `generated.ts`
+ * (сгенерирован `npm run codegen:api` из `docs/openapi.json`). Внешние имена
+ * типов (`User`, `TokenResponse`, `LoginRequest`, …) НЕ меняются — остальные
+ * файлы продолжают импортировать их как раньше.
+ *
+ * Где спецификация openapi отстаёт от фактического контракта бэкенда (поля
+ * `avatar_url`, `updated_at`, `last_login_ip`, `projects_count`, ответы
+ * verify/resend email — в openapi отсутствуют, но реально используются UI),
+ * сгенерированный тип РАСШИРЯЕТСЯ пересечением (`& { … }`) с пометкой
+ * `// not in openapi`. После обновления спеки расширения убираются.
+ *
+ * Эта entity — образец. Остальные `*.types.ts` мигрируются по одной (backlog).
  */
+import type { components } from "./generated";
 
 // User roles
-export type UserRole =
-  | "saas_admin"
-  | "owner"
-  | "manager"
-  | "content_manager"
-  | "client";
+export type UserRole = components["schemas"]["UserRole"];
 
 // User status
-export type UserStatus = "active" | "inactive" | "suspended" | "pending";
+export type UserStatus = components["schemas"]["UserStatus"];
 
 // User response from API
-export interface User {
-  id: string;
-  email: string;
-  full_name: string | null;
-  role: UserRole;
-  status: UserStatus;
-  is_email_verified: boolean;
-  avatar_url: string | null;
-  created_at: string;
-  updated_at: string;
-  last_login_at: string | null;
-}
+// openapi: UserResponse не содержит avatar_url/updated_at — добавлены контрактом бэкенда
+export type User = components["schemas"]["UserResponse"] & {
+  avatar_url: string | null; // not in openapi
+  updated_at: string; // not in openapi
+};
 
 // Detailed user response (admin)
-export interface UserDetail extends User {
-  last_login_ip: string | null;
-  projects_count: number;
-}
+// openapi: UserDetailResponse не содержит last_login_ip/projects_count/avatar_url
+export type UserDetail = components["schemas"]["UserDetailResponse"] & {
+  avatar_url: string | null; // not in openapi
+  last_login_ip: string | null; // not in openapi
+  projects_count: number; // not in openapi
+};
 
 // Login request
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
+export type LoginRequest = components["schemas"]["UserLogin"];
 
 // Login response
-export interface TokenResponse {
-  access_token: string;
-  refresh_token: string;
-  token_type: "bearer";
-  expires_in: number;
-}
+export type TokenResponse = components["schemas"]["TokenResponse"];
 
 // Register request
-export interface RegisterRequest {
-  email: string;
-  password: string;
-  full_name?: string;
-}
+export type RegisterRequest = components["schemas"]["UserCreate"];
 
 // Update profile request
-export interface UpdateProfileRequest {
-  full_name?: string;
-  avatar_url?: string;
-}
+export type UpdateProfileRequest = components["schemas"]["UserUpdate"];
 
 // Change password request
-export interface ChangePasswordRequest {
-  current_password: string;
-  new_password: string;
-}
+export type ChangePasswordRequest = components["schemas"]["PasswordChange"];
 
-// Email verification response
+// Email verification response (нет схемы в openapi — ручной тип)
 export interface VerifyEmailResponse {
   message: string;
   email: string;
 }
 
-// Resend verification request
+// Resend verification request (нет схемы в openapi — ручной тип)
 export interface ResendVerificationRequest {
   email: string;
 }
 
-// Resend verification response
+// Resend verification response (нет схемы в openapi — ручной тип)
 export interface ResendVerificationResponse {
   message: string;
 }
@@ -88,30 +75,22 @@ export interface ResendVerificationErrorDetails {
 }
 
 // Admin: Create user request
-export interface AdminCreateUserRequest {
-  email: string;
-  password: string;
-  full_name?: string;
-  role: UserRole;
-  status?: UserStatus;
-  is_email_verified?: boolean;
-}
+// openapi AdminUserCreate не описывает is_email_verified, но бэкенд его принимает
+export type AdminCreateUserRequest = components["schemas"]["AdminUserCreate"] & {
+  is_email_verified?: boolean; // not in openapi
+};
 
 // Admin: Update user request
-export interface AdminUpdateUserRequest {
-  full_name?: string;
-  role?: UserRole;
-  status?: UserStatus;
-  is_email_verified?: boolean;
-}
+export type AdminUpdateUserRequest = components["schemas"]["AdminUserUpdate"];
 
 // Users list response
-export interface UsersListResponse {
+// openapi UserListResponse.items: UserResponse[] — UI рендерит расширенный UserDetail
+export type UsersListResponse = Omit<
+  components["schemas"]["UserListResponse"],
+  "items"
+> & {
   items: UserDetail[];
-  total: number;
-  skip: number;
-  limit: number;
-}
+};
 
 // Users list query params
 export interface UsersListParams {
@@ -121,4 +100,3 @@ export interface UsersListParams {
   user_status?: UserStatus;
   search?: string;
 }
-

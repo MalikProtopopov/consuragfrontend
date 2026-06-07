@@ -17,12 +17,13 @@ import {
 } from "@/shared/ui/card";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { LimitAlert } from "@/shared/ui/limit-alert";
-import { UsageChart, type UsageChartPeriod } from "@/shared/ui/usage-chart";
+import { type UsageChartPeriod } from "@/shared/ui/usage-chart";
 import {
   UsageSummaryCards,
   TokenUsageCard,
   UsageBreakdownTabs,
   PlanInfoCard,
+  UsageChartDynamic,
 } from "./_components";
 
 export default function UsagePage() {
@@ -96,7 +97,7 @@ export default function UsagePage() {
             {historyLoading ? (
               <Skeleton className="h-[300px] w-full" />
             ) : (
-              <UsageChart
+              <UsageChartDynamic
                 data={history?.data ?? []}
                 period={chartPeriod}
                 showCost

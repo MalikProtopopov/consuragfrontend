@@ -5,12 +5,9 @@ import axios, {
   type InternalAxiosRequestConfig,
 } from "axios";
 import { apiUrlManager } from "@/shared/lib/apiUrlManager";
+import { tokenStorage } from "@/shared/lib/tokenStorage";
 import { API_TIMEOUT_MS, TOKEN_REFRESH_WINDOW_MS } from "@/shared/config";
 import type { TokenResponse } from "@/shared/types/api";
-
-const TOKEN_KEY = "auth_token";
-const REFRESH_TOKEN_KEY = "auth_refresh_token";
-const EXPIRES_AT_KEY = "auth_expires_at";
 
 // Token limit error codes
 const TOKEN_LIMIT_ERROR_CODES = ["TOKEN_LIMIT_EXCEEDED", "EMBEDDING_LIMIT_EXCEEDED"] as const;
@@ -54,47 +51,29 @@ function emitTokenLimitError(error: {
 }
 
 /**
- * Token management utilities
+ * Token management utilities.
+ *
+ * Чтение/запись/очистка делегируются в `tokenStorage` (shared/lib), который
+ * атомарно держит синхронными localStorage И cookie `access_token` (для
+ * middleware). Любой путь рефреша (proactive/reactive-401) через `setTokens`
+ * обновляет и cookie — это чинит баг протухающей cookie (T-23).
  */
 export const tokenManager = {
-  getAccessToken: (): string | null => {
-    if (typeof window === "undefined") return null;
-    return localStorage.getItem(TOKEN_KEY);
-  },
+  getAccessToken: (): string | null => tokenStorage.getAccessToken(),
 
-  getRefreshToken: (): string | null => {
-    if (typeof window === "undefined") return null;
-    return localStorage.getItem(REFRESH_TOKEN_KEY);
-  },
+  getRefreshToken: (): string | null => tokenStorage.getRefreshToken(),
 
-  getExpiresAt: (): number | null => {
-    if (typeof window === "undefined") return null;
-    const expiresAt = localStorage.getItem(EXPIRES_AT_KEY);
-    return expiresAt ? Number(expiresAt) : null;
-  },
+  getExpiresAt: (): number | null => tokenStorage.getExpiresAt(),
 
   setTokens: (accessToken: string, refreshToken?: string, expiresIn?: number): void => {
-    if (typeof window === "undefined") return;
-    localStorage.setItem(TOKEN_KEY, accessToken);
-    if (refreshToken) {
-      localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
-    }
-    if (expiresIn) {
-      const expiresAt = Date.now() + expiresIn * 1000;
-      localStorage.setItem(EXPIRES_AT_KEY, String(expiresAt));
-    }
+    tokenStorage.setTokens(accessToken, refreshToken, expiresIn);
   },
 
   clearTokens: (): void => {
-    if (typeof window === "undefined") return;
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
-    localStorage.removeItem(EXPIRES_AT_KEY);
+    tokenStorage.clearTokens();
   },
 
-  hasToken: (): boolean => {
-    return !!tokenManager.getAccessToken();
-  },
+  hasToken: (): boolean => tokenStorage.hasToken(),
 
   /**
    * Check if access token is expired or will expire soon (within 60 seconds)

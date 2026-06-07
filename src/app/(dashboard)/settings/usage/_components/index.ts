@@ -3,3 +3,4 @@ export { TokenUsageCard } from "./TokenUsageCard";
 export { UsageBreakdownTabs } from "./UsageBreakdownTabs";
 export { PlanInfoCard } from "./PlanInfoCard";
 export { PlanUpgradeDialog } from "./PlanUpgradeDialog";
+export { UsageChartDynamic } from "./UsageChartDynamic";
