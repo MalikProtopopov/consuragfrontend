@@ -12,7 +12,7 @@ import { Badge } from "@/shared/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
 import { Skeleton } from "@/shared/ui/skeleton";
-import { ROUTES } from "@/shared/config";
+import { ROUTES, PAGE_SIZE } from "@/shared/config";
 import type { TelegramSessionStatus } from "@/shared/types/api";
 
 interface TelegramSessionsPageProps {
@@ -40,7 +40,7 @@ export default function TelegramSessionsPage({ params }: TelegramSessionsPagePro
   const [status, setStatus] = useState<TelegramSessionStatus>("all");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
-  const limit = 20;
+  const limit = PAGE_SIZE;
 
   const { data, isLoading } = useTelegramSessions(projectId, {
     status,

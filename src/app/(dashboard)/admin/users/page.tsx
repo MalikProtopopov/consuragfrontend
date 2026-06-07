@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { PAGE_SIZE } from "@/shared/config";
 import Link from "next/link";
 import { UserPlus } from "lucide-react";
 import { useUsers } from "@/entities/user";
@@ -34,7 +35,7 @@ export default function UsersPage() {
   const [page, setPage] = useState(0);
   const [roleFilter, setRoleFilter] = useState<UserRole | "all">("all");
   const [statusFilter, setStatusFilter] = useState<UserStatus | "all">("all");
-  const limit = 20;
+  const limit = PAGE_SIZE;
 
   const { data, isLoading } = useUsers({
     skip: page * limit,

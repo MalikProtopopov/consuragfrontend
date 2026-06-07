@@ -31,7 +31,7 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
 import { Skeleton } from "@/shared/ui/skeleton";
-import { ROUTES } from "@/shared/config";
+import { ROUTES, PAGE_SIZE } from "@/shared/config";
 import type { EndUserStatus, IdentityProvider } from "@/shared/types/api";
 
 interface EndUsersPageProps {
@@ -95,7 +95,7 @@ export default function EndUsersPage({ params }: EndUsersPageProps) {
   const [channelFilter, setChannelFilter] = useState<ChannelFilter>("all");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
-  const limit = 20;
+  const limit = PAGE_SIZE;
 
   const { data, isLoading } = useEndUsers(projectId, {
     status: statusFilter !== "all" ? statusFilter : undefined,

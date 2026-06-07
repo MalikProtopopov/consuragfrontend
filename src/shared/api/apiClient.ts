@@ -5,6 +5,7 @@ import axios, {
   type InternalAxiosRequestConfig,
 } from "axios";
 import { apiUrlManager } from "@/shared/lib/apiUrlManager";
+import { API_TIMEOUT_MS, TOKEN_REFRESH_WINDOW_MS } from "@/shared/config";
 import type { TokenResponse } from "@/shared/types/api";
 
 const TOKEN_KEY = "auth_token";
@@ -102,7 +103,7 @@ export const tokenManager = {
     const expiresAt = tokenManager.getExpiresAt();
     if (!expiresAt) return true;
     // Consider expired 60 seconds before actual expiration for proactive refresh
-    return Date.now() > expiresAt - 60000;
+    return Date.now() > expiresAt - TOKEN_REFRESH_WINDOW_MS;
   },
 };
 
@@ -177,7 +178,7 @@ class ApiClient {
   constructor(baseURL: string) {
     this.instance = axios.create({
       baseURL,
-      timeout: 30000,
+      timeout: API_TIMEOUT_MS,
       withCredentials: true, // Send cookies with cross-origin requests
       headers: {
         "Content-Type": "application/json",

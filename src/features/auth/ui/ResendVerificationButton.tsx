@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { EMAIL_RESEND_COOLDOWN_SEC } from "@/shared/config";
 import { Mail } from "lucide-react";
 import { useResendVerification } from "@/entities/auth";
 import { Button } from "@/shared/ui/button";
@@ -68,7 +69,7 @@ export function ResendVerificationButton({
       onError: (error) => {
         const apiError = error as ApiErrorWithDetails;
         if (apiError.error?.code === "AUTH_EMAIL_RESEND_COOLDOWN") {
-          const waitSeconds = apiError.error.details?.wait_seconds || 300;
+          const waitSeconds = apiError.error.details?.wait_seconds || EMAIL_RESEND_COOLDOWN_SEC;
           setCooldown(waitSeconds);
           toast.info("Подождите", {
             description: `Повторная отправка будет доступна через ${formatCooldown(waitSeconds)}`,

@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { PAGE_SIZE } from "@/shared/config";
 import {
   Coins,
   DollarSign,
@@ -103,8 +104,8 @@ export default function AdminBillingPage() {
   const [isManageDialogOpen, setIsManageDialogOpen] = React.useState(false);
 
   const params: UsersUsageParams = {
-    skip: page * 20,
-    limit: 20,
+    skip: page * PAGE_SIZE,
+    limit: PAGE_SIZE,
     plan: selectedPlan !== "all" ? selectedPlan : undefined,
     sort_by: "tokens_used",
     sort_order: "desc",
@@ -122,8 +123,8 @@ export default function AdminBillingPage() {
   const users = usersUsage?.users ?? [];
   
   // Calculate pagination info
-  const totalPages = usersUsage ? Math.ceil(usersUsage.total / 20) : 0;
-  const hasNextPage = (page + 1) * 20 < (usersUsage?.total ?? 0);
+  const totalPages = usersUsage ? Math.ceil(usersUsage.total / PAGE_SIZE) : 0;
+  const hasNextPage = (page + 1) * PAGE_SIZE < (usersUsage?.total ?? 0);
   const hasPrevPage = page > 0;
 
   // Check admin access

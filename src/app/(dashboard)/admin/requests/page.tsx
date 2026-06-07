@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { PAGE_SIZE } from "@/shared/config";
 import {
   FileText,
   TrendingUp,
@@ -134,7 +135,7 @@ export default function PlanRequestsPage() {
   const [typeFilter, setTypeFilter] = useState<PlanRequestType | "all">("all");
   const [selectedRequest, setSelectedRequest] = useState<PlanRequestDetail | null>(null);
   const [deleteRequest, setDeleteRequest] = useState<PlanRequestDetail | null>(null);
-  const limit = 20;
+  const limit = PAGE_SIZE;
 
   const { data, isLoading } = usePlanRequests({
     skip: page * limit,
