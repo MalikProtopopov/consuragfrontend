@@ -42,8 +42,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/ui/card";
+import { AnimatedGridPattern } from "@/shared/ui/animated-grid-pattern";
 import { ChatContainer, type ChatMessage } from "@/shared/ui/chat";
 import { Checkbox } from "@/shared/ui/checkbox";
+import { NumberTicker } from "@/shared/ui/number-ticker";
+import { ShimmerButton } from "@/shared/ui/shimmer-button";
 import {
   Dialog,
   DialogContent,
@@ -361,6 +364,65 @@ export default function DesignSystemPage() {
                 </div>
                 <p className="text-xs font-mono text-muted-foreground">.bg-gradient-burgundy</p>
               </div>
+            </div>
+          </Section>
+
+          {/* Animated (Фаза 3 — 21st.dev / magicui адаптации) */}
+          <Section title="Animated">
+            <p className="text-sm text-muted-foreground">
+              Все анимации уважают <code className="font-mono">prefers-reduced-motion</code>:
+              при включённой настройке показывается финальное статичное состояние.
+            </p>
+            <div className="grid md:grid-cols-2 gap-6">
+              <ComponentCard title="Shimmer Button (CTA)">
+                <div className="flex flex-wrap items-center gap-3">
+                  <ShimmerButton>Повысить тариф</ShimmerButton>
+                  <ShimmerButton className="px-4 py-2 text-xs">Compact</ShimmerButton>
+                </div>
+              </ComponentCard>
+
+              <ComponentCard title="Number Ticker">
+                <div className="space-y-2">
+                  <p className="text-3xl font-bold text-text-primary">
+                    <NumberTicker value={12847} />
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    <NumberTicker value={98} decimalPlaces={1} />% использовано
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Счётчик «накручивается» при появлении в области видимости.
+                  </p>
+                </div>
+              </ComponentCard>
+
+              <ComponentCard title="Animated Grid Pattern (фон)">
+                <div className="relative h-40 overflow-hidden rounded-lg border border-border bg-bg-secondary">
+                  <AnimatedGridPattern
+                    numSquares={18}
+                    maxOpacity={0.12}
+                    duration={4}
+                    className="[mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]"
+                  />
+                  <div className="relative flex h-full items-center justify-center">
+                    <span className="font-mono text-sm text-text-muted">фон auth / hero</span>
+                  </div>
+                </div>
+              </ComponentCard>
+
+              <ComponentCard title="Skeleton Shimmer">
+                <div className="space-y-3">
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-1/2" />
+                  <div className="flex gap-3 pt-1">
+                    <Skeleton className="size-12 rounded-full" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-4 w-1/3" />
+                      <Skeleton className="h-3 w-1/2" />
+                    </div>
+                  </div>
+                </div>
+              </ComponentCard>
             </div>
           </Section>
 

@@ -1,8 +1,15 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { tokenManager } from "@/shared/api";
+
+// Анимированная техно-сетка — только на клиенте (тяжёлый фон).
+const AnimatedGridPattern = dynamic(
+  () => import("@/shared/ui/animated-grid-pattern").then((m) => m.AnimatedGridPattern),
+  { ssr: false },
+);
 
 interface AuthLayoutProps {
   children: ReactNode;
@@ -20,14 +27,16 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
 
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center bg-bg-primary px-4">
-      {/* Static techno background: subtle primary tint + grid */}
+      {/* Techno background: subtle primary tint + animated grid */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-burgundy/5"
       />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.4] [background-image:linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] [background-size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]"
+      <AnimatedGridPattern
+        numSquares={28}
+        maxOpacity={0.1}
+        duration={4}
+        className="pointer-events-none opacity-50 [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]"
       />
 
       <div className="relative w-full max-w-md">

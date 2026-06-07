@@ -4,6 +4,7 @@ import * as React from "react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/shared/lib";
 import { Card, CardContent } from "./card";
+import { NumberTicker } from "./number-ticker";
 
 interface StatsCardProps extends React.HTMLAttributes<HTMLDivElement> {
   title: string;
@@ -24,7 +25,9 @@ const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(
           <div className="flex flex-wrap items-start gap-3">
             <div className="space-y-1 flex-1 min-w-[100px]">
               <p className="text-sm font-medium text-text-muted">{title}</p>
-              <p className="text-2xl font-bold font-mono tabular-nums text-text-primary">{value}</p>
+              <p className="text-2xl font-bold font-mono tabular-nums text-text-primary">
+                {typeof value === "number" ? <NumberTicker value={value} /> : value}
+              </p>
               {description && (
                 <p className="text-xs text-text-muted">{description}</p>
               )}

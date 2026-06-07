@@ -1,8 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+
+import { motion, useReducedMotion } from "motion/react";
 
 import {
   ArrowRight,
@@ -20,7 +23,14 @@ import { tokenManager } from "@/shared/api";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import { PlanBadge } from "@/shared/ui/plan-badge";
+import { ShimmerButton } from "@/shared/ui/shimmer-button";
 import { Skeleton } from "@/shared/ui/skeleton";
+
+// Тяжёлый анимированный фон — только на клиенте.
+const AnimatedGridPattern = dynamic(
+  () => import("@/shared/ui/animated-grid-pattern").then((m) => m.AnimatedGridPattern),
+  { ssr: false },
+);
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,6 +44,17 @@ export default function HomePage() {
   const { user, logout: logoutStore } = useAuthStore();
   const { isLoading: userLoading } = useMe();
   const { data: usageSummary, isLoading: usageLoading } = useUsageSummary();
+  const prefersReducedMotion = useReducedMotion();
+
+  // Каскадный entrance hero — отключается при reduced-motion (финал сразу).
+  const fadeUp = (i: number) =>
+    prefersReducedMotion
+      ? {}
+      : {
+          initial: { opacity: 0, y: 12 },
+          animate: { opacity: 1, y: 0 },
+          transition: { duration: 0.4, delay: i * 0.08, ease: [0.2, 0.8, 0.2, 1] as const },
+        };
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -154,8 +175,14 @@ export default function HomePage() {
 
       {/* Hero Section */}
       <section className="relative overflow-hidden">
-        {/* Background */}
+        {/* Background: лёгкий tint + анимированная техно-сетка */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-burgundy/5" />
+        <AnimatedGridPattern
+          numSquares={24}
+          maxOpacity={0.08}
+          duration={4}
+          className="[mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)] opacity-60"
+        />
 
         <div className="container mx-auto px-4 py-16 md:py-24 relative">
           <div className="max-w-2xl mx-auto text-center space-y-6">
@@ -163,48 +190,45 @@ export default function HomePage() {
             {isLoading ? (
               <Skeleton className="h-6 w-20 mx-auto" />
             ) : (
-              <div className="flex items-center justify-center gap-2">
+              <motion.div className="flex items-center justify-center gap-2" {...fadeUp(0)}>
                 <span className="font-mono text-xs uppercase tracking-wider text-text-muted">
                   Ваш тариф:
                 </span>
                 <PlanBadge plan={currentPlan} size="md" />
-              </div>
+              </motion.div>
             )}
 
             {/* Title */}
-            <h1 className="text-3xl md:text-5xl font-bold text-text-primary tracking-tight">
+            <motion.h1
+              className="text-3xl md:text-5xl font-bold text-text-primary tracking-tight"
+              {...fadeUp(1)}
+            >
               AI <span className="text-gradient">Avatar</span> Platform
-            </h1>
+            </motion.h1>
 
             {/* Subtitle */}
-            <p className="text-lg text-text-secondary max-w-xl mx-auto">
-              Создавайте умных AI-консультантов на основе ваших документов. 
+            <motion.p className="text-lg text-text-secondary max-w-xl mx-auto" {...fadeUp(2)}>
+              Создавайте умных AI-консультантов на основе ваших документов.
               Интегрируйте в Telegram за минуты.
-            </p>
+            </motion.p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-              {shouldShowUpgrade ? (
-                <Button variant="gradient" size="lg" asChild>
-                  <Link href="/settings/usage">
-                    Повысить тариф
-                    <ArrowRight className="size-4 ml-2" />
-                  </Link>
-                </Button>
-              ) : (
-                <Button variant="gradient" size="lg" asChild>
-                  <Link href="/projects">
-                    Перейти к проектам
-                    <ArrowRight className="size-4 ml-2" />
-                  </Link>
-                </Button>
-              )}
+            <motion.div
+              className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
+              {...fadeUp(3)}
+            >
+              <Link href={shouldShowUpgrade ? "/settings/usage" : "/projects"}>
+                <ShimmerButton className="px-7 py-3 text-base">
+                  {shouldShowUpgrade ? "Повысить тариф" : "Перейти к проектам"}
+                  <ArrowRight className="size-4" />
+                </ShimmerButton>
+              </Link>
               <Button variant="outline" size="lg" asChild>
                 <Link href="/projects">
                   Мои проекты
                 </Link>
               </Button>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -223,7 +247,7 @@ export default function HomePage() {
             {features.map((feature) => {
               const Icon = feature.icon;
               return (
-                <Card key={feature.title} className="border-border/50 hover:border-border transition-colors">
+                <Card key={feature.title} className="card-hover-gradient border-border/50">
                   <CardHeader>
                     <div className="size-12 rounded-lg bg-accent-primary/10 flex items-center justify-center mb-4">
                       <Icon className="size-6 text-accent-primary" />

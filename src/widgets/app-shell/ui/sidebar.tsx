@@ -62,6 +62,24 @@ export interface SidebarProps extends React.HTMLAttributes<HTMLElement> {
 
 const MAX_PROJECTS_IN_SIDEBAR = 5;
 
+/**
+ * Активный индикатор — тонкая вертикальная полоска слева с градиентом primary (T-3.8).
+ * Абсолютный элемент внутри relative-ссылки; transition на opacity/transform.
+ * reduced-motion: остаётся видимым, без скольжения (transition глушится глобально).
+ */
+function ActiveBar({ show }: { show: boolean }) {
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        "pointer-events-none absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-[image:var(--gradient-primary)]",
+        "origin-left transition-all duration-200 motion-reduce:transition-none",
+        show ? "scale-y-100 opacity-100" : "scale-y-0 opacity-0",
+      )}
+    />
+  );
+}
+
 const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
   ({ className, collapsed = false, onCollapsedChange, logo, footer, ...props }, ref) => {
     const pathname = usePathname();
@@ -308,12 +326,13 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                                       <Link
                                         href={`/projects/${project.id}`}
                                         className={cn(
-                                          "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all overflow-hidden min-w-0",
+                                          "relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all overflow-hidden min-w-0",
                                           isProjectActive
                                             ? "bg-accent-primary/10 text-accent-primary"
                                             : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
                                         )}
                                       >
+                                        <ActiveBar show={Boolean(isProjectActive)} />
                                         <Folder className={cn("size-4 shrink-0", isProjectActive && "text-accent-primary")} />
                                         <span className="truncate">{project.name}</span>
                                       </Link>
@@ -325,12 +344,13 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                               <Link
                                 href="/projects"
                                 className={cn(
-                                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all",
+                                  "relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all",
                                   pathname === "/projects"
                                     ? "bg-accent-primary/10 text-accent-primary"
                                     : "text-text-muted hover:bg-bg-hover hover:text-text-primary"
                                 )}
                               >
+                                <ActiveBar show={pathname === "/projects"} />
                                 <FolderKanban className="size-4 shrink-0" />
                                 <span>Все проекты</span>
                               </Link>
@@ -376,12 +396,13 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                                     key={child.href}
                                     href={child.href}
                                     className={cn(
-                                      "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all",
+                                      "relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all",
                                       isChildItemActive
                                         ? "bg-accent-primary/10 text-accent-primary"
                                         : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
                                     )}
                                   >
+                                    <ActiveBar show={Boolean(isChildItemActive)} />
                                     <ChildIcon className={cn("size-4 shrink-0", isChildItemActive && "text-accent-primary")} />
                                     <span>{child.title}</span>
                                   </Link>
@@ -398,7 +419,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                       <Link
                         href={item.disabled ? "#" : item.href}
                         className={cn(
-                          "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all",
+                          "relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all",
                           isActive || isChildActive
                             ? "bg-accent-primary/10 text-accent-primary"
                             : "text-text-secondary hover:bg-bg-hover hover:text-text-primary",
@@ -406,6 +427,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                           collapsed && "justify-center px-2"
                         )}
                       >
+                        <ActiveBar show={Boolean(isActive || isChildActive)} />
                         <Icon className={cn("size-5 shrink-0", (isActive || isChildActive) && "text-accent-primary")} />
                         {!collapsed && (
                           <>
@@ -461,11 +483,12 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                     <Link
                       href="/settings/notifications"
                       className={cn(
-                        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-text-secondary hover:bg-bg-hover hover:text-text-primary",
+                        "relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-text-secondary hover:bg-bg-hover hover:text-text-primary",
                         pathname === "/settings/notifications" && "bg-accent-primary/10 text-accent-primary",
                         collapsed && "justify-center px-2"
                       )}
                     >
+                      <ActiveBar show={pathname === "/settings/notifications"} />
                       <Bell className="size-5" />
                       {!collapsed && <span>Уведомления</span>}
                     </Link>
@@ -477,11 +500,12 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                     <Link
                       href="/settings/profile"
                       className={cn(
-                        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-text-secondary hover:bg-bg-hover hover:text-text-primary",
+                        "relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-text-secondary hover:bg-bg-hover hover:text-text-primary",
                         pathname === "/settings/profile" && "bg-accent-primary/10 text-accent-primary",
                         collapsed && "justify-center px-2"
                       )}
                     >
+                      <ActiveBar show={pathname === "/settings/profile"} />
                       <Settings className="size-5" />
                       {!collapsed && <span>Настройки профиля</span>}
                     </Link>

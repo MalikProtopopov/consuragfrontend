@@ -7,7 +7,7 @@ import { Loader2 } from "lucide-react";
 
 import { cn } from "@/shared/lib";
 
-const spinnerVariants = cva("animate-spin text-muted-foreground", {
+const spinnerVariants = cva("animate-spin text-primary-ring", {
   variants: {
     size: {
       sm: "size-4",

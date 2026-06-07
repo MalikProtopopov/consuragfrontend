@@ -258,15 +258,15 @@ const ChatContainer = React.forwardRef<HTMLDivElement, ChatContainerProps>(
                 <div className="bg-surface-2 rounded-2xl rounded-tl-sm px-4 py-3">
                   <div className="flex gap-1">
                     <span
-                      className="size-2 rounded-full bg-muted-foreground animate-bounce"
+                      className="size-2 rounded-full bg-muted-foreground animate-bounce motion-reduce:animate-none"
                       style={{ animationDelay: "0ms" }}
                     />
                     <span
-                      className="size-2 rounded-full bg-muted-foreground animate-bounce"
+                      className="size-2 rounded-full bg-muted-foreground animate-bounce motion-reduce:animate-none"
                       style={{ animationDelay: "150ms" }}
                     />
                     <span
-                      className="size-2 rounded-full bg-muted-foreground animate-bounce"
+                      className="size-2 rounded-full bg-muted-foreground animate-bounce motion-reduce:animate-none"
                       style={{ animationDelay: "300ms" }}
                     />
                   </div>

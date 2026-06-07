@@ -35,6 +35,11 @@ export * from "./pagination";
 export * from "./pagination-controls";
 export * from "./form";
 
+// Animated Components (21st.dev / magicui adaptations — Фаза 3)
+export * from "./shimmer-button";
+export * from "./number-ticker";
+export * from "./animated-grid-pattern";
+
 // Custom Components
 export * from "./spinner";
 export * from "./empty-state";

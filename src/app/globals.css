@@ -363,6 +363,56 @@
     @apply -translate-y-0.5 shadow-md;
   }
 
+  /* Gradient-border на hover + лёгкий lift (T-3.7).
+     Рамка рисуется через ::before с mask (gradient заполняет только бордер). */
+  .card-hover-gradient {
+    position: relative;
+    transition:
+      transform var(--duration-medium) var(--ease-standard),
+      box-shadow var(--duration-medium) var(--ease-standard);
+  }
+
+  .card-hover-gradient::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: var(--gradient-primary);
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity var(--duration-medium) var(--ease-standard);
+    pointer-events: none;
+  }
+
+  .card-hover-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .card-hover-gradient:hover::before {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card-hover-gradient {
+      transition: none;
+    }
+    .card-hover-gradient:hover {
+      transform: none;
+    }
+    .card-hover-gradient::before {
+      transition: none;
+    }
+  }
+
   /* Градиентные акцентные заливки (кнопки/прогрессы/полоски) */
   .bg-gradient-primary {
     background-image: var(--gradient-primary);
@@ -534,9 +584,28 @@
   }
 }
 
-/* Skeleton shimmer effect */
+/* Бегущий блик для ShimmerButton (T-3.1) */
+@keyframes shimmer-spin {
+  0% {
+    transform: rotate(0turn);
+  }
+  100% {
+    transform: rotate(1turn);
+  }
+}
+
+.animate-shimmer-spin {
+  animation: shimmer-spin var(--shimmer-duration, 2.5s) linear infinite;
+}
+
+/* Skeleton shimmer effect (T-3.5): --bg-secondary → --bg-hover */
 .skeleton-shimmer {
-  background: linear-gradient(90deg, var(--muted) 0%, var(--bg-hover) 50%, var(--muted) 100%);
+  background: linear-gradient(
+    90deg,
+    var(--bg-secondary) 0%,
+    var(--bg-hover) 50%,
+    var(--bg-secondary) 100%
+  );
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
 }
@@ -568,4 +637,27 @@
 
 .animate-spin-slow {
   animation: spin 2s linear infinite;
+}
+
+/* ============================================================
+   REDUCED MOTION — финальное статичное состояние (T-3.*)
+   entrance-анимации (fade/scale/slide) мгновенно завершаются;
+   декоративные бесконечные блики/шиммеры — отключаются.
+   Spinner (loader) сознательно НЕ глушим: это индикатор состояния.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-fade-up,
+  .animate-scale-in,
+  .animate-slide-in-right,
+  .animate-slide-in-left,
+  .animate-slide-in-bottom {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  .skeleton-shimmer,
+  .animate-shimmer-spin {
+    animation: none !important;
+  }
 }

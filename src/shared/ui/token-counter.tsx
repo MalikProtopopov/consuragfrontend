@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Coins } from "lucide-react";
 import { cn, formatCompact } from "@/shared/lib";
 import { ROUTES } from "@/shared/config";
+import { NumberTicker } from "./number-ticker";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 
 /**
@@ -79,7 +80,9 @@ const TokenCounter = React.forwardRef<HTMLAnchorElement, TokenCounterProps>(
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between">
             <span className="font-medium text-text-primary">Токены</span>
-            <span className={cn("text-xs font-medium font-mono tabular-nums", usageColor)}>{percent}%</span>
+            <span className={cn("text-xs font-medium font-mono tabular-nums", usageColor)}>
+              <NumberTicker value={percent} />%
+            </span>
           </div>
           {showDetails && (
             <p className="text-xs font-mono tabular-nums text-text-muted truncate">
