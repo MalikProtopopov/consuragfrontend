@@ -50,6 +50,9 @@
   --color-error: var(--error);
   --color-info: var(--info);
 
+  /* Brand colors */
+  --color-brand-telegram: var(--brand-telegram);
+
   /* Legacy shadcn naming for compatibility */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -155,6 +158,9 @@
   --warning-strong: #b45309;
   --error: #dc2626;
   --info: #2563eb;
+
+  /* Brand colors (внешние бренды, не часть палитры темы) */
+  --brand-telegram: #0088cc;
 
   /* Legacy shadcn variables */
   --background: #ffffff;

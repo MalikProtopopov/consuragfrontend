@@ -89,7 +89,7 @@ export default function HomePage() {
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <div className="flex size-9 items-center justify-center rounded-lg bg-accent-primary text-accent-contrast font-bold">
+            <div className="flex size-9 items-center justify-center rounded-lg bg-[image:var(--gradient-primary)] text-[var(--primary-foreground)] font-mono font-bold shadow-sm">
               A
             </div>
             <span className="font-semibold text-lg text-text-primary">Avatar AI</span>
@@ -155,7 +155,7 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         {/* Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-accent-primary/5 via-transparent to-accent-secondary/5" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-burgundy/5" />
 
         <div className="container mx-auto px-4 py-16 md:py-24 relative">
           <div className="max-w-2xl mx-auto text-center space-y-6">
@@ -164,14 +164,16 @@ export default function HomePage() {
               <Skeleton className="h-6 w-20 mx-auto" />
             ) : (
               <div className="flex items-center justify-center gap-2">
-                <span className="text-sm text-text-muted">Ваш тариф:</span>
+                <span className="font-mono text-xs uppercase tracking-wider text-text-muted">
+                  Ваш тариф:
+                </span>
                 <PlanBadge plan={currentPlan} size="md" />
               </div>
             )}
 
             {/* Title */}
             <h1 className="text-3xl md:text-5xl font-bold text-text-primary tracking-tight">
-              AI Avatar Platform
+              AI <span className="text-gradient">Avatar</span> Platform
             </h1>
 
             {/* Subtitle */}
@@ -183,14 +185,14 @@ export default function HomePage() {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
               {shouldShowUpgrade ? (
-                <Button size="lg" asChild>
+                <Button variant="gradient" size="lg" asChild>
                   <Link href="/settings/usage">
                     Повысить тариф
                     <ArrowRight className="size-4 ml-2" />
                   </Link>
                 </Button>
               ) : (
-                <Button size="lg" asChild>
+                <Button variant="gradient" size="lg" asChild>
                   <Link href="/projects">
                     Перейти к проектам
                     <ArrowRight className="size-4 ml-2" />
@@ -244,7 +246,11 @@ export default function HomePage() {
       <footer className="border-t border-border py-8">
         <div className="container mx-auto px-4 text-center">
           <p className="text-sm text-text-muted">
-            © {new Date().getFullYear()} AI Avatar Platform
+            ©{" "}
+            <span className="font-mono tabular-nums">
+              {new Date().getFullYear()}
+            </span>{" "}
+            AI Avatar Platform
           </p>
         </div>
       </footer>

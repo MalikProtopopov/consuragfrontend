@@ -17,18 +17,18 @@ export function MessageBubble({ message }: { message: ConversationMessage }) {
           isUser
             ? "bg-accent-primary/10"
             : isAssistant
-              ? "bg-[#0088cc]/10"
+              ? "bg-brand-telegram/10"
               : isAdmin
-                ? "bg-amber-500/10"
+                ? "bg-warning/10"
                 : "bg-bg-hover"
         )}
       >
         {isUser ? (
           <User className="size-4 text-accent-primary" />
         ) : isAssistant ? (
-          <Bot className="size-4 text-[#0088cc]" />
+          <Bot className="size-4 text-brand-telegram" />
         ) : isAdmin ? (
-          <User className="size-4 text-amber-500" />
+          <User className="size-4 text-warning-strong" />
         ) : (
           <MessageSquare className="size-4 text-text-muted" />
         )}
@@ -58,7 +58,7 @@ export function MessageBubble({ message }: { message: ConversationMessage }) {
             <span
               className={cn(
                 "flex items-center gap-1 text-xs",
-                message.feedback === "positive" ? "text-green-500" : "text-red-500"
+                message.feedback === "positive" ? "text-success-strong" : "text-destructive"
               )}
             >
               {message.feedback === "positive" ? (
@@ -77,7 +77,7 @@ export function MessageBubble({ message }: { message: ConversationMessage }) {
               : isAssistant
                 ? "bg-bg-hover"
                 : isAdmin
-                  ? "bg-amber-500/10"
+                  ? "bg-warning/10"
                   : "bg-bg-secondary"
           )}
         >

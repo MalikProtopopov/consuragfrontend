@@ -27,6 +27,11 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/shared/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Badge } from "@/shared/ui/badge";
+import {
+  ActiveStatusBadge,
+  AvatarStatusBadge,
+  EndUserStatusBadge,
+} from "@/shared/ui";
 // UI Components
 import { Button } from "@/shared/ui/button";
 import {
@@ -186,15 +191,90 @@ export default function DesignSystemPage() {
             </div>
 
             <div className="mt-6">
-              <h3 className="text-sm font-medium mb-3">Data Visualization Palette</h3>
-              <div className="flex gap-2">
-                {[1, 2, 3, 4, 5, 6].map((n) => (
-                  <div key={n} className="space-y-1">
-                    <div className={`size-12 rounded-lg bg-chart-${n}`} />
-                    <p className="text-xs text-center">Chart {n}</p>
+              <h3 className="text-sm font-medium mb-3">Brand & Semantic Accents</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                {[
+                  { label: "Burgundy", hex: "#6E1423", className: "bg-[var(--burgundy)]" },
+                  { label: "Primary Ring", hex: "#3F9E1A", className: "bg-[var(--primary-ring)]" },
+                  { label: "Primary Link", hex: "#2E7D14", className: "bg-[var(--primary-link)]" },
+                  {
+                    label: "Success Strong",
+                    hex: "#15803D",
+                    className: "bg-[var(--success-strong)]",
+                  },
+                  {
+                    label: "Warning Strong",
+                    hex: "#B45309",
+                    className: "bg-[var(--warning-strong)]",
+                  },
+                ].map((token) => (
+                  <div key={token.label} className="space-y-2">
+                    <div className={`h-16 rounded-lg ${token.className}`} />
+                    <p className="text-xs font-medium">{token.label}</p>
+                    <p className="text-xs font-mono text-muted-foreground">{token.hex}</p>
                   </div>
                 ))}
               </div>
+            </div>
+
+            <div className="mt-6">
+              <h3 className="text-sm font-medium mb-3">Data Visualization Palette</h3>
+              <div className="flex gap-2">
+                {[
+                  "bg-chart-1",
+                  "bg-chart-2",
+                  "bg-chart-3",
+                  "bg-chart-4",
+                  "bg-chart-5",
+                  "bg-chart-6",
+                ].map((chartClass, i) => (
+                  <div key={chartClass} className="space-y-1">
+                    <div className={`size-12 rounded-lg ${chartClass}`} />
+                    <p className="text-xs text-center">Chart {i + 1}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Section>
+
+          {/* Typography */}
+          <Section title="Typography">
+            <div className="grid md:grid-cols-2 gap-6">
+              <ComponentCard title="Headings (JetBrains Mono)">
+                <div className="space-y-3">
+                  <h1 className="text-4xl font-bold">Заголовок H1</h1>
+                  <h2 className="text-3xl font-semibold">Заголовок H2</h2>
+                  <h3 className="text-2xl font-semibold">Заголовок H3</h3>
+                  <h4 className="text-xl font-medium">Заголовок H4</h4>
+                </div>
+              </ComponentCard>
+
+              <ComponentCard title="Body (IBM Plex Sans)">
+                <div className="space-y-3">
+                  <p className="text-base">
+                    Гротеск IBM Plex Sans — основной текстовый шрифт интерфейса. Поддерживает
+                    кириллицу: «Съешь ещё этих мягких французских булок, да выпей чаю».
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Вторичный текст и подписи. The quick brown fox jumps over the lazy dog
+                    1234567890.
+                  </p>
+                </div>
+              </ComponentCard>
+
+              <ComponentCard title="Gradient Text (.text-gradient)">
+                <p className="text-gradient text-3xl font-bold">Кислотный градиент</p>
+              </ComponentCard>
+
+              <ComponentCard title="Tabular Numbers (.tabular-nums)">
+                <div className="space-y-2 font-mono">
+                  <p className="tabular-nums text-2xl">1,234,567.89</p>
+                  <p className="tabular-nums text-2xl">9,876,543.21</p>
+                  <p className="text-xs text-muted-foreground">
+                    Моноширинные цифры не «прыгают» в колонках метрик.
+                  </p>
+                </div>
+              </ComponentCard>
             </div>
           </Section>
 
@@ -210,6 +290,14 @@ export default function DesignSystemPage() {
                   <Button variant="link">Link</Button>
                   <Button variant="destructive">Destructive</Button>
                   <Button variant="success">Success</Button>
+                </div>
+              </ComponentCard>
+
+              <ComponentCard title="Gradient Variants">
+                <div className="flex flex-wrap gap-2">
+                  <Button variant="gradient">Gradient</Button>
+                  <Button variant="gradient-destructive">Destructive</Button>
+                  <Button variant="gradient-burgundy">Burgundy</Button>
                 </div>
               </ComponentCard>
 
@@ -247,6 +335,32 @@ export default function DesignSystemPage() {
                   </Button>
                 </div>
               </ComponentCard>
+            </div>
+          </Section>
+
+          {/* Gradients */}
+          <Section title="Gradients">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <div className="bg-gradient-primary flex h-24 items-center justify-center rounded-lg">
+                  <span className="font-mono text-sm text-[var(--primary-foreground)]">
+                    Primary
+                  </span>
+                </div>
+                <p className="text-xs font-mono text-muted-foreground">.bg-gradient-primary</p>
+              </div>
+              <div className="space-y-2">
+                <div className="bg-gradient-destructive flex h-24 items-center justify-center rounded-lg">
+                  <span className="font-mono text-sm text-white">Destructive</span>
+                </div>
+                <p className="text-xs font-mono text-muted-foreground">.bg-gradient-destructive</p>
+              </div>
+              <div className="space-y-2">
+                <div className="bg-gradient-burgundy flex h-24 items-center justify-center rounded-lg">
+                  <span className="font-mono text-sm text-white">Burgundy</span>
+                </div>
+                <p className="text-xs font-mono text-muted-foreground">.bg-gradient-burgundy</p>
+              </div>
             </div>
           </Section>
 
@@ -380,6 +494,18 @@ export default function DesignSystemPage() {
                   <Badge variant="destructive">Error</Badge>
                   <Badge variant="info">Info</Badge>
                   <Badge variant="outline">Outline</Badge>
+                  <Badge variant="burgundy">Burgundy</Badge>
+                </div>
+              </ComponentCard>
+
+              <ComponentCard title="Domain Status Badges">
+                <div className="flex flex-wrap gap-2">
+                  <EndUserStatusBadge status="active" />
+                  <EndUserStatusBadge status="blocked" />
+                  <AvatarStatusBadge status="training" />
+                  <AvatarStatusBadge status="draft" />
+                  <ActiveStatusBadge active={true} />
+                  <ActiveStatusBadge active={false} />
                 </div>
               </ComponentCard>
 

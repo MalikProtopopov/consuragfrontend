@@ -11,6 +11,7 @@ import { Slider } from "@/shared/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { Spinner } from "@/shared/ui/spinner";
 import { StatsCard } from "@/shared/ui/stats-card";
+import { DEFAULT_AVATAR_COLOR } from "@/shared/config";
 import type { UpdateAvatarRequest, AvatarStatus, AvatarStats } from "@/shared/types/api";
 
 interface AvatarSettingsTabsProps {
@@ -225,12 +226,12 @@ export function AvatarSettingsTabs({
               <div className="flex gap-3">
                 <Input
                   type="color"
-                  value={form.primary_color || "#ffcd33"}
+                  value={form.primary_color || DEFAULT_AVATAR_COLOR}
                   onChange={(e) => setForm({ ...form, primary_color: e.target.value })}
                   className="w-16 h-10 p-1"
                 />
                 <Input
-                  value={form.primary_color || "#ffcd33"}
+                  value={form.primary_color || DEFAULT_AVATAR_COLOR}
                   onChange={(e) => setForm({ ...form, primary_color: e.target.value })}
                   className="flex-1"
                 />

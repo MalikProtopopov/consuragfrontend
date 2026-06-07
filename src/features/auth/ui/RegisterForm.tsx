@@ -94,7 +94,7 @@ export function RegisterForm() {
         <div className="pt-2 border-t border-border">
           <p className="text-sm text-text-secondary pt-4">
             Уже подтвердили email?{" "}
-            <Link href="/login" className="text-accent-primary hover:underline">
+            <Link href="/login" className="text-primary-link hover:underline">
               Войти в систему
             </Link>
           </p>
@@ -174,7 +174,12 @@ export function RegisterForm() {
         )}
       </div>
 
-      <Button type="submit" className="w-full" disabled={isPending}>
+      <Button
+        type="submit"
+        variant="gradient"
+        className="w-full"
+        disabled={isPending}
+      >
         {isPending ? (
           <>
             <Spinner className="mr-2 h-4 w-4" />
@@ -187,7 +192,7 @@ export function RegisterForm() {
 
       <p className="text-center text-sm text-text-secondary">
         Уже есть аккаунт?{" "}
-        <Link href="/login" className="text-accent-primary hover:underline">
+        <Link href="/login" className="text-primary-link hover:underline">
           Войти
         </Link>
       </p>

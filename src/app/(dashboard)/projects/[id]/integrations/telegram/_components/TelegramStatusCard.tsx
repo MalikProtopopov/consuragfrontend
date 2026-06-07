@@ -30,8 +30,8 @@ export function TelegramStatusCard({
       <CardContent className="pt-6 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="flex size-12 items-center justify-center rounded-xl bg-[#0088cc]/10">
-              <Send className="size-6 text-[#0088cc]" />
+            <div className="flex size-12 items-center justify-center rounded-xl bg-brand-telegram/10">
+              <Send className="size-6 text-brand-telegram" />
             </div>
             <div>
               <p className="font-medium text-text-primary">

@@ -5,6 +5,7 @@ import { Textarea } from "@/shared/ui/textarea";
 import { Label } from "@/shared/ui/label";
 import { Slider } from "@/shared/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
+import { DEFAULT_AVATAR_COLOR } from "@/shared/config";
 import type { CreateAvatarRequest } from "@/shared/types/api";
 
 export type UpdateForm = <K extends keyof CreateAvatarRequest>(
@@ -111,14 +112,14 @@ export function Step3Appearance({ formData, updateForm }: StepProps) {
           <Input
             id="primary_color"
             type="color"
-            value={formData.primary_color || "#ffcd33"}
+            value={formData.primary_color || DEFAULT_AVATAR_COLOR}
             onChange={(e) => updateForm("primary_color", e.target.value)}
             className="w-16 h-10 p-1"
           />
           <Input
-            value={formData.primary_color || "#ffcd33"}
+            value={formData.primary_color || DEFAULT_AVATAR_COLOR}
             onChange={(e) => updateForm("primary_color", e.target.value)}
-            placeholder="#ffcd33"
+            placeholder={DEFAULT_AVATAR_COLOR}
             className="flex-1"
           />
         </div>

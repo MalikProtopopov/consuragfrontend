@@ -91,7 +91,7 @@ function VerifyEmailContent() {
           Убедитесь, что вы перешли по полной ссылке из письма.
         </p>
         <div className="pt-4">
-          <Button asChild>
+          <Button variant="gradient" asChild>
             <Link href="/login">Перейти ко входу</Link>
           </Button>
         </div>
@@ -135,7 +135,9 @@ function VerifyEmailContent() {
           Теперь вы можете войти в систему.
         </p>
         <div className="pt-4">
-          <Button onClick={() => router.push("/login")}>Войти в систему</Button>
+          <Button variant="gradient" onClick={() => router.push("/login")}>
+            Войти в систему
+          </Button>
         </div>
       </div>
     );
@@ -166,7 +168,9 @@ function VerifyEmailContent() {
 
       {isAlreadyVerified ? (
         <div className="pt-4">
-          <Button onClick={() => router.push("/login")}>Войти в систему</Button>
+          <Button variant="gradient" onClick={() => router.push("/login")}>
+            Войти в систему
+          </Button>
         </div>
       ) : isExpiredOrInvalid ? (
         <div className="pt-4 space-y-4">
@@ -183,6 +187,7 @@ function VerifyEmailContent() {
             onChange={(e) => setResendEmail(e.target.value)}
           />
           <Button
+            variant="gradient"
             onClick={handleResend}
             disabled={resending || cooldownActive || !resendEmail}
             className="w-full"
@@ -195,7 +200,7 @@ function VerifyEmailContent() {
           </Button>
           <p className="text-sm text-text-muted">
             Или{" "}
-            <Link href="/login" className="text-accent-primary hover:underline">
+            <Link href="/login" className="text-primary-link hover:underline">
               войти в систему
             </Link>
           </p>
@@ -205,7 +210,9 @@ function VerifyEmailContent() {
           <Button variant="outline" onClick={() => router.push("/register")}>
             Регистрация
           </Button>
-          <Button onClick={() => router.push("/login")}>Войти</Button>
+          <Button variant="gradient" onClick={() => router.push("/login")}>
+            Войти
+          </Button>
         </div>
       )}
     </div>

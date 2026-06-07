@@ -15,7 +15,13 @@ import {
 
 interface ResendVerificationButtonProps {
   email: string;
-  variant?: "default" | "outline" | "ghost" | "link";
+  variant?:
+    | "default"
+    | "outline"
+    | "ghost"
+    | "link"
+    | "gradient"
+    | "gradient-burgundy";
   size?: "default" | "sm" | "lg" | "icon";
   className?: string;
   showIcon?: boolean;

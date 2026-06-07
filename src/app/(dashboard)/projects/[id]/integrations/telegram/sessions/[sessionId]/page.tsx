@@ -192,14 +192,14 @@ export default function TelegramSessionDetailPage({ params }: TelegramSessionDet
                         message.role === "user"
                           ? "bg-accent-primary/10"
                           : message.role === "assistant"
-                            ? "bg-[#0088cc]/10"
+                            ? "bg-brand-telegram/10"
                             : "bg-bg-hover"
                       )}
                     >
                       {message.role === "user" ? (
                         <User className="size-4 text-accent-primary" />
                       ) : message.role === "assistant" ? (
-                        <Bot className="size-4 text-[#0088cc]" />
+                        <Bot className="size-4 text-brand-telegram" />
                       ) : (
                         <MessageSquare className="size-4 text-text-muted" />
                       )}

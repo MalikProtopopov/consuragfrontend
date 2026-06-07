@@ -13,6 +13,7 @@ import { Spinner } from "@/shared/ui/spinner";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { toast } from "sonner";
 import { getApiErrorMessage } from "@/shared/lib";
+import { DEFAULT_AVATAR_COLOR } from "@/shared/config";
 import type { CreateAvatarRequest } from "@/shared/types/api";
 import {
   steps,
@@ -41,7 +42,7 @@ export default function CreateAvatarPage({ params }: CreateAvatarPageProps) {
     welcome_message: "",
     fallback_message: "",
     avatar_image_url: "",
-    primary_color: "#ffcd33",
+    primary_color: DEFAULT_AVATAR_COLOR,
     llm_model: "gpt-4-turbo-preview",
     llm_temperature: 0.7,
     rag_top_k: 5,

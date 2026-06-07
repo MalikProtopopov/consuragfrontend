@@ -72,7 +72,12 @@ export function LoginForm() {
         )}
       </div>
 
-      <Button type="submit" className="w-full" disabled={isPending}>
+      <Button
+        type="submit"
+        variant="gradient"
+        className="w-full"
+        disabled={isPending}
+      >
         {isPending ? (
           <>
             <Spinner className="mr-2 h-4 w-4" />
@@ -85,7 +90,7 @@ export function LoginForm() {
 
       <p className="text-center text-sm text-text-secondary">
         Нет аккаунта?{" "}
-        <Link href="/register" className="text-accent-primary hover:underline">
+        <Link href="/register" className="text-primary-link hover:underline">
           Зарегистрироваться
         </Link>
       </p>

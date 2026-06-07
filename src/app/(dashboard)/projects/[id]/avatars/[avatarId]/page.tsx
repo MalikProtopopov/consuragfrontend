@@ -19,6 +19,7 @@ import { Skeleton } from "@/shared/ui/skeleton";
 import { Spinner } from "@/shared/ui/spinner";
 import { toast } from "sonner";
 import { getApiErrorMessage } from "@/shared/lib";
+import { DEFAULT_AVATAR_COLOR } from "@/shared/config";
 import type { UpdateAvatarRequest } from "@/shared/types/api";
 import { AvatarSettingsTabs, DeleteAvatarDialog } from "./_components";
 
@@ -51,7 +52,7 @@ export default function AvatarSettingsPage({ params }: AvatarSettingsPageProps) 
       welcome_message: avatar.welcome_message || "",
       fallback_message: avatar.fallback_message || "",
       avatar_image_url: avatar.avatar_image_url || "",
-      primary_color: avatar.primary_color || "#ffcd33",
+      primary_color: avatar.primary_color || DEFAULT_AVATAR_COLOR,
       llm_model: avatar.llm_model || "",
       llm_temperature: avatar.llm_temperature || 0.7,
       rag_top_k: avatar.rag_top_k || 5,

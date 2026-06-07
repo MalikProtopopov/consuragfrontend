@@ -19,13 +19,23 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
   }, [router]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-bg-primary px-4">
-      <div className="w-full max-w-md">
+    <div className="relative min-h-screen flex flex-col items-center justify-center bg-bg-primary px-4">
+      {/* Static techno background: subtle primary tint + grid */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-burgundy/5"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.4] [background-image:linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] [background-size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]"
+      />
+
+      <div className="relative w-full max-w-md">
         {/* Logo */}
         <div className="mb-8 text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-accent-primary/10 mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[image:var(--gradient-primary)] mb-4 shadow-sm">
             <svg
-              className="w-8 h-8 text-accent-primary"
+              className="w-8 h-8 text-[var(--primary-foreground)]"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
