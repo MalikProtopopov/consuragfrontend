@@ -648,6 +648,10 @@
   animation: spin 2s linear infinite;
 }
 
+.animate-cursor-blink {
+  animation: cursor-blink 1s step-end infinite;
+}
+
 /* ============================================================
    REDUCED MOTION — финальное статичное состояние (T-3.*)
    entrance-анимации (fade/scale/slide) мгновенно завершаются;

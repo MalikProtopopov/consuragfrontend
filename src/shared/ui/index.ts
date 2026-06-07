@@ -68,3 +68,7 @@ export * from "./config-modal";
 // Dev Tools
 export * from "./api-url-switcher";
 export { Logo, BRAND_NAME, type LogoProps } from "./logo";
+export * from "./text-scramble";
+export * from "./terminal";
+export * from "./avatar-identity";
+export * from "./dot-pattern";
