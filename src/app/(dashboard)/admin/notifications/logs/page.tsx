@@ -1,45 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import {
-  FileText,
-  AlertCircle,
-  Check,
-  X,
-  Clock,
-  Eye,
-  Filter,
-  RefreshCw,
-} from "lucide-react";
+import { FileText, AlertCircle, RefreshCw } from "lucide-react";
 
 import { PageContainer, PageHeader } from "@/widgets/app-shell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
-import { Badge } from "@/shared/ui/badge";
 import { Skeleton } from "@/shared/ui/skeleton";
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/shared/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/shared/ui/dialog";
 import { Alert, AlertDescription } from "@/shared/ui/alert";
-import { ScrollArea } from "@/shared/ui/scroll-area";
 import { PaginationControls } from "@/shared/ui/pagination-controls";
 import { getApiErrorMessage, usePagination } from "@/shared/lib";
 import { useNotificationLogs } from "@/entities/notification";
@@ -49,46 +24,16 @@ import type {
   NotificationType,
 } from "@/shared/types/api";
 
-/**
- * Notification type labels
- */
-const notificationTypeLabels: Record<string, string> = {
-  // User notifications
-  limit_warning_80: "Лимит 80%",
-  limit_warning_90: "Лимит 90%",
-  limit_exceeded: "Лимит исчерпан",
-  subscription_expiring_7d: "Подписка истекает (7д)",
-  subscription_expiring_3d: "Подписка истекает (3д)",
-  subscription_expiring_1d: "Подписка истекает (1д)",
-  subscription_expired: "Подписка истекла",
-  plan_changed: "Тариф изменён",
-  bonus_tokens_added: "Бонусные токены",
-  // Admin notifications
-  new_plan_request: "Новая заявка",
-  new_user_registered: "Новый пользователь",
-  user_limit_exceeded: "Лимит пользователя",
-  daily_report: "Ежедневный отчёт",
-  weekly_report: "Еженедельный отчёт",
-};
-
-/**
- * Status config
- */
-const statusConfig: Record<
-  NotificationStatus,
-  { label: string; variant: "success" | "destructive" | "secondary"; icon: typeof Check }
-> = {
-  sent: { label: "Отправлено", variant: "success", icon: Check },
-  failed: { label: "Ошибка", variant: "destructive", icon: X },
-  pending: { label: "Ожидание", variant: "secondary", icon: Clock },
-};
+import { LogRow } from "./_components/LogRow";
+import { LogDetailsModal } from "./_components/LogDetailsModal";
+import { LogsFilterBar, type RecipientFilter } from "./_components/LogsFilterBar";
 
 /**
  * Notification logs page for SAAS_ADMIN
  */
 export default function NotificationLogsPage() {
   const [typeFilter, setTypeFilter] = useState<NotificationType | "all">("all");
-  const [recipientFilter, setRecipientFilter] = useState<"admin" | "user" | "all">("all");
+  const [recipientFilter, setRecipientFilter] = useState<RecipientFilter>("all");
   const [statusFilter, setStatusFilter] = useState<NotificationStatus | "all">("all");
   const [selectedLog, setSelectedLog] = useState<NotificationLog | null>(null);
   const pagination = usePagination();
@@ -100,6 +45,9 @@ export default function NotificationLogsPage() {
     recipient_type: recipientFilter !== "all" ? recipientFilter : undefined,
     status: statusFilter !== "all" ? statusFilter : undefined,
   });
+
+  const hasActiveFilters =
+    typeFilter !== "all" || recipientFilter !== "all" || statusFilter !== "all";
 
   const handleResetFilters = () => {
     setTypeFilter("all");
@@ -152,73 +100,24 @@ export default function NotificationLogsPage() {
               Логи ({data?.total ?? 0})
             </CardTitle>
 
-            {/* Filters */}
-            <div className="flex flex-wrap items-center gap-2">
-              <Filter className="h-4 w-4 text-text-muted" />
-
-              <Select
-                value={typeFilter}
-                onValueChange={(value) => {
-                  setTypeFilter(value as NotificationType | "all");
-                  pagination.reset();
-                }}
-              >
-                <SelectTrigger className="w-[160px]">
-                  <SelectValue placeholder="Тип" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Все типы</SelectItem>
-                  {Object.entries(notificationTypeLabels).map(([key, label]) => (
-                    <SelectItem key={key} value={key}>
-                      {label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Select
-                value={recipientFilter}
-                onValueChange={(value) => {
-                  setRecipientFilter(value as "admin" | "user" | "all");
-                  pagination.reset();
-                }}
-              >
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Получатель" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Все</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="user">User</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select
-                value={statusFilter}
-                onValueChange={(value) => {
-                  setStatusFilter(value as NotificationStatus | "all");
-                  pagination.reset();
-                }}
-              >
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Статус" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Все статусы</SelectItem>
-                  <SelectItem value="sent">Отправлено</SelectItem>
-                  <SelectItem value="failed">Ошибка</SelectItem>
-                  <SelectItem value="pending">Ожидание</SelectItem>
-                </SelectContent>
-              </Select>
-
-              {(typeFilter !== "all" ||
-                recipientFilter !== "all" ||
-                statusFilter !== "all") && (
-                <Button variant="ghost" size="sm" onClick={handleResetFilters}>
-                  Сбросить
-                </Button>
-              )}
-            </div>
+            <LogsFilterBar
+              typeFilter={typeFilter}
+              recipientFilter={recipientFilter}
+              statusFilter={statusFilter}
+              onTypeChange={(value) => {
+                setTypeFilter(value);
+                pagination.reset();
+              }}
+              onRecipientChange={(value) => {
+                setRecipientFilter(value);
+                pagination.reset();
+              }}
+              onStatusChange={(value) => {
+                setStatusFilter(value);
+                pagination.reset();
+              }}
+              onReset={handleResetFilters}
+            />
           </div>
         </CardHeader>
         <CardContent>
@@ -226,9 +125,7 @@ export default function NotificationLogsPage() {
             <div className="text-center py-12">
               <FileText className="mx-auto h-12 w-12 text-text-muted mb-4" />
               <p className="text-text-secondary">Нет записей</p>
-              {(typeFilter !== "all" ||
-                recipientFilter !== "all" ||
-                statusFilter !== "all") && (
+              {hasActiveFilters && (
                 <p className="text-sm text-text-muted mt-2">
                   Попробуйте изменить фильтры
                 </p>
@@ -272,158 +169,3 @@ export default function NotificationLogsPage() {
     </PageContainer>
   );
 }
-
-/**
- * Log row component
- */
-function LogRow({
-  log,
-  onViewDetails,
-}: {
-  log: NotificationLog;
-  onViewDetails: () => void;
-}) {
-  const status = statusConfig[log.status];
-  const StatusIcon = status.icon;
-
-  const formattedDate = new Date(log.created_at).toLocaleString("ru-RU", {
-    day: "2-digit",
-    month: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-
-  return (
-    <TableRow>
-      <TableCell className="text-text-muted">{formattedDate}</TableCell>
-      <TableCell>
-        <span className="font-medium text-text-primary">
-          {notificationTypeLabels[log.notification_type] || log.notification_type}
-        </span>
-      </TableCell>
-      <TableCell>
-        <Badge variant={log.recipient_type === "admin" ? "default" : "secondary"}>
-          {log.recipient_type === "admin" ? "Admin" : "User"}
-        </Badge>
-      </TableCell>
-      <TableCell>
-        <Badge variant={status.variant} className="gap-1">
-          <StatusIcon className="h-3 w-3" />
-          {status.label}
-        </Badge>
-      </TableCell>
-      <TableCell className="text-right">
-        <Button variant="ghost" size="icon" onClick={onViewDetails}>
-          <Eye className="h-4 w-4" />
-        </Button>
-      </TableCell>
-    </TableRow>
-  );
-}
-
-/**
- * Log details modal
- */
-function LogDetailsModal({
-  log,
-  onClose,
-}: {
-  log: NotificationLog | null;
-  onClose: () => void;
-}) {
-  if (!log) return null;
-
-  const status = statusConfig[log.status];
-  const StatusIcon = status.icon;
-
-  const formattedDate = new Date(log.created_at).toLocaleString("ru-RU", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
-
-  return (
-    <Dialog open={!!log} onOpenChange={() => onClose()}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Детали уведомления</DialogTitle>
-        </DialogHeader>
-
-        <div className="space-y-4">
-          {/* Status and type */}
-          <div className="flex items-center justify-between">
-            <Badge variant={status.variant} className="gap-1">
-              <StatusIcon className="h-3 w-3" />
-              {status.label}
-            </Badge>
-            <Badge variant="outline">
-              {notificationTypeLabels[log.notification_type] || log.notification_type}
-            </Badge>
-          </div>
-
-          {/* Info grid */}
-          <div className="grid gap-3 text-sm">
-            <div className="flex justify-between">
-              <span className="text-text-muted">Дата/время:</span>
-              <span className="text-text-primary">{formattedDate}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-text-muted">Получатель:</span>
-              <span className="text-text-primary">
-                {log.recipient_type === "admin" ? "Admin" : "User"}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-text-muted">Канал:</span>
-              <span className="text-text-primary">{log.channel}</span>
-            </div>
-            {log.recipient_id && (
-              <div className="flex justify-between">
-                <span className="text-text-muted">ID получателя:</span>
-                <span className="text-text-primary font-mono text-xs">
-                  {log.recipient_id}
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* Error message */}
-          {log.error_message && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{log.error_message}</AlertDescription>
-            </Alert>
-          )}
-
-          {/* Message preview */}
-          {log.message_preview && (
-            <div className="space-y-2">
-              <p className="text-sm font-medium text-text-primary">Превью сообщения:</p>
-              <ScrollArea className="h-[200px]">
-                <pre className="text-sm text-text-secondary whitespace-pre-wrap bg-bg-secondary rounded-lg p-4">
-                  {log.message_preview}
-                </pre>
-              </ScrollArea>
-            </div>
-          )}
-
-          {/* Metadata */}
-          {log.metadata && Object.keys(log.metadata).length > 0 && (
-            <div className="space-y-2">
-              <p className="text-sm font-medium text-text-primary">Метаданные:</p>
-              <ScrollArea className="h-[100px]">
-                <pre className="text-xs text-text-muted bg-bg-secondary rounded-lg p-3 overflow-auto">
-                  {JSON.stringify(log.metadata, null, 2)}
-                </pre>
-              </ScrollArea>
-            </div>
-          )}
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
