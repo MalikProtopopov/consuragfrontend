@@ -17,15 +17,12 @@ import {
   FileText,
   Folder,
   Info,
-  Moon,
   Plus,
   Search,
   Settings,
-  Sun,
   Trash2,
   User,
 } from "lucide-react";
-import { useTheme } from "next-themes";
 
 import { Alert, AlertDescription, AlertTitle } from "@/shared/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
@@ -106,15 +103,10 @@ export default function DesignSystemPage() {
     notFound();
   }
 
-  const { theme, setTheme } = useTheme();
   const [sliderValue, setSliderValue] = React.useState([50]);
   const [progressValue, setProgressValue] = React.useState(45);
   const [currentStep, setCurrentStep] = React.useState(1);
   // Files state removed since FileUpload handles its own state
-
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  };
 
   const steps: { id: string; title: string; description: string }[] = [
     { id: "1", title: "Basic Info", description: "Name and description" },
@@ -160,9 +152,6 @@ export default function DesignSystemPage() {
                 <p className="text-xs text-muted-foreground">UI Kit 2026</p>
               </div>
             </div>
-            <Button variant="ghost" size="icon" onClick={toggleTheme}>
-              {theme === "dark" ? <Sun className="size-5" /> : <Moon className="size-5" />}
-            </Button>
           </div>
         </header>
 

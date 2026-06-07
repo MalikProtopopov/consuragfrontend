@@ -1,56 +1,21 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
-
 /* ============================================================
-   UI KIT 2026 - Design Tokens
+   Design Tokens — Light Techno (UI_REDESIGN_PLAN.md, таблица 1.2)
    AI Avatar Platform Design System
-   Based on CODE_STANDARDS.md
+   Light-only. Шрифты самохостятся через next/font (layout.tsx),
+   @font-face здесь не объявляются.
    ============================================================ */
-
-/* Font Faces - F0 Design System Typography */
-
-/* Playfair Display - Headings (Serif) */
-@font-face {
-  font-family: "Playfair Display";
-  font-style: normal;
-  font-weight: 400 900;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/playfairdisplay/v37/nuFvD-vYSZviVYUb_rj3ij__anPXJzDwcbmjWBN2PKdFvUDQZNLo_U2r.woff2")
-    format("woff2");
-}
-
-/* Inter Variable Font - Body Text */
-@font-face {
-  font-family: "Inter";
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/inter/v18/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2JL7W0Q5n-wU.woff2")
-    format("woff2");
-}
-
-/* JetBrains Mono - Code/Mono Text */
-@font-face {
-  font-family: "JetBrains Mono";
-  font-style: normal;
-  font-weight: 400 700;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/jetbrainsmono/v18/tDbY2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKxjOVGa.woff2")
-    format("woff2");
-}
 
 /* ============================================================
    Tailwind v4 Theme Integration
    ============================================================ */
 @theme inline {
-  /* Font Families - F0 Design System */
+  /* Font Families */
   --font-sans:
-    "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    sans-serif;
-  --font-heading:
-    "Playfair Display", Georgia, "Times New Roman", serif;
+    "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, sans-serif;
   --font-mono:
     "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 
@@ -69,9 +34,19 @@
   --color-accent-hover: var(--accent-hover);
   --color-accent-contrast: var(--accent-contrast);
 
+  /* Acid-green accent system */
+  --color-primary-ring: var(--primary-ring);
+  --color-primary-link: var(--primary-link);
+
+  /* Burgundy — вторичный акцент */
+  --color-burgundy: var(--burgundy);
+  --color-burgundy-light: var(--burgundy-light);
+
   /* Semantic Colors */
   --color-success: var(--success);
+  --color-success-strong: var(--success-strong);
   --color-warning: var(--warning);
+  --color-warning-strong: var(--warning-strong);
   --color-error: var(--error);
   --color-info: var(--info);
 
@@ -137,188 +112,110 @@
 }
 
 /* ============================================================
-   LIGHT THEME (Default) - F0 Editorial Light Design System
+   LIGHT THEME (единственная) — Light Techno
+   Контраст-пары проверены WCAG 2.1 (UI_REDESIGN_PLAN.md §1.2)
    ============================================================ */
-:root,
-.light {
+:root {
   /* Base Radius */
   --radius: 6px;
 
-  /* F0 Design System - Light theme as default */
+  /* Поверхности */
   --bg-primary: #ffffff;
-  --bg-secondary: #fafafa;
-  --bg-hover: #f5f5f5;
-  --bg-elevated: #f5f5f5;
+  --bg-secondary: #f7f7f8;
+  --bg-hover: #efeff1;
+  --bg-elevated: #f7f7f8;
 
-  --text-primary: #0a0a0a;
-  --text-secondary: #525252;
-  --text-muted: #a3a3a3;
+  /* Текст: primary 19.79:1, secondary 7.73:1; muted 2.56:1 — ТОЛЬКО декоративный */
+  --text-primary: #0a0a0b;
+  --text-secondary: #52525b;
+  --text-muted: #a1a1aa;
 
-  /* Hot Pink accent - F0 Brand Color */
-  --accent-primary: #FF006E;
-  --accent-hover: #E00062;
+  /* Acid Green accent — фирменный акцент
+     accent-primary (иконки/активные состояния, UI 3.43:1) / link-текст 5.17:1 */
+  --accent-primary: #3f9e1a;
+  --accent-hover: #2e7d14;
   --accent-contrast: #ffffff;
+  --primary-ring: #3f9e1a;
+  --primary-link: #2e7d14;
 
-  /* Semantic */
-  --success: #22c55e;
-  --warning: #eab308;
-  --error: #ef4444;
-  --info: #3b82f6;
+  /* Градиенты — акцентные элементы (кнопки CTA, прогрессы, активные полоски).
+     На --gradient-primary текст ТОЛЬКО чёрный (#0A0A0B: 15.2-15.9:1). */
+  --gradient-primary: linear-gradient(135deg, #9fff5b 0%, #5bff8f 100%);
+  --gradient-destructive: linear-gradient(135deg, #ff4d4d 0%, #c41e3a 100%);
+  --gradient-burgundy: linear-gradient(135deg, #9a2540 0%, #6e1423 100%);
 
-  /* Legacy shadcn variables mapped to F0 */
-  --background: #ffffff;
-  --foreground: #0a0a0a;
+  /* Бордовый — вторичный акцент (11.75:1 на белом) */
+  --burgundy: #6e1423;
+  --burgundy-light: #9a2540;
 
-  --card: #ffffff;
-  --card-foreground: #0a0a0a;
-
-  --popover: #ffffff;
-  --popover-foreground: #0a0a0a;
-
-  --primary: #FF006E;
-  --primary-foreground: #ffffff;
-  --primary-hover: #E00062;
-
-  --secondary: #fafafa;
-  --secondary-foreground: #0a0a0a;
-
-  --muted: #f5f5f5;
-  --muted-foreground: #a3a3a3;
-
-  --accent: #f5f5f5;
-  --accent-foreground: #0a0a0a;
-
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-
-  --border: #e5e5e5;
-  --border-hover: #d4d4d4;
-  --input: #e5e5e5;
-  --ring: #FF006E;
-
-  /* Status Colors */
-  --status-active: #22c55e;
-  --status-draft: #a3a3a3;
-  --status-processing: #3b82f6;
-  --status-failed: #ef4444;
-
-  /* Chart Colors */
-  --chart-1: #FF006E;
-  --chart-2: #3b82f6;
-  --chart-3: #22c55e;
-  --chart-4: #eab308;
-  --chart-5: #ef4444;
-  --chart-6: #8b5cf6;
-
-  /* Sidebar */
-  --sidebar: #fafafa;
-  --sidebar-foreground: #525252;
-  --sidebar-primary: #FF006E;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f5f5f5;
-  --sidebar-accent-foreground: #0a0a0a;
-  --sidebar-border: #e5e5e5;
-  --sidebar-ring: #FF006E;
-
-  /* Shadows - Subtle for light theme */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.08);
-
-  /* Special - Glow effect */
-  --color-glow: rgba(255, 0, 110, 0.1);
-}
-
-/* ============================================================
-   DARK THEME - F0 Design System
-   ============================================================ */
-.dark {
-  /* Base Radius */
-  --radius: 6px;
-
-  /* F0 Design System - Dark theme */
-  --bg-primary: #0a0a0a;
-  --bg-secondary: #141414;
-  --bg-hover: #1f1f1f;
-  --bg-elevated: #1f1f1f;
-
-  --text-primary: #ffffff;
-  --text-secondary: #a3a3a3;
-  --text-muted: #666666;
-
-  /* Hot Pink accent - Same as light theme */
-  --accent-primary: #FF006E;
-  --accent-hover: #FF3399;
-  --accent-contrast: #ffffff;
-
-  /* Semantic */
-  --success: #4ade80;
-  --warning: #fbbf24;
-  --error: #f87171;
-  --info: #60a5fa;
+  /* Semantic (заливки UI ≥3:1; для текста на белом — *-strong 5.02:1) */
+  --success: #16a34a;
+  --success-strong: #15803d;
+  --warning: #d97706;
+  --warning-strong: #b45309;
+  --error: #dc2626;
+  --info: #2563eb;
 
   /* Legacy shadcn variables */
-  --background: #0a0a0a;
-  --foreground: #ffffff;
+  --background: #ffffff;
+  --foreground: #0a0a0b;
 
-  --card: #141414;
-  --card-foreground: #ffffff;
+  --card: #ffffff;
+  --card-foreground: #0a0a0b;
 
-  --popover: #1f1f1f;
-  --popover-foreground: #ffffff;
+  --popover: #ffffff;
+  --popover-foreground: #0a0a0b;
 
-  --primary: #FF006E;
-  --primary-foreground: #ffffff;
-  --primary-hover: #FF3399;
+  /* Primary-плашки: кислотный с ЧЁРНЫМ текстом */
+  --primary: #5bff8f;
+  --primary-foreground: #0a0a0b;
+  --primary-hover: #3fe873;
 
-  --secondary: #1f1f1f;
-  --secondary-foreground: #ffffff;
+  --secondary: #f7f7f8;
+  --secondary-foreground: #0a0a0b;
 
-  --muted: #1f1f1f;
-  --muted-foreground: #666666;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
 
-  --accent: #1f1f1f;
-  --accent-foreground: #ffffff;
+  --accent: #efeff1;
+  --accent-foreground: #0a0a0b;
 
-  --destructive: #f87171;
+  --destructive: #dc2626;
   --destructive-foreground: #ffffff;
 
-  --border: #262626;
-  --border-hover: #404040;
-  --input: #262626;
-  --ring: #FF006E;
+  --border: #e4e4e7;
+  --border-hover: #a1a1aa;
+  --input: #e4e4e7;
+  --ring: #3f9e1a;
 
   /* Status Colors */
-  --status-active: #4ade80;
-  --status-draft: #666666;
-  --status-processing: #60a5fa;
-  --status-failed: #f87171;
+  --status-active: #16a34a;
+  --status-draft: #a1a1aa;
+  --status-processing: #2563eb;
+  --status-failed: #dc2626;
 
-  /* Chart Colors */
-  --chart-1: #FF006E;
-  --chart-2: #60a5fa;
-  --chart-3: #4ade80;
-  --chart-4: #fbbf24;
-  --chart-5: #f87171;
-  --chart-6: #a78bfa;
+  /* Chart Colors — зелёный/бордовый/графит + технические нейтрали */
+  --chart-1: #16a34a;
+  --chart-2: #6e1423;
+  --chart-3: #0a0a0b;
+  --chart-4: #71717a;
+  --chart-5: #2563eb;
+  --chart-6: #d97706;
 
   /* Sidebar */
-  --sidebar: #0a0a0a;
-  --sidebar-foreground: #a3a3a3;
-  --sidebar-primary: #FF006E;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #1f1f1f;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #262626;
-  --sidebar-ring: #FF006E;
+  --sidebar: #f7f7f8;
+  --sidebar-foreground: #52525b;
+  --sidebar-primary: #5bff8f;
+  --sidebar-primary-foreground: #0a0a0b;
+  --sidebar-accent: #efeff1;
+  --sidebar-accent-foreground: #0a0a0b;
+  --sidebar-border: #e4e4e7;
+  --sidebar-ring: #3f9e1a;
 
-  /* Shadows - More visible for dark theme */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6), 0 4px 6px -4px rgba(0, 0, 0, 0.5);
-
-  /* Special - Glow effect */
-  --color-glow: rgba(255, 0, 110, 0.15);
+  /* Shadows — «плоский техно»: тонкие бордеры, минимум теней */
+  --shadow-sm: 0 1px 2px 0 rgba(10, 10, 11, 0.04);
+  --shadow-md: 0 1px 3px 0 rgba(10, 10, 11, 0.06), 0 1px 2px -1px rgba(10, 10, 11, 0.06);
+  --shadow-lg: 0 4px 12px -2px rgba(10, 10, 11, 0.08), 0 2px 6px -2px rgba(10, 10, 11, 0.06);
 }
 
 /* ============================================================
@@ -337,62 +234,60 @@
 
   body {
     @apply bg-bg-primary text-text-primary font-sans;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
-  /* Focus States - Accessible focus ring */
+  /* Focus States - зелёный ring #3F9E1A (UI 3.43:1) */
   :focus-visible {
     @apply ring-ring ring-offset-background ring-2 ring-offset-2 outline-none;
   }
 
-  /* Selection */
+  /* Selection — полупрозрачный кислотный, чёрный текст */
   ::selection {
-    @apply bg-primary/20 text-foreground;
+    @apply bg-primary/30 text-foreground;
   }
 
-  /* Typography Scale - F0 Design System */
-  /* Heading font applied via CSS specificity */
+  /* Typography Scale — заголовки в JetBrains Mono («программистский» стиль) */
   h1, h2, h3, h4, h5, h6,
   .font-heading {
-    font-family: var(--font-heading);
+    font-family: var(--font-mono);
   }
 
   h1 {
     @apply font-bold tracking-tight;
-    font-size: clamp(2.5rem, 5vw, 4.5rem); /* 40px - 72px responsive */
-    line-height: 0.9;
+    font-size: clamp(2rem, 4vw, 3.25rem); /* 32px - 52px: mono крупнее не нужен */
+    line-height: 1.05;
     letter-spacing: -0.02em;
   }
 
   h2 {
     @apply font-bold tracking-tight;
-    font-size: clamp(2rem, 4vw, 3rem); /* 32px - 48px responsive */
-    line-height: 0.95;
+    font-size: clamp(1.625rem, 3vw, 2.25rem); /* 26px - 36px */
+    line-height: 1.1;
     letter-spacing: -0.01em;
   }
 
   h3 {
     @apply font-semibold;
-    font-size: clamp(1.5rem, 3vw, 2rem); /* 24px - 32px responsive */
-    line-height: 1.1;
+    font-size: clamp(1.25rem, 2.5vw, 1.625rem); /* 20px - 26px */
+    line-height: 1.15;
     letter-spacing: -0.01em;
   }
 
   h4 {
     @apply font-semibold;
-    font-size: clamp(1.25rem, 2vw, 1.5rem); /* 20px - 24px responsive */
+    font-size: clamp(1.125rem, 2vw, 1.25rem); /* 18px - 20px */
     line-height: 1.2;
   }
 
   h5 {
     @apply font-semibold;
-    font-size: 1.125rem; /* 18px */
+    font-size: 1rem; /* 16px */
     line-height: 1.3;
   }
 
   h6 {
     @apply font-medium;
-    font-size: 1rem; /* 16px */
+    font-size: 0.9375rem; /* 15px */
     line-height: 1.4;
   }
 
@@ -437,6 +332,11 @@
     @apply bg-muted animate-pulse rounded-md;
   }
 
+  /* Tabular numbers — числовые колонки таблиц/метрики */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
   /* Smooth transitions */
   .transition-standard {
     transition-timing-function: var(--ease-standard);
@@ -457,9 +357,23 @@
     @apply -translate-y-0.5 shadow-md;
   }
 
-  /* Gradient text */
+  /* Градиентные акцентные заливки (кнопки/прогрессы/полоски) */
+  .bg-gradient-primary {
+    background-image: var(--gradient-primary);
+  }
+
+  .bg-gradient-destructive {
+    background-image: var(--gradient-destructive);
+  }
+
+  .bg-gradient-burgundy {
+    background-image: var(--gradient-burgundy);
+  }
+
+  /* Gradient text — точечно, не для больших текстов */
   .text-gradient {
-    @apply from-primary to-accent-primary bg-gradient-to-r bg-clip-text text-transparent;
+    background-image: var(--gradient-primary);
+    @apply bg-clip-text text-transparent;
   }
 
   /* Status dot indicators */
@@ -529,8 +443,9 @@
     @apply border-primary my-2 border-l-4 pl-4 italic;
   }
 
+  /* Ссылки в markdown — тёмно-зелёный (5.17:1), не кислотный */
   .prose-chat a {
-    @apply text-primary hover:underline;
+    @apply text-primary-link hover:underline;
   }
 }
 

@@ -1,8 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { useTheme } from "next-themes";
-
 import { cn } from "@/shared/lib";
 import { Sheet, SheetContent } from "@/shared/ui/sheet";
 
@@ -32,20 +30,6 @@ const AppShell = React.forwardRef<HTMLDivElement, AppShellProps>(
     ref
   ) => {
     const [mobileOpen, setMobileOpen] = React.useState(false);
-    const { theme, setTheme } = useTheme();
-    const [mounted, setMounted] = React.useState(false);
-
-    // Prevent hydration mismatch
-    React.useEffect(() => {
-      setMounted(true);
-    }, []);
-
-    // Theme toggle
-    const toggleTheme = () => {
-      setTheme(theme === "dark" ? "light" : "dark");
-    };
-
-    const isDark = theme === "dark";
 
     return (
       <div
@@ -74,8 +58,6 @@ const AppShell = React.forwardRef<HTMLDivElement, AppShellProps>(
           <Header
             breadcrumbs={breadcrumbs}
             onMenuClick={() => setMobileOpen(true)}
-            onThemeToggle={toggleTheme}
-            isDark={mounted ? isDark : false}
             {...headerProps}
           />
           <main className="flex-1 overflow-y-auto">{children}</main>

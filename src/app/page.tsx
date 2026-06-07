@@ -9,13 +9,10 @@ import {
   Bot,
   FileText,
   LogOut,
-  Moon,
   Send,
   Settings,
-  Sun,
   User,
 } from "lucide-react";
-import { useTheme } from "next-themes";
 
 import { useAuthStore, useMe, authApi } from "@/entities/auth";
 import { useUsageSummary } from "@/entities/billing";
@@ -34,7 +31,6 @@ import {
 
 export default function HomePage() {
   const router = useRouter();
-  const { theme, setTheme } = useTheme();
   const { user, logout: logoutStore } = useAuthStore();
   const { isLoading: userLoading } = useMe();
   const { data: usageSummary, isLoading: usageLoading } = useUsageSummary();
@@ -46,9 +42,6 @@ export default function HomePage() {
     }
   }, [router]);
 
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  };
 
   const handleLogout = async () => {
     try {
@@ -120,10 +113,6 @@ export default function HomePage() {
 
           {/* Right side */}
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={toggleTheme}>
-              {theme === "dark" ? <Sun className="size-5" /> : <Moon className="size-5" />}
-            </Button>
-
             {/* User Menu */}
             {isLoading ? (
               <Skeleton className="h-9 w-24" />

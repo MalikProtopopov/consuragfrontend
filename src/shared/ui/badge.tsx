@@ -31,12 +31,12 @@ const badgeVariants = cva(
         processing: "border-transparent bg-status-processing text-white",
         failed: "border-transparent bg-status-failed text-white",
         // Subtle variants - lighter backgrounds
-        "success-subtle": "border-success/20 bg-success/10 text-success dark:bg-success/20",
-        "warning-subtle": "border-warning/20 bg-warning/10 text-warning dark:bg-warning/20",
+        "success-subtle": "border-success/20 bg-success/10 text-success",
+        "warning-subtle": "border-warning/20 bg-warning/10 text-warning",
         "error-subtle":
-          "border-destructive/20 bg-destructive/10 text-destructive dark:bg-destructive/20",
-        "info-subtle": "border-info/20 bg-info/10 text-info dark:bg-info/20",
-        "primary-subtle": "border-primary/20 bg-primary/10 text-primary dark:bg-primary/20",
+          "border-destructive/20 bg-destructive/10 text-destructive",
+        "info-subtle": "border-info/20 bg-info/10 text-info",
+        "primary-subtle": "border-primary/20 bg-primary/10 text-primary-link",
         // Tag variant - for F0 design system tags (mono font, muted colors)
         tag: "border-transparent bg-muted text-muted-foreground font-mono rounded-md",
       },

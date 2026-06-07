@@ -4,7 +4,7 @@ import * as React from "react";
 
 import Link from "next/link";
 
-import { Bell, ChevronDown, LogOut, Menu, Moon, Search, Settings, Sun, User } from "lucide-react";
+import { Bell, ChevronDown, LogOut, Menu, Search, Settings, User } from "lucide-react";
 
 import { cn } from "@/shared/lib";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
@@ -37,8 +37,6 @@ export interface HeaderProps extends React.HTMLAttributes<HTMLElement> {
   breadcrumbs?: BreadcrumbItemData[];
   onMenuClick?: () => void;
   showSearch?: boolean;
-  onThemeToggle?: () => void;
-  isDark?: boolean;
 }
 
 const Header = React.forwardRef<HTMLElement, HeaderProps>(
@@ -48,8 +46,6 @@ const Header = React.forwardRef<HTMLElement, HeaderProps>(
       breadcrumbs,
       onMenuClick,
       showSearch = false,
-      onThemeToggle,
-      isDark = false,
       ...props
     },
     ref
@@ -118,14 +114,6 @@ const Header = React.forwardRef<HTMLElement, HeaderProps>(
 
         {/* Actions */}
         <div className="flex items-center gap-2">
-          {/* Theme toggle */}
-          {onThemeToggle && (
-            <Button variant="ghost" size="icon" onClick={onThemeToggle}>
-              {isDark ? <Sun className="size-5" /> : <Moon className="size-5" />}
-              <span className="sr-only">Переключить тему</span>
-            </Button>
-          )}
-
           {/* Notifications */}
           <Button variant="ghost" size="icon" className="relative" asChild>
             <Link href="/settings/notifications">
