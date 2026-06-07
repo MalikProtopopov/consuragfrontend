@@ -1,13 +1,14 @@
 "use client";
 
 import { use, useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Users } from "lucide-react";
 import { useProject, useProjectMembers } from "@/entities/project";
 import { PageContainer, PageHeader } from "@/widgets/app-shell";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/shared/ui/dialog";
 import { Skeleton } from "@/shared/ui/skeleton";
+import { EmptyState } from "@/shared/ui/empty-state";
 import { AccessDenied, isPermissionError } from "@/shared/ui/access-denied";
 import type { ProjectMember } from "@/shared/types/api";
 import { AddMemberForm, MembersTable } from "./_components";
@@ -82,20 +83,34 @@ export default function ProjectMembersPage({ params }: ProjectMembersPageProps) 
         }
       />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Участники ({members.length})</CardTitle>
-          <CardDescription>Управление доступом к проекту</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <MembersTable
-            projectId={projectId}
-            members={members}
-            editingMember={editingMember}
-            onEditingChange={setEditingMember}
-          />
-        </CardContent>
-      </Card>
+      {members.length === 0 ? (
+        <EmptyState
+          icon={Users}
+          title="no_members_yet"
+          description="В проекте пока только вы. Пригласите коллег, чтобы работать над аватарами вместе."
+          action={
+            <Button onClick={() => setAddDialogOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Пригласить участника
+            </Button>
+          }
+        />
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle>Участники ({members.length})</CardTitle>
+            <CardDescription>Управление доступом к проекту</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <MembersTable
+              projectId={projectId}
+              members={members}
+              editingMember={editingMember}
+              onEditingChange={setEditingMember}
+            />
+          </CardContent>
+        </Card>
+      )}
     </PageContainer>
   );
 }

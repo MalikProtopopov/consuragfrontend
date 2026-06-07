@@ -101,7 +101,10 @@ export default function SessionsPage({ params }: SessionsPageProps) {
           {sessions.length === 0 ? (
             <div className="text-center py-12">
               <MessageSquare className="mx-auto h-12 w-12 text-text-muted mb-4" />
-              <p className="text-text-secondary">Нет сессий</p>
+              <p className="text-text-secondary">Пока нет сессий</p>
+              <p className="text-sm text-text-muted mt-1">
+                Здесь появятся диалоги, когда клиенты начнут общаться с аватаром в чате или Telegram.
+              </p>
             </div>
           ) : (
             <Table>

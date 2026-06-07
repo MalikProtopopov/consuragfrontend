@@ -111,7 +111,7 @@ export default function EndUsersPage({ params }: EndUsersPageProps) {
   return (
     <PageContainer>
       <PageHeader
-        title="Пользователи"
+        title="Клиенты"
         description="Конечные пользователи, общающиеся с вашими AI-аватарами"
       />
 

@@ -108,7 +108,7 @@ export function DocumentRow({
           {doc.parsing_status === "indexed" && (
             <Dialog open={chunksDialogOpen} onOpenChange={setChunksDialogOpen}>
               <DialogTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" aria-label="Просмотреть чанки">
                   <Eye className="h-4 w-4" />
                 </Button>
               </DialogTrigger>
@@ -121,11 +121,11 @@ export function DocumentRow({
             </Dialog>
           )}
           {doc.parsing_status === "failed" && (
-            <Button variant="ghost" size="icon" onClick={handleReindex} disabled={reindexing}>
+            <Button variant="ghost" size="icon" onClick={handleReindex} disabled={reindexing} aria-label="Переиндексировать документ">
               {reindexing ? <Spinner className="h-4 w-4" /> : <RefreshCw className="h-4 w-4" />}
             </Button>
           )}
-          <Button variant="ghost" size="icon" onClick={handleDelete} disabled={deleting}>
+          <Button variant="ghost" size="icon" onClick={handleDelete} disabled={deleting} aria-label="Удалить документ">
             {deleting ? <Spinner className="h-4 w-4" /> : <Trash2 className="h-4 w-4 text-error" />}
           </Button>
         </div>

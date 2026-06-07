@@ -2,7 +2,7 @@
 
 import { use, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Globe, X } from "lucide-react";
+import { ArrowLeft, Globe, X, FileText, ArrowRight } from "lucide-react";
 import {
   useAvatar,
   useAvatarStats,
@@ -168,6 +168,22 @@ export default function AvatarSettingsPage({ params }: AvatarSettingsPageProps) 
           </div>
         }
       />
+
+      {/* A-03: next-step — без документов аватар не сможет отвечать */}
+      {avatar.documents_count === 0 && (
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary-ring/30 bg-primary/5 px-4 py-3">
+          <div className="flex items-center gap-2 text-sm text-text-secondary">
+            <FileText className="size-5 shrink-0 text-primary-link" aria-hidden />
+            <span>Загрузите документы — аватар отвечает по вашей базе знаний.</span>
+          </div>
+          <Button asChild size="sm">
+            <Link href={`/projects/${projectId}/avatars/${avatarId}/documents`}>
+              Загрузить документы
+              <ArrowRight className="ml-1.5 h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
+      )}
 
       <AvatarSettingsTabs
         form={form}

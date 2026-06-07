@@ -2,7 +2,8 @@
 
 import { use } from "react";
 import Link from "next/link";
-import { Bot, FileText, MessageSquare, Users, UserCircle, BarChart3, Settings, Plus } from "lucide-react";
+import { Bot, FileText, MessageSquare, Users, UserCircle, BarChart3, Settings, Plus, CheckCircle2, Circle, ArrowRight } from "lucide-react";
+import { cn } from "@/shared/lib";
 import { AvatarIdentity } from "@/shared/ui/avatar-identity";
 import { useProject } from "@/entities/project";
 import { useAvatars } from "@/entities/avatar";
@@ -19,6 +20,49 @@ interface ProjectDashboardPageProps {
   params: Promise<{ id: string }>;
 }
 
+function ChecklistStep({
+  done,
+  current,
+  label,
+  href,
+  cta,
+}: {
+  done: boolean;
+  current: boolean;
+  label: string;
+  href: string;
+  cta: string;
+}) {
+  return (
+    <div className="flex items-center gap-3 px-2 py-2">
+      {done ? (
+        <CheckCircle2 className="size-5 shrink-0 text-success" aria-hidden />
+      ) : (
+        <Circle
+          className={cn("size-5 shrink-0", current ? "text-primary-ring" : "text-text-muted")}
+          aria-hidden
+        />
+      )}
+      <span
+        className={cn(
+          "flex-1 text-sm",
+          done ? "text-text-muted line-through" : "text-text-primary",
+        )}
+      >
+        {label}
+      </span>
+      {!done && current && (
+        <Button size="sm" asChild>
+          <Link href={href}>
+            {cta}
+            <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+          </Link>
+        </Button>
+      )}
+    </div>
+  );
+}
+
 export default function ProjectDashboardPage({ params }: ProjectDashboardPageProps) {
   const { id: projectId } = use(params);
   const { data: project, isLoading: projectLoading } = useProject(projectId);
@@ -27,6 +71,20 @@ export default function ProjectDashboardPage({ params }: ProjectDashboardPagePro
 
   const isLoading = projectLoading || avatarsLoading || usageLoading;
   const avatars = avatarsData?.items || [];
+
+  // A-01: онбординг-чеклист активации (пока проект не доведён до рабочего аватара)
+  const firstAvatar = avatars[0];
+  const hasAvatar = (project?.avatars_count ?? 0) > 0;
+  const hasDocs =
+    (usage?.documents_indexed ?? 0) > 0 || avatars.some((a) => (a.documents_count ?? 0) > 0);
+  const hasPublished = avatars.some((a) => a.is_published);
+  const onboardingComplete = hasAvatar && hasDocs && hasPublished;
+  const docsHref = firstAvatar
+    ? `/projects/${projectId}/avatars/${firstAvatar.id}/documents`
+    : `/projects/${projectId}/avatars/new`;
+  const publishHref = firstAvatar
+    ? `/projects/${projectId}/avatars/${firstAvatar.id}`
+    : `/projects/${projectId}/avatars/new`;
 
   if (isLoading) {
     return (
@@ -65,6 +123,38 @@ export default function ProjectDashboardPage({ params }: ProjectDashboardPagePro
           </Button>
         }
       />
+
+      {/* A-01: онбординг-чеклист — пока активация не завершена */}
+      {!onboardingComplete && (
+        <Card className="mb-8 border-primary-ring/30">
+          <CardHeader>
+            <CardTitle className="text-lg">Запустите первого AI-консультанта</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-1">
+            <ChecklistStep
+              done={hasAvatar}
+              current={!hasAvatar}
+              label="Создать аватара"
+              href={`/projects/${projectId}/avatars/new`}
+              cta="Создать"
+            />
+            <ChecklistStep
+              done={hasDocs}
+              current={hasAvatar && !hasDocs}
+              label="Загрузить документы (база знаний)"
+              href={docsHref}
+              cta="Загрузить"
+            />
+            <ChecklistStep
+              done={hasPublished}
+              current={hasDocs && !hasPublished}
+              label="Опубликовать и протестировать в чате"
+              href={publishHref}
+              cta="Опубликовать"
+            />
+          </CardContent>
+        </Card>
+      )}
 
       {/* Stats Grid */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5 mb-8">

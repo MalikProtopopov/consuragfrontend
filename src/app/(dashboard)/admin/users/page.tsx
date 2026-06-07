@@ -50,7 +50,7 @@ export default function UsersPage() {
   return (
     <PageContainer>
       <PageHeader
-        title="Пользователи"
+        title="Пользователи платформы"
         description="Управление пользователями платформы"
         actions={
           <Button asChild>

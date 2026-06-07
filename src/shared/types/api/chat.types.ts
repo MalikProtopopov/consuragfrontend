@@ -78,6 +78,8 @@ export interface CreateSessionResponse {
   messages_count: number;
   title: string | null;
   total_tokens_used: number;
+  /** Токен сессии — обязателен для последующих запросов (message/history/feedback). */
+  session_token: string;
 }
 
 // Send message request
@@ -91,6 +93,8 @@ export type ChatHistoryResponse = ChatMessage[];
 // Chat history params
 export interface ChatHistoryParams {
   session_id: string;
+  /** Токен сессии (для публичного чата без авторизации). */
+  session_token?: string;
   limit?: number;
 }
 

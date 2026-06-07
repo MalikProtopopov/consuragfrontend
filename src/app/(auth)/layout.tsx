@@ -19,9 +19,15 @@ interface AuthLayoutProps {
 export default function AuthLayout({ children }: AuthLayoutProps) {
   const router = useRouter();
 
-  // Redirect to projects if already logged in
+  // Redirect to projects only with a LIVE token.
+  // Иначе — петля: протухший localStorage-токен (cookie живёт 30 мин, localStorage
+  // вечно) → редирект на /projects → middleware не видит cookie → назад на /login → …
+  // Протухший токен чистим (оба хранилища), чтобы убить «зомби» и остаться на /login.
   useEffect(() => {
-    if (tokenManager.hasToken()) {
+    if (!tokenManager.hasToken()) return;
+    if (tokenManager.isAccessTokenExpired()) {
+      tokenManager.clearTokens();
+    } else {
       router.replace("/projects");
     }
   }, [router]);

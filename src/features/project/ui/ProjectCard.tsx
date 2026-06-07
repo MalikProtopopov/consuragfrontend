@@ -41,16 +41,28 @@ export function ProjectCard({ project }: ProjectCardProps) {
             <p className="text-sm text-text-secondary mb-4 line-clamp-2">{project.description}</p>
           )}
           <div className="flex items-center gap-4 text-sm text-text-muted flex-wrap">
-            <div className="flex items-center gap-1.5">
-              <Bot className="size-4" />
+            <div
+              className="flex items-center gap-1.5"
+              title="Аватары"
+              aria-label={`Аватары: ${project.avatars_count}`}
+            >
+              <Bot className="size-4" aria-hidden />
               <span>{project.avatars_count}</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <Users className="size-4" />
+            <div
+              className="flex items-center gap-1.5"
+              title="Участники команды"
+              aria-label={`Участники команды: ${project.members_count}`}
+            >
+              <Users className="size-4" aria-hidden />
               <span>{project.members_count}</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <UserCircle className="size-4" />
+            <div
+              className="flex items-center gap-1.5"
+              title="Конечные пользователи (клиенты)"
+              aria-label={`Клиенты: ${project.end_users_count ?? 0}`}
+            >
+              <UserCircle className="size-4" aria-hidden />
               <span>{project.end_users_count ?? 0}</span>
             </div>
           </div>

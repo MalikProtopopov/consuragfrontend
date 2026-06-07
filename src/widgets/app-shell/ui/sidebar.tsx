@@ -153,12 +153,12 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
           { title: "Обзор", href: `/projects/${projectId}`, icon: LayoutDashboard },
           { title: "Аватары", href: `/projects/${projectId}/avatars`, icon: Bot },
           {
-            title: "Участники",
+            title: "Люди",
             href: `/projects/${projectId}/members`,
             icon: Users,
             children: [
               { title: "Команда", href: `/projects/${projectId}/members`, icon: UsersRound },
-              { title: "Пользователи", href: `/projects/${projectId}/users`, icon: UserCircle },
+              { title: "Клиенты", href: `/projects/${projectId}/users`, icon: UserCircle },
             ],
           },
           { title: "Аналитика", href: `/projects/${projectId}/analytics`, icon: BarChart3 },
@@ -206,7 +206,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
       // Admin section (only for saas_admin)
       if (isAdmin(user)) {
         const adminItems: NavItem[] = [
-          { title: "Пользователи", href: "/admin/users", icon: Users, adminOnly: true },
+          { title: "Пользователи платформы", href: "/admin/users", icon: Users, adminOnly: true },
           {
             title: "Аналитика платформы",
             href: "/admin/analytics",

@@ -1,5 +1,6 @@
 export { cn } from "./cn";
-export { getErrorMessage, getApiErrorMessage, getApiErrorField, ERROR_MESSAGES } from "./error-messages";
+export { getErrorMessage, getApiErrorMessage, getApiErrorField, getApiErrorCode, isUpsellError, ERROR_MESSAGES } from "./error-messages";
+export { notifyApiError } from "./notify-api-error";
 export { apiUrlManager, API_ENVIRONMENTS, type ApiEnvironment } from "./apiUrlManager";
 export { tokenStorage } from "./tokenStorage";
 export {

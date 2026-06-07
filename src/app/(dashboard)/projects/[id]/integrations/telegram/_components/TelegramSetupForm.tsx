@@ -20,7 +20,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/shared/ui
 import { Checkbox } from "@/shared/ui/checkbox";
 import { ConfirmDialog } from "@/shared/ui/confirm-dialog";
 import { toast } from "sonner";
-import { getApiErrorMessage } from "@/shared/lib";
+import { notifyApiError } from "@/shared/lib";
 import type { Avatar, TelegramIntegration } from "@/shared/types/api";
 import { cleanToken } from "./cleanToken";
 
@@ -66,7 +66,7 @@ export function TelegramSetupForm({ projectId, integration, avatars }: TelegramS
       { projectId, data },
       {
         onSuccess: () => toast.success("Интеграция создана"),
-        onError: (error) => toast.error(getApiErrorMessage(error)),
+        onError: (error) => notifyApiError(error),
       }
     );
   };
@@ -91,7 +91,7 @@ export function TelegramSetupForm({ projectId, integration, avatars }: TelegramS
       { projectId, data },
       {
         onSuccess: () => toast.success("Интеграция обновлена"),
-        onError: (error) => toast.error(getApiErrorMessage(error)),
+        onError: (error) => notifyApiError(error),
       }
     );
   };
@@ -103,7 +103,7 @@ export function TelegramSetupForm({ projectId, integration, avatars }: TelegramS
         setForm(getInitialForm());
         setDeleteDialogOpen(false);
       },
-      onError: (error) => toast.error(getApiErrorMessage(error)),
+      onError: (error) => notifyApiError(error),
     });
   };
 

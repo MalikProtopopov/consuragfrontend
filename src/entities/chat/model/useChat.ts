@@ -27,6 +27,7 @@ export const chatKeys = {
  * localStorage key for session ID
  */
 const getSessionStorageKey = (avatarId: string) => `chat_session_${avatarId}`;
+const getTokenStorageKey = (avatarId: string) => `chat_session_token_${avatarId}`;
 
 /**
  * Hook to get avatar public info
@@ -48,13 +49,15 @@ export function useChat(avatarId: string, source: ChatSource = "web") {
   const [isLoading, setIsLoading] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
   
-  // Store session ID in a ref to avoid closure issues
+  // Store session ID/token in refs to avoid closure issues
   const sessionIdRef = useRef<string | null>(null);
+  const sessionTokenRef = useRef<string | null>(null);
 
-  // Save session to localStorage
-  const saveSession = useCallback((sid: string) => {
+  // Save session (id + token) to localStorage
+  const saveSession = useCallback((sid: string, token: string) => {
     if (typeof window !== "undefined") {
       localStorage.setItem(getSessionStorageKey(avatarId), sid);
+      localStorage.setItem(getTokenStorageKey(avatarId), token);
     }
   }, [avatarId]);
 
@@ -62,16 +65,18 @@ export function useChat(avatarId: string, source: ChatSource = "web") {
   const clearSession = useCallback(() => {
     if (typeof window !== "undefined") {
       localStorage.removeItem(getSessionStorageKey(avatarId));
+      localStorage.removeItem(getTokenStorageKey(avatarId));
     }
   }, [avatarId]);
 
-  // Get session from localStorage
+  // Get session (id + token) from localStorage — оба обязательны для валидной сессии
   const getSavedSession = useCallback(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem(getSessionStorageKey(avatarId));
-      // Validate it's a proper UUID, not "undefined" or "null" string
-      if (saved && saved !== "undefined" && saved !== "null" && saved.length > 10) {
-        return saved;
+      const token = localStorage.getItem(getTokenStorageKey(avatarId));
+      // Validate it's a proper UUID + есть токен (без него запросы вернут 422)
+      if (saved && saved !== "undefined" && saved !== "null" && saved.length > 10 && token) {
+        return { id: saved, token };
       }
     }
     return null;
@@ -87,20 +92,22 @@ export function useChat(avatarId: string, source: ChatSource = "web") {
       
       setIsInitializing(true);
       try {
-        const savedSessionId = getSavedSession();
-        
-        if (savedSessionId && shouldRun) {
+        const saved = getSavedSession();
+
+        if (saved && shouldRun) {
           // Try to load history from existing session
           try {
-            const messages = await chatApi.getHistory(avatarId, { 
-              session_id: savedSessionId,
-              limit: 50 
+            const messages = await chatApi.getHistory(avatarId, {
+              session_id: saved.id,
+              session_token: saved.token,
+              limit: 50
             });
             if (!shouldRun) return;
-            
+
             // Session is valid, use it
-            setSessionId(savedSessionId);
-            sessionIdRef.current = savedSessionId;
+            setSessionId(saved.id);
+            sessionIdRef.current = saved.id;
+            sessionTokenRef.current = saved.token;
             setMessages(messages);
             return;
           } catch (error) {
@@ -110,15 +117,16 @@ export function useChat(avatarId: string, source: ChatSource = "web") {
             clearSession();
           }
         }
-        
+
         if (!shouldRun) return;
-        
+
         // No saved session or invalid, create new one
         const response = await chatApi.createSession(avatarId, source);
         if (!shouldRun) return;
         setSessionId(response.id);
         sessionIdRef.current = response.id;
-        saveSession(response.id);
+        sessionTokenRef.current = response.session_token;
+        saveSession(response.id, response.session_token);
         setMessages([]);
       } catch (error) {
         console.error("[useChat] Failed to initialize chat:", error);
@@ -144,7 +152,8 @@ export function useChat(avatarId: string, source: ChatSource = "web") {
       const response = await chatApi.createSession(avatarId, source);
       setSessionId(response.id);
       sessionIdRef.current = response.id;
-      saveSession(response.id);
+      sessionTokenRef.current = response.session_token;
+      saveSession(response.id, response.session_token);
       setMessages([]);
       return response;
     } finally {
@@ -156,15 +165,16 @@ export function useChat(avatarId: string, source: ChatSource = "web") {
   const sendMessage = useCallback(
     async (content: string) => {
       let currentSessionId = sessionIdRef.current;
-      
+
       // Create session if not exists
       if (!currentSessionId) {
         const session = await createSession();
         currentSessionId = session.id;
       }
-      
+
       // Double-check session exists
-      if (!currentSessionId) {
+      const currentSessionToken = sessionTokenRef.current;
+      if (!currentSessionId || !currentSessionToken) {
         throw new Error("Failed to create chat session");
       }
       
@@ -179,7 +189,7 @@ export function useChat(avatarId: string, source: ChatSource = "web") {
       
     setIsLoading(true);
     try {
-        const response = await chatApi.sendMessage(avatarId, currentSessionId, content);
+        const response = await chatApi.sendMessage(avatarId, currentSessionId, currentSessionToken, content);
         // Replace temp message with real one and add assistant response
       setMessages((prev) => [
           ...prev.filter((m) => m.id !== tempUserMessage.id),
@@ -203,7 +213,10 @@ export function useChat(avatarId: string, source: ChatSource = "web") {
     const currentSessionId = sessionIdRef.current;
     if (!currentSessionId) return;
     try {
-      const messages = await chatApi.getHistory(avatarId, { session_id: currentSessionId });
+      const messages = await chatApi.getHistory(avatarId, {
+        session_id: currentSessionId,
+        session_token: sessionTokenRef.current ?? undefined,
+      });
       setMessages(messages);
     } catch (error) {
       console.error("Failed to load history:", error);
@@ -228,7 +241,7 @@ export function useChat(avatarId: string, source: ChatSource = "web") {
     }: {
       messageId: string;
       feedback: FeedbackType;
-    }) => chatApi.sendFeedback(avatarId, messageId, feedback),
+    }) => chatApi.sendFeedback(avatarId, messageId, feedback, sessionTokenRef.current ?? undefined),
     onSuccess: (_, { messageId, feedback }) => {
       setMessages((prev) =>
         prev.map((msg) =>

@@ -82,6 +82,15 @@ export const ERROR_MESSAGES: Record<string, string> = {
   PERMISSION_DENIED: "Недостаточно прав",
   PERMISSION_REQUIRED: "Требуется разрешение",
 
+  // Plan / limits / billing
+  FEATURE_NOT_IN_PLAN: "Эта функция недоступна на вашем тарифе. Повысьте тариф, чтобы включить её",
+  RESOURCE_LIMIT_EXCEEDED: "Достигнут лимит вашего тарифа. Повысьте тариф, чтобы увеличить лимиты",
+  PLAN_LIMIT_EXCEEDED: "Достигнут лимит вашего тарифа",
+  TOKEN_LIMIT_EXCEEDED: "Исчерпан лимит токенов чата. Повысьте тариф или дождитесь сброса лимита",
+  EMBEDDING_LIMIT_EXCEEDED: "Исчерпан лимит токенов на индексацию. Повысьте тариф или дождитесь сброса",
+  INSUFFICIENT_TOKENS: "Недостаточно токенов для операции",
+  CHAT_RAG_ERROR: "Не удалось сгенерировать ответ. Попробуйте позже",
+
   // Generic errors
   UNKNOWN_ERROR: "Произошла неизвестная ошибка",
   NETWORK_ERROR: "Ошибка сети",
@@ -142,6 +151,33 @@ export function getApiErrorMessage(error: unknown): string {
   }
   
   return getErrorMessage("UNKNOWN_ERROR");
+}
+
+/**
+ * Извлечь код ошибки из ответа API (плоский или вложенный).
+ */
+export function getApiErrorCode(error: unknown): string | undefined {
+  if (error && typeof error === "object") {
+    const apiError = error as ApiErrorResponse;
+    return apiError.error?.code ?? apiError.code;
+  }
+  return undefined;
+}
+
+/** Коды ошибок, для которых уместно предложить апгрейд тарифа. */
+const UPSELL_ERROR_CODES = new Set([
+  "FEATURE_NOT_IN_PLAN",
+  "RESOURCE_LIMIT_EXCEEDED",
+  "PLAN_LIMIT_EXCEEDED",
+  "TOKEN_LIMIT_EXCEEDED",
+  "EMBEDDING_LIMIT_EXCEEDED",
+  "INSUFFICIENT_TOKENS",
+]);
+
+/** Является ли ошибка поводом предложить «Повысить тариф». */
+export function isUpsellError(error: unknown): boolean {
+  const code = getApiErrorCode(error);
+  return code ? UPSELL_ERROR_CODES.has(code) : false;
 }
 
 /**

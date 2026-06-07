@@ -2,7 +2,7 @@
 
 import { use, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Upload, FileText } from "lucide-react";
+import { ArrowLeft, Upload, FileText, MessageSquare, CheckCircle2 } from "lucide-react";
 import { useAvatar } from "@/entities/avatar";
 import { useDocuments, useUploadDocument } from "@/entities/document";
 import { PageContainer, PageHeader } from "@/widgets/app-shell";
@@ -28,6 +28,8 @@ export default function DocumentsPage({ params }: DocumentsPageProps) {
 
   const isLoading = avatarLoading || documentsLoading;
   const documents = documentsData?.items || [];
+  // A-02: есть готовый (проиндексированный) документ → можно тестировать в чате.
+  const hasIndexedDoc = documents.some((doc) => doc.parsing_status === "indexed");
 
   const handleUpload = (files: File[]) => {
     files.forEach((file) => {
@@ -88,6 +90,21 @@ export default function DocumentsPage({ params }: DocumentsPageProps) {
           />
         }
       />
+
+      {hasIndexedDoc && (
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-success/30 bg-success/5 px-4 py-3">
+          <div className="flex items-center gap-2 text-sm text-text-secondary">
+            <CheckCircle2 className="size-5 shrink-0 text-success" aria-hidden />
+            <span>База знаний готова — аватар может отвечать по документам.</span>
+          </div>
+          <Button asChild size="sm">
+            <Link href={`/projects/${projectId}/avatars/${avatarId}/chat`}>
+              <MessageSquare className="mr-2 h-4 w-4" />
+              Открыть тестовый чат
+            </Link>
+          </Button>
+        </div>
+      )}
 
       <Card>
         <CardHeader>

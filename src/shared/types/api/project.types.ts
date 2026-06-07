@@ -2,10 +2,14 @@
  * Project API types based on OpenAPI specification
  */
 
-import type { UserRole } from "./auth.types";
-
 // Project status
 export type ProjectStatus = "active" | "inactive" | "archived";
+
+/**
+ * Роль участника ПРОЕКТА (R-01) — отдельна от платформенной `UserRole`.
+ * Значения по OpenAPI бэкенда: owner/admin/manager/content_manager/viewer.
+ */
+export type ProjectMemberRole = "owner" | "admin" | "manager" | "content_manager" | "viewer";
 
 // TOV formality options
 export type TovFormality = "formal" | "professional" | "casual" | "friendly";
@@ -88,7 +92,7 @@ export interface ProjectMember {
   id: string;
   project_id: string;
   user_id: string;
-  role: UserRole;
+  role: ProjectMemberRole;
   can_manage_settings: boolean;
   can_manage_members: boolean;
   can_manage_avatars: boolean;
@@ -107,7 +111,7 @@ export interface ProjectMember {
 export interface AddMemberRequest {
   user_id?: string;
   email?: string;
-  role: UserRole;
+  role: ProjectMemberRole;
   can_manage_settings?: boolean;
   can_manage_members?: boolean;
   can_manage_avatars?: boolean;
@@ -117,7 +121,7 @@ export interface AddMemberRequest {
 
 // Update member request
 export interface UpdateMemberRequest {
-  role?: UserRole;
+  role?: ProjectMemberRole;
   can_manage_settings?: boolean;
   can_manage_members?: boolean;
   can_manage_avatars?: boolean;

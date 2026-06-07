@@ -8,7 +8,7 @@ import { PageContainer } from "@/widgets/app-shell";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/ui/card";
 import { toast } from "sonner";
-import { getApiErrorMessage } from "@/shared/lib";
+import { notifyApiError } from "@/shared/lib";
 
 export default function CreateProjectPage() {
   const router = useRouter();
@@ -20,7 +20,7 @@ export default function CreateProjectPage() {
         toast.success("Проект успешно создан");
       },
       onError: (error) => {
-        toast.error(getApiErrorMessage(error));
+        notifyApiError(error);
       },
     });
   };

@@ -6,17 +6,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
 import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
 import { Badge } from "@/shared/ui/badge";
-import type { ProjectMember, UserRole } from "@/shared/types/api";
+import type { ProjectMember } from "@/shared/types/api";
 import { EditMemberForm } from "./EditMemberForm";
 import { RemoveMemberButton } from "./RemoveMemberButton";
-
-const roleLabels: Record<UserRole, string> = {
-  saas_admin: "Администратор",
-  owner: "Владелец",
-  manager: "Менеджер",
-  content_manager: "Контент-менеджер",
-  client: "Клиент",
-};
+import { PROJECT_ROLE_LABELS } from "./roles";
 
 export function MembersTable({
   projectId,
@@ -61,7 +54,7 @@ export function MembersTable({
               </div>
             </TableCell>
             <TableCell>
-              <Badge variant="outline">{roleLabels[member.role]}</Badge>
+              <Badge variant="outline">{PROJECT_ROLE_LABELS[member.role]}</Badge>
             </TableCell>
             <TableCell>
               <div className="flex flex-wrap gap-1">
@@ -80,7 +73,7 @@ export function MembersTable({
                     onOpenChange={(open) => onEditingChange(open ? member : null)}
                   >
                     <DialogTrigger asChild>
-                      <Button variant="ghost" size="icon">
+                      <Button variant="ghost" size="icon" aria-label="Редактировать участника">
                         <SettingsIcon className="h-4 w-4" />
                       </Button>
                     </DialogTrigger>

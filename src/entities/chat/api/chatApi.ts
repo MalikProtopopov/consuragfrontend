@@ -39,14 +39,17 @@ export const chatApi = {
   },
 
   /**
-   * Send message (no auth required)
+   * Send message (no auth required).
+   * `sessionToken` обязателен — бэкенд проверяет его как owner-токен анонимной сессии.
    */
   sendMessage: async (
     avatarId: string,
     sessionId: string,
+    sessionToken: string,
     content: string
   ): Promise<MessagePair> => {
-    const url = `${API_ENDPOINTS.CHAT.SEND_MESSAGE(avatarId)}?session_id=${sessionId}`;
+    const query = new URLSearchParams({ session_id: sessionId, session_token: sessionToken });
+    const url = `${API_ENDPOINTS.CHAT.SEND_MESSAGE(avatarId)}?${query.toString()}`;
     return apiClient.post<{ content: string }, MessagePair>(url, { content });
   },
 
@@ -59,6 +62,7 @@ export const chatApi = {
   ): Promise<ChatHistoryResponse> => {
     const queryParams = new URLSearchParams();
     queryParams.set("session_id", params.session_id);
+    if (params.session_token) queryParams.set("session_token", params.session_token);
     if (params.limit !== undefined) queryParams.set("limit", String(params.limit));
 
     const url = `${API_ENDPOINTS.CHAT.HISTORY(avatarId)}?${queryParams.toString()}`;
@@ -67,17 +71,20 @@ export const chatApi = {
   },
 
   /**
-   * Send feedback on message (no auth required)
+   * Send feedback on message (no auth required).
+   * `sessionToken` прокидывается для авторизации в рамках анонимной сессии.
    */
   sendFeedback: async (
     avatarId: string,
     messageId: string,
-    feedback: FeedbackType
+    feedback: FeedbackType,
+    sessionToken?: string
   ): Promise<SendFeedbackResponse> => {
-    return apiClient.post<SendFeedbackRequest, SendFeedbackResponse>(
-      API_ENDPOINTS.CHAT.FEEDBACK(avatarId, messageId),
-      { feedback }
-    );
+    const base = API_ENDPOINTS.CHAT.FEEDBACK(avatarId, messageId);
+    const url = sessionToken
+      ? `${base}?session_token=${encodeURIComponent(sessionToken)}`
+      : base;
+    return apiClient.post<SendFeedbackRequest, SendFeedbackResponse>(url, { feedback });
   },
 
   // Admin endpoints (require auth)

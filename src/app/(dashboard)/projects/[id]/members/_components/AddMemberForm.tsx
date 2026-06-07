@@ -8,9 +8,10 @@ import { Label } from "@/shared/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { Spinner } from "@/shared/ui/spinner";
 import { toast } from "sonner";
-import { getApiErrorMessage } from "@/shared/lib";
-import type { UserRole } from "@/shared/types/api";
+import { notifyApiError } from "@/shared/lib";
+import type { ProjectMemberRole } from "@/shared/types/api";
 import { PermissionCheckboxes, type MemberPermissions } from "./PermissionCheckboxes";
+import { PROJECT_ROLE_LABELS, ASSIGNABLE_PROJECT_ROLES } from "./roles";
 
 export function AddMemberForm({
   projectId,
@@ -21,7 +22,7 @@ export function AddMemberForm({
 }) {
   const { mutate: addMember, isPending } = useAddMember();
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState<UserRole>("manager");
+  const [role, setRole] = useState<ProjectMemberRole>("manager");
   const [permissions, setPermissions] = useState<MemberPermissions>({
     can_manage_avatars: true,
     can_manage_documents: true,
@@ -39,7 +40,7 @@ export function AddMemberForm({
           toast.success("Участник добавлен");
           onSuccess();
         },
-        onError: (error) => toast.error(getApiErrorMessage(error)),
+        onError: (error) => notifyApiError(error),
       }
     );
   };
@@ -59,14 +60,16 @@ export function AddMemberForm({
       </div>
       <div className="space-y-2">
         <Label>Роль</Label>
-        <Select value={role} onValueChange={(v) => setRole(v as UserRole)}>
+        <Select value={role} onValueChange={(v) => setRole(v as ProjectMemberRole)}>
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="manager">Менеджер</SelectItem>
-            <SelectItem value="content_manager">Контент-менеджер</SelectItem>
-            <SelectItem value="client">Клиент</SelectItem>
+            {ASSIGNABLE_PROJECT_ROLES.map((r) => (
+              <SelectItem key={r} value={r}>
+                {PROJECT_ROLE_LABELS[r]}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>

@@ -54,7 +54,16 @@ export function useLogin() {
       const user = await authApi.getMe();
       setUser(user);
       queryClient.setQueryData(authKeys.me(), user);
-      router.push("/projects");
+      // A-06: вернуть пользователя туда, куда он шёл (middleware кладёт ?redirect=).
+      // Берём только относительный путь — защита от open-redirect.
+      let target = "/projects";
+      if (typeof window !== "undefined") {
+        const redirect = new URLSearchParams(window.location.search).get("redirect");
+        if (redirect && redirect.startsWith("/") && !redirect.startsWith("//")) {
+          target = redirect;
+        }
+      }
+      router.push(target);
     },
   });
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Send, Check, X, Copy, Link2, Bot } from "lucide-react";
+import { Send, Check, X, Copy, Link2, Bot, ExternalLink } from "lucide-react";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
@@ -55,6 +55,18 @@ export function TelegramStatusCard({
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
+            {integration.bot_username && (
+              <Button variant="outline" size="sm" asChild>
+                <a
+                  href={`https://t.me/${integration.bot_username}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ExternalLink className="mr-2 h-4 w-4" />
+                  Открыть бота
+                </a>
+              </Button>
+            )}
             {integration.is_webhook_active ? (
               <Button
                 variant="outline"

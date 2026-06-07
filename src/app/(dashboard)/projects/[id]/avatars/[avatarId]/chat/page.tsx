@@ -2,14 +2,17 @@
 
 import { use, useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, RefreshCw } from "lucide-react";
-import { useAvatar } from "@/entities/avatar";
+import { ArrowLeft, RefreshCw, Send } from "lucide-react";
+import { toast } from "sonner";
+import { useAvatar, usePublishAvatar } from "@/entities/avatar";
 import { useChat } from "@/entities/chat";
 import { useAuthStore } from "@/entities/auth";
+import { notifyApiError } from "@/shared/lib";
 import { PageContainer } from "@/widgets/app-shell";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
 import { AIInput } from "@/shared/ui/ai-input";
+import { EmptyState } from "@/shared/ui/empty-state";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Spinner } from "@/shared/ui/spinner";
 import { ChatHeader, ChatMessages } from "./_components";
@@ -21,7 +24,18 @@ interface ChatPageProps {
 export default function ChatPage({ params }: ChatPageProps) {
   const { id: projectId, avatarId } = use(params);
   const { data: avatar, isLoading: avatarLoading } = useAvatar(projectId, avatarId);
+  const { mutate: publishAvatar, isPending: isPublishing } = usePublishAvatar();
   const { user } = useAuthStore();
+
+  const handlePublish = () => {
+    publishAvatar(
+      { projectId, avatarId },
+      {
+        onSuccess: () => toast.success("Аватар опубликован — можно тестировать"),
+        onError: notifyApiError,
+      },
+    );
+  };
   const {
     sessionId,
     messages,
@@ -84,6 +98,39 @@ export default function ChatPage({ params }: ChatPageProps) {
         <div className="text-center py-12">
           <p className="text-text-secondary">Аватар не найден</p>
         </div>
+      </PageContainer>
+    );
+  }
+
+  // L-03: тестовый чат требует опубликованного аватара — вместо пустого/битого
+  // чата показываем понятное состояние с действием «Опубликовать».
+  if (!avatar.is_published) {
+    return (
+      <PageContainer maxWidth="lg">
+        <div className="mb-6">
+          <Button variant="ghost" asChild>
+            <Link href={`/projects/${projectId}/avatars/${avatarId}`}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              К аватару
+            </Link>
+          </Button>
+        </div>
+        <EmptyState
+          icon={Send}
+          title="avatar_not_published"
+          description="Чтобы протестировать аватара в чате, опубликуйте его. Убедитесь, что загружены документы — аватар отвечает по ним."
+          action={
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <Button onClick={handlePublish} disabled={isPublishing}>
+                {isPublishing ? <Spinner className="mr-2 h-4 w-4" /> : <Send className="mr-2 h-4 w-4" />}
+                Опубликовать аватара
+              </Button>
+              <Button variant="outline" asChild>
+                <Link href={`/projects/${projectId}/avatars/${avatarId}/documents`}>Документы</Link>
+              </Button>
+            </div>
+          }
+        />
       </PageContainer>
     );
   }
