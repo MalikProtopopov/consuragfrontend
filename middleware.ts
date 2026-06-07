@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 /**
  * Protected routes that require authentication
  */
-const PROTECTED_PREFIXES = ["/projects", "/admin", "/settings", "/dashboard"];
+const PROTECTED_PREFIXES = ["/projects", "/admin", "/settings"];
 
 /**
  * Admin-only routes (require SAAS_ADMIN role)

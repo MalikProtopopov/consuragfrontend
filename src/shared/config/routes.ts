@@ -4,7 +4,6 @@
  */
 export const ROUTES = {
   HOME: "/",
-  DASHBOARD: "/dashboard",
   DESIGN_SYSTEM: "/design-system",
 
   // Auth routes
@@ -82,7 +81,6 @@ export const PROTECTED_ROUTES = [
   "/projects",
   "/admin",
   "/settings",
-  "/dashboard",
 ];
 
 /**
