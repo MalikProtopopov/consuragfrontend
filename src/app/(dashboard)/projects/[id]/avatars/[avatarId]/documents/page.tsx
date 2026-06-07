@@ -23,7 +23,7 @@ import { Skeleton } from "@/shared/ui/skeleton";
 import { Spinner } from "@/shared/ui/spinner";
 import { ScrollArea } from "@/shared/ui/scroll-area";
 import { toast } from "sonner";
-import { getApiErrorMessage } from "@/shared/lib";
+import { getApiErrorMessage, formatBytes } from "@/shared/lib";
 import type { Document, DocumentStatus } from "@/shared/types/api";
 
 interface DocumentsPageProps {
@@ -226,12 +226,6 @@ function DocumentRow({
     );
   };
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
-
   return (
     <TableRow>
       <TableCell>
@@ -247,7 +241,7 @@ function DocumentRow({
           </div>
         </div>
       </TableCell>
-      <TableCell>{formatFileSize(doc.file_size)}</TableCell>
+      <TableCell>{formatBytes(doc.file_size)}</TableCell>
       <TableCell>{doc.chunks_count}</TableCell>
       <TableCell>
         <div className="space-y-1">

@@ -57,6 +57,7 @@ import type {
   PlanRequestDetail,
 } from "@/shared/types/api";
 import { PlanRequestDetailDialog } from "./_components/PlanRequestDetailDialog";
+import { formatDate } from "@/shared/lib";
 
 // Labels
 const statusLabels: Record<PlanRequestStatus, string> = {
@@ -152,17 +153,6 @@ export default function PlanRequestsPage() {
   const total = data?.total || 0;
   const totalPages = Math.ceil(total / limit);
 
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleString("ru-RU", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   const handleDelete = async () => {
     if (!deleteRequest) return;
     await deleteMutation.mutateAsync(deleteRequest.id);
@@ -257,7 +247,7 @@ export default function PlanRequestsPage() {
                   {requests.map((request) => (
                     <TableRow key={request.id} className="cursor-pointer hover:bg-bg-hover">
                       <TableCell className="text-xs font-mono">
-                        {formatDate(request.created_at)}
+                        {formatDate(request.created_at, "datetime-short")}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">

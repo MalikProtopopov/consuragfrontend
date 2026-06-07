@@ -63,30 +63,7 @@ import { Switch } from "@/shared/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import { toast } from "sonner";
 import type { BillingPlan, UsersUsageParams, UserUsage } from "@/shared/types/api";
-
-/**
- * Format currency
- */
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-  }).format(value);
-}
-
-/**
- * Format compact number
- */
-function formatCompact(value: number): string {
-  if (value >= 1_000_000) {
-    return `${(value / 1_000_000).toFixed(1)}M`;
-  }
-  if (value >= 1_000) {
-    return `${Math.round(value / 1_000)}K`;
-  }
-  return value.toString();
-}
+import { formatCurrency, formatCompact } from "@/shared/lib";
 
 const planOptions: { value: BillingPlan; label: string }[] = [
   { value: "free", label: "Free" },

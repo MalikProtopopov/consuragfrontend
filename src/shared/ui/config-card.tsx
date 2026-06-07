@@ -10,7 +10,7 @@ import {
   Trash2,
   ShieldCheck,
 } from "lucide-react";
-import { cn } from "@/shared/lib";
+import { cn, formatDate } from "@/shared/lib";
 import { Card, CardContent } from "./card";
 import { Button } from "./button";
 import {
@@ -69,16 +69,6 @@ const statusConfig: Record<
     className: "text-error",
   },
 };
-
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString("ru-RU", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 // Format masked value to show only 5 dots + last visible characters
 function formatMaskedValue(maskedValue: string): string {
@@ -159,7 +149,7 @@ const ConfigCard = React.forwardRef<HTMLDivElement, ConfigCardProps>(
                 </span>
                 {updatedAt && (
                   <span className="text-text-muted">
-                    Обновлено: {formatDate(updatedAt)}
+                    Обновлено: {formatDate(updatedAt, "datetime-numeric")}
                   </span>
                 )}
               </div>

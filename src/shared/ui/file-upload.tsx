@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import { useDropzone, type Accept } from "react-dropzone";
 import { Upload, X, File, AlertCircle } from "lucide-react";
-import { cn } from "@/shared/lib";
+import { cn, formatBytes } from "@/shared/lib";
 import { Button } from "./button";
 
 interface FileUploadProps {
@@ -39,7 +39,7 @@ export function FileUpload({
       if (rejectedFiles.length > 0) {
         const firstError = rejectedFiles[0]?.errors?.[0];
         if (firstError?.message?.includes("too large")) {
-          setError(`Файл слишком большой. Максимум ${formatFileSize(maxSize)}`);
+          setError(`Файл слишком большой. Максимум ${formatBytes(maxSize)}`);
         } else if (firstError?.message?.includes("type")) {
           setError("Неподдерживаемый формат файла");
         } else {
@@ -71,11 +71,6 @@ export function FileUpload({
     }
   };
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
 
   return (
     <div className={cn("space-y-4", className)}>
@@ -101,7 +96,7 @@ export function FileUpload({
               <span className="text-accent-primary">выберите</span>
             </p>
             <p className="text-xs text-text-muted">
-              Максимум {formatFileSize(maxSize)}
+              Максимум {formatBytes(maxSize)}
               {maxFiles > 1 && `, до ${maxFiles} файлов`}
             </p>
           </>
@@ -130,7 +125,7 @@ export function FileUpload({
                   <p className="text-sm font-medium text-text-primary break-all">
                     {file.name}
                   </p>
-                  <p className="text-xs text-text-muted">{formatFileSize(file.size)}</p>
+                  <p className="text-xs text-text-muted">{formatBytes(file.size)}</p>
                 </div>
               </div>
               <Button

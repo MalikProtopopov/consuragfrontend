@@ -32,6 +32,7 @@ import {
 } from "@/shared/ui/dropdown-menu";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { ROUTES, PAGE_SIZE } from "@/shared/config";
+import { formatRelativeTime } from "@/shared/lib";
 import type { EndUserStatus, IdentityProvider } from "@/shared/types/api";
 
 interface EndUsersPageProps {
@@ -40,22 +41,6 @@ interface EndUsersPageProps {
 
 type StatusFilter = EndUserStatus | "all";
 type ChannelFilter = IdentityProvider | "all";
-
-function formatRelativeTime(dateString: string): string {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMins < 1) return "только что";
-  if (diffMins < 60) return `${diffMins} мин. назад`;
-  if (diffHours < 24) return `${diffHours} ч. назад`;
-  if (diffDays === 1) return "вчера";
-  if (diffDays < 7) return `${diffDays} дн. назад`;
-  return date.toLocaleDateString("ru-RU");
-}
 
 function getChannelIcon(channel: IdentityProvider | null): string {
   switch (channel) {

@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/shared/ui/pagination";
+import { formatDate } from "@/shared/lib";
 import type { AuditAction, AuditResourceType } from "@/shared/types/api";
 
 const actionLabels: Record<AuditAction, string> = {
@@ -56,18 +57,6 @@ export default function AuditLogsPage() {
   const logs = data?.items || [];
   const total = data?.total || 0;
   const totalPages = Math.ceil(total / limit);
-
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleString("ru-RU", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
-  };
 
   return (
     <PageContainer>
@@ -149,7 +138,7 @@ export default function AuditLogsPage() {
                   {logs.map((log) => (
                     <TableRow key={log.id}>
                       <TableCell className="text-xs font-mono">
-                        {formatDate(log.created_at)}
+                        {formatDate(log.created_at, "datetime-seconds")}
                       </TableCell>
                       <TableCell>
                         <p className="text-sm">{log.user_email || "—"}</p>

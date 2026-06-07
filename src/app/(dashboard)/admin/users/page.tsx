@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/shared/ui/pagination";
+import { formatDate } from "@/shared/lib";
 import type { UserRole, UserStatus } from "@/shared/types/api";
 
 const roleLabels: Record<UserRole, string> = {
@@ -47,11 +48,6 @@ export default function UsersPage() {
   const users = data?.items || [];
   const total = data?.total || 0;
   const totalPages = Math.ceil(total / limit);
-
-  const formatDate = (dateStr: string | null) => {
-    if (!dateStr) return "—";
-    return new Date(dateStr).toLocaleDateString("ru-RU");
-  };
 
   return (
     <PageContainer>
@@ -174,8 +170,8 @@ export default function UsersPage() {
                             <Badge variant="outline">Нет</Badge>
                           )}
                         </TableCell>
-                        <TableCell>{formatDate(user.created_at)}</TableCell>
-                        <TableCell>{formatDate(user.last_login_at)}</TableCell>
+                        <TableCell>{formatDate(user.created_at, "short")}</TableCell>
+                        <TableCell>{formatDate(user.last_login_at, "short")}</TableCell>
                       </TableRow>
                     );
                   })}

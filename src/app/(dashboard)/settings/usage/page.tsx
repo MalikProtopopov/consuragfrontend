@@ -51,28 +51,7 @@ import { Textarea } from "@/shared/ui/textarea";
 import { Label } from "@/shared/ui/label";
 import { Spinner } from "@/shared/ui/spinner";
 import type { BillingPlan } from "@/shared/types/api";
-
-/**
- * Format currency
- */
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-  }).format(value);
-}
-
-/**
- * Format date
- */
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString("ru-RU", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-}
+import { formatCurrency, formatDate } from "@/shared/lib";
 
 const AVAILABLE_PLANS: { value: BillingPlan; label: string }[] = [
   { value: "starter", label: "Starter" },

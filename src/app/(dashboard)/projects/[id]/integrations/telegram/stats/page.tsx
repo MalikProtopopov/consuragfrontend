@@ -21,6 +21,7 @@ import { Badge } from "@/shared/ui/badge";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { ScrollArea } from "@/shared/ui/scroll-area";
 import { ROUTES } from "@/shared/config";
+import { formatDate, formatDurationMs } from "@/shared/lib";
 import type { TelegramEventType } from "@/shared/types/api";
 
 interface TelegramStatsPageProps {
@@ -38,21 +39,6 @@ const eventTypeLabels: Record<TelegramEventType, { label: string; variant: "defa
   webhook_invalid: { label: "Webhook", variant: "destructive" },
 };
 
-function formatResponseTime(ms: number | null): string {
-  if (ms === null) return "—";
-  if (ms < 1000) return `${ms}ms`;
-  return `${(ms / 1000).toFixed(1)}s`;
-}
-
-function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  return date.toLocaleString("ru-RU", {
-    day: "2-digit",
-    month: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 export default function TelegramStatsPage({ params }: TelegramStatsPageProps) {
   const { id: projectId } = use(params);
@@ -114,7 +100,7 @@ export default function TelegramStatsPage({ params }: TelegramStatsPageProps) {
         />
         <StatsCard
           title="Среднее время ответа"
-          value={formatResponseTime(stats?.avg_response_time_ms ?? null)}
+          value={formatDurationMs(stats?.avg_response_time_ms ?? null)}
           icon={Clock}
         />
       </div>
@@ -183,7 +169,7 @@ export default function TelegramStatsPage({ params }: TelegramStatsPageProps) {
                           )}
                           {event.response_time_ms && (
                             <span className="text-xs text-text-muted">
-                              {formatResponseTime(event.response_time_ms)}
+                              {formatDurationMs(event.response_time_ms)}
                             </span>
                           )}
                           {event.tokens_used && (
@@ -204,7 +190,7 @@ export default function TelegramStatsPage({ params }: TelegramStatsPageProps) {
                         )}
                       </div>
                       <span className="text-xs text-text-muted whitespace-nowrap ml-4">
-                        {formatDate(event.created_at)}
+                        {formatDate(event.created_at, "datetime-compact")}
                       </span>
                     </div>
                   );

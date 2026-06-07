@@ -33,6 +33,7 @@ import {
   SelectValue,
 } from "@/shared/ui/select";
 import { Separator } from "@/shared/ui/separator";
+import { formatDate } from "@/shared/lib";
 import type {
   PlanRequestDetail,
   PlanRequestStatus,
@@ -97,17 +98,6 @@ export function PlanRequestDetailDialog({
     setAdminNotes(request.admin_notes || "");
   }
 
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleString("ru-RU", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   const hasChanges = status !== request.status || adminNotes !== (request.admin_notes || "");
 
   const handleSave = async () => {
@@ -146,7 +136,7 @@ export function PlanRequestDetailDialog({
             </Badge>
             <div className="flex items-center gap-1.5 text-sm text-text-muted">
               <Clock className="size-4" />
-              {formatDate(request.created_at)}
+              {formatDate(request.created_at, "datetime-long")}
             </div>
           </div>
 
@@ -216,8 +206,7 @@ export function PlanRequestDetailDialog({
                   <div className="flex items-center gap-2 text-sm text-text-muted">
                     <Clock className="size-4" />
                     <span>
-                      Зарегистрирован:{" "}
-                      {new Date(request.user.created_at).toLocaleDateString("ru-RU")}
+                      Зарегистрирован: {formatDate(request.user.created_at, "short")}
                     </span>
                   </div>
                 </div>
@@ -345,7 +334,7 @@ export function PlanRequestDetailDialog({
           {/* Processed Info */}
           {request.processed_at && (
             <div className="text-xs text-text-muted space-y-1">
-              <p>Обработана: {formatDate(request.processed_at)}</p>
+              <p>Обработана: {formatDate(request.processed_at, "datetime-long")}</p>
               {request.processed_by && (
                 <p>Администратор: {request.processed_by}</p>
               )}

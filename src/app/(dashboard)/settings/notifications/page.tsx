@@ -32,7 +32,7 @@ import {
   Alert,
   AlertDescription,
 } from "@/shared/ui/alert";
-import { getApiErrorMessage } from "@/shared/lib";
+import { getApiErrorMessage, formatDate } from "@/shared/lib";
 import {
   useTelegramStatus,
   useGenerateLinkCode,
@@ -197,13 +197,7 @@ function TelegramLinkedCard({
     });
   };
 
-  const formattedDate = linkedAt
-    ? new Date(linkedAt).toLocaleDateString("ru-RU", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      })
-    : null;
+  const formattedDate = linkedAt ? formatDate(linkedAt, "long", "") : null;
 
   return (
     <Card>

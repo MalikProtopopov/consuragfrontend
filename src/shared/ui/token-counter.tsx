@@ -3,22 +3,9 @@
 import * as React from "react";
 import Link from "next/link";
 import { Coins } from "lucide-react";
-import { cn } from "@/shared/lib";
+import { cn, formatCompact } from "@/shared/lib";
 import { ROUTES } from "@/shared/config";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
-
-/**
- * Format large numbers to compact form (e.g., 65000 -> "65K")
- */
-function formatCompact(value: number): string {
-  if (value >= 1_000_000) {
-    return `${(value / 1_000_000).toFixed(1)}M`;
-  }
-  if (value >= 1_000) {
-    return `${Math.round(value / 1_000)}K`;
-  }
-  return value.toString();
-}
 
 /**
  * Get color based on usage percentage

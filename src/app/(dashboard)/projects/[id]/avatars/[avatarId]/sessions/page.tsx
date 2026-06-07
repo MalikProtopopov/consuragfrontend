@@ -15,6 +15,7 @@ import { ScrollArea } from "@/shared/ui/scroll-area";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Checkbox } from "@/shared/ui/checkbox";
 import { Label } from "@/shared/ui/label";
+import { formatDate } from "@/shared/lib";
 import type { ChatSource, ChatSession } from "@/shared/types/api";
 
 interface SessionsPageProps {
@@ -132,17 +133,6 @@ function SessionRow({ session }: { session: ChatSession }) {
   const SourceIcon = session.source ? sourceIcons[session.source] : Globe;
   const sourceLabel = session.source ? sourceLabels[session.source] : "Неизвестно";
 
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("ru-RU", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   return (
     <TableRow>
       <TableCell className="font-mono text-xs">{session.id.slice(0, 8)}...</TableCell>
@@ -159,7 +149,7 @@ function SessionRow({ session }: { session: ChatSession }) {
           {session.is_active ? "Активна" : "Закрыта"}
         </Badge>
       </TableCell>
-      <TableCell>{formatDate(session.last_activity_at)}</TableCell>
+      <TableCell>{formatDate(session.last_activity_at, "datetime-short")}</TableCell>
       <TableCell className="text-right">
         <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
           <DialogTrigger asChild>

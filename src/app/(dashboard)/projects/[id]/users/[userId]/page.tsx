@@ -36,7 +36,7 @@ import { Progress } from "@/shared/ui/progress";
 import { Separator } from "@/shared/ui/separator";
 import { ROUTES } from "@/shared/config";
 import { toast } from "sonner";
-import { getApiErrorMessage, cn } from "@/shared/lib";
+import { getApiErrorMessage, cn, formatDate, formatRelativeTime } from "@/shared/lib";
 import type { IdentityProvider, UpdateEndUserLimitsRequest } from "@/shared/types/api";
 // Hash removed from imports as unused
 
@@ -44,32 +44,6 @@ interface EndUserDetailPageProps {
   params: Promise<{ id: string; userId: string }>;
 }
 
-function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  return date.toLocaleString("ru-RU", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function formatRelativeTime(dateString: string): string {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMins < 1) return "только что";
-  if (diffMins < 60) return `${diffMins} мин. назад`;
-  if (diffHours < 24) return `${diffHours} ч. назад`;
-  if (diffDays === 1) return "вчера";
-  if (diffDays < 7) return `${diffDays} дн. назад`;
-  return date.toLocaleDateString("ru-RU");
-}
 
 function getProviderIcon(provider: IdentityProvider): string {
   switch (provider) {
@@ -442,11 +416,11 @@ export default function EndUserDetailPage({ params }: EndUserDetailPageProps) {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-text-muted">Первый контакт</span>
-                  <span className="text-text-secondary">{formatDate(user.first_seen_at)}</span>
+                  <span className="text-text-secondary">{formatDate(user.first_seen_at, "datetime")}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-text-muted">Последняя активность</span>
-                  <span className="text-text-secondary">{formatDate(user.last_seen_at)}</span>
+                  <span className="text-text-secondary">{formatDate(user.last_seen_at, "datetime")}</span>
                 </div>
               </div>
             </CardContent>

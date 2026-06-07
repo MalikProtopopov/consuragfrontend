@@ -2,20 +2,7 @@
 
 import * as React from "react";
 import * as ProgressPrimitive from "@radix-ui/react-progress";
-import { cn } from "@/shared/lib";
-
-/**
- * Format large numbers to compact form (e.g., 65000 -> "65K")
- */
-function formatTokens(value: number): string {
-  if (value >= 1_000_000) {
-    return `${(value / 1_000_000).toFixed(1)}M`;
-  }
-  if (value >= 1_000) {
-    return `${(value / 1_000).toFixed(0)}K`;
-  }
-  return value.toString();
-}
+import { cn, formatCompact } from "@/shared/lib";
 
 /**
  * Get color scheme based on usage percentage
@@ -80,7 +67,7 @@ const UsageProgressBar = React.forwardRef<HTMLDivElement, UsageProgressBarProps>
           <span className="font-medium text-text-primary">{label}</span>
           <div className="flex items-center gap-2">
             <span className="text-text-secondary">
-              {formatTokens(used)} / {formatTokens(limit)}
+              {formatCompact(used)} / {formatCompact(limit)}
             </span>
             {showPercent && (
               <span
@@ -117,7 +104,7 @@ const UsageProgressBar = React.forwardRef<HTMLDivElement, UsageProgressBarProps>
         {/* Bonus tokens info */}
         {bonus > 0 && (
           <p className="text-xs text-text-muted">
-            + {formatTokens(bonus)} бонусных токенов (всего: {formatTokens(totalAvailable)})
+            + {formatCompact(bonus)} бонусных токенов (всего: {formatCompact(totalAvailable)})
           </p>
         )}
       </div>
@@ -126,5 +113,5 @@ const UsageProgressBar = React.forwardRef<HTMLDivElement, UsageProgressBarProps>
 );
 UsageProgressBar.displayName = "UsageProgressBar";
 
-export { UsageProgressBar, formatTokens, getColorScheme };
+export { UsageProgressBar, getColorScheme };
 

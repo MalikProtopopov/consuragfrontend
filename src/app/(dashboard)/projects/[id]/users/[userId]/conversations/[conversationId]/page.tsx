@@ -39,47 +39,13 @@ import {
 } from "@/shared/ui/dialog";
 import { ROUTES } from "@/shared/config";
 import { toast } from "sonner";
-import { getApiErrorMessage, cn } from "@/shared/lib";
+import { getApiErrorMessage, cn, formatDate, formatTime, formatRelativeTime } from "@/shared/lib";
 import type { ConversationMessage } from "@/shared/types/api";
 
 interface ConversationDetailPageProps {
   params: Promise<{ id: string; userId: string; conversationId: string }>;
 }
 
-function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  return date.toLocaleString("ru-RU", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function formatTime(dateString: string): string {
-  const date = new Date(dateString);
-  return date.toLocaleTimeString("ru-RU", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function formatRelativeTime(dateString: string): string {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMins < 1) return "только что";
-  if (diffMins < 60) return `${diffMins} мин. назад`;
-  if (diffHours < 24) return `${diffHours} ч. назад`;
-  if (diffDays === 1) return "вчера";
-  if (diffDays < 7) return `${diffDays} дн. назад`;
-  return date.toLocaleDateString("ru-RU");
-}
 
 function MessageBubble({ message }: { message: ConversationMessage }) {
   const isUser = message.direction === "in" || message.role === "user";
@@ -343,7 +309,7 @@ export default function ConversationDetailPage({ params }: ConversationDetailPag
               <div>
                 <p className="text-sm text-text-muted">Начат</p>
                 <p className="font-medium text-text-primary">
-                  {formatDate(conversation.started_at)}
+                  {formatDate(conversation.started_at, "datetime")}
                 </p>
               </div>
             </div>

@@ -13,29 +13,10 @@ import { ScrollArea } from "@/shared/ui/scroll-area";
 import { Spinner } from "@/shared/ui/spinner";
 import { ROUTES } from "@/shared/config";
 import { toast } from "sonner";
-import { getApiErrorMessage, cn } from "@/shared/lib";
+import { getApiErrorMessage, cn, formatDate, formatTime } from "@/shared/lib";
 
 interface TelegramSessionDetailPageProps {
   params: Promise<{ id: string; sessionId: string }>;
-}
-
-function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  return date.toLocaleString("ru-RU", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function formatTime(dateString: string): string {
-  const date = new Date(dateString);
-  return date.toLocaleTimeString("ru-RU", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 }
 
 export default function TelegramSessionDetailPage({ params }: TelegramSessionDetailPageProps) {
@@ -160,7 +141,7 @@ export default function TelegramSessionDetailPage({ params }: TelegramSessionDet
               </div>
               <div>
                 <p className="text-sm text-text-muted">Создана</p>
-                <p className="font-medium text-text-primary">{formatDate(session.created_at)}</p>
+                <p className="font-medium text-text-primary">{formatDate(session.created_at, "datetime")}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -171,7 +152,7 @@ export default function TelegramSessionDetailPage({ params }: TelegramSessionDet
               </div>
               <div>
                 <p className="text-sm text-text-muted">Последнее сообщение</p>
-                <p className="font-medium text-text-primary">{formatDate(session.last_message_at)}</p>
+                <p className="font-medium text-text-primary">{formatDate(session.last_message_at, "datetime")}</p>
               </div>
             </div>
           </div>

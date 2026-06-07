@@ -11,31 +11,10 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import { cn } from "@/shared/lib";
+import { cn, formatCompact, formatDate } from "@/shared/lib";
 import type { DailyUsage } from "@/shared/types/api";
 
 type Period = "7d" | "30d" | "90d";
-
-/**
- * Format date for chart display
- */
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
-}
-
-/**
- * Format token value for axis/tooltip
- */
-function formatTokenValue(value: number): string {
-  if (value >= 1_000_000) {
-    return `${(value / 1_000_000).toFixed(1)}M`;
-  }
-  if (value >= 1_000) {
-    return `${Math.round(value / 1_000)}K`;
-  }
-  return value.toString();
-}
 
 interface UsageChartProps {
   data: DailyUsage[];
@@ -89,7 +68,7 @@ const CustomTooltip = ({ active, payload, label, showCost }: CustomTooltipProps)
               </span>
             </span>
             <span className="font-medium text-text-primary">
-              {formatTokenValue(entry.value)}
+              {formatCompact(entry.value)}
             </span>
           </div>
         ))}
@@ -121,7 +100,7 @@ const UsageChart = React.forwardRef<HTMLDivElement, UsageChartProps>(
     const chartData = React.useMemo(() => {
       return data.map((item) => ({
         ...item,
-        formattedDate: formatDate(item.date),
+        formattedDate: formatDate(item.date, "day-month"),
       }));
     }, [data]);
 
@@ -186,7 +165,7 @@ const UsageChart = React.forwardRef<HTMLDivElement, UsageChartProps>(
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
-                  tickFormatter={formatTokenValue}
+                  tickFormatter={formatCompact}
                 />
                 <Tooltip content={<CustomTooltip showCost={showCost} />} />
                 <Legend
