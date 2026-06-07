@@ -23,13 +23,11 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI Avatar Platform - Админ-панель",
-  description: "Управление AI-консультантами и аватарами",
+  title: "Avatar AI — кабинет",
+  description: "AI-консультанты по вашим документам: управление, обучение, Telegram-интеграция",
   robots: "noindex, nofollow",
-  icons: {
-    icon: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
-  },
+  // favicon: src/app/icon.svg (бренд-знак >_) + src/app/favicon.ico (fallback) —
+  // Next.js раздаёт их автоматически, явные ссылки не нужны
 };
 
 export default function RootLayout({

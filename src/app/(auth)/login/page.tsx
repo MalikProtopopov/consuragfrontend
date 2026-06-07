@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { LoginForm } from "@/features/auth";
 
 export const metadata: Metadata = {
-  title: "Вход | AI Avatar Platform",
-  description: "Войдите в свой аккаунт AI Avatar Platform",
+  title: "Вход | Avatar AI",
+  description: "Войдите в свой аккаунт Avatar AI",
 };
 
 export default function LoginPage() {

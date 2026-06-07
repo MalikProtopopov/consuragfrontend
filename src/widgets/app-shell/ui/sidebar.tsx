@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { Logo, BRAND_NAME } from "@/shared/ui/logo";
 
 import Link from "next/link";
 import { usePathname, useParams } from "next/navigation";
@@ -256,11 +257,9 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
           <div className="flex h-16 items-center border-b border-border px-4">
             {logo || (
               <Link href="/projects" className="flex items-center gap-2">
-                <div className="flex size-8 items-center justify-center rounded-lg bg-accent-primary text-accent-contrast font-semibold">
-                  A
-                </div>
+                <Logo size="sm" />
                 {!collapsed && (
-                  <span className="font-semibold text-lg text-text-primary">Avatar AI</span>
+                  <span className="font-mono font-semibold text-lg text-text-primary">{BRAND_NAME}</span>
                 )}
               </Link>
             )}

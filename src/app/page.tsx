@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Logo } from "@/shared/ui/logo";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -109,12 +110,7 @@ export default function HomePage() {
       <header className="sticky top-0 z-50 w-full border-b border-border bg-bg-primary/95 backdrop-blur supports-[backdrop-filter]:bg-bg-primary/60">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           {/* Logo */}
-          <div className="flex items-center gap-3">
-            <div className="flex size-9 items-center justify-center rounded-lg bg-[image:var(--gradient-primary)] text-[var(--primary-foreground)] font-mono font-bold shadow-sm">
-              A
-            </div>
-            <span className="font-semibold text-lg text-text-primary">Avatar AI</span>
-          </div>
+          <Logo size="md" withText />
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center gap-6">
@@ -274,7 +270,7 @@ export default function HomePage() {
             <span className="font-mono tabular-nums">
               {new Date().getFullYear()}
             </span>{" "}
-            AI Avatar Platform
+            Avatar AI
           </p>
         </div>
       </footer>

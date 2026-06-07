@@ -37,7 +37,7 @@ export default function PlatformAnalyticsPage() {
     <PageContainer>
       <PageHeader
         title="Аналитика платформы"
-        description="Статистика использования AI Avatar Platform"
+        description="Статистика использования Avatar AI"
       />
 
       {/* Users Section */}

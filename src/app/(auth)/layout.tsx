@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
+import { Logo, BRAND_NAME } from "@/shared/ui/logo";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { tokenManager } from "@/shared/api";
@@ -42,24 +43,12 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
       <div className="relative w-full max-w-md">
         {/* Logo */}
         <div className="mb-8 text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[image:var(--gradient-primary)] mb-4 shadow-sm">
-            <svg
-              className="w-8 h-8 text-[var(--primary-foreground)]"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-              />
-            </svg>
+          <div className="mb-4 inline-flex">
+            <Logo size="lg" />
           </div>
-          <h1 className="text-2xl font-bold text-text-primary">AI Avatar Platform</h1>
+          <h1 className="text-2xl font-bold text-text-primary">{BRAND_NAME}</h1>
           <p className="text-text-secondary mt-1">
-            Платформа для создания AI-консультантов
+            AI-консультанты по вашим документам — в Telegram и на сайте
           </p>
         </div>
 
@@ -70,7 +59,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
 
         {/* Footer */}
         <p className="mt-8 text-center text-xs text-text-muted">
-          © {new Date().getFullYear()} AI Avatar Platform. Все права защищены.
+          © {new Date().getFullYear()} Avatar AI. Все права защищены.
         </p>
       </div>
     </div>

@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { RegisterForm } from "@/features/auth";
 
 export const metadata: Metadata = {
-  title: "Регистрация | AI Avatar Platform",
-  description: "Создайте аккаунт в AI Avatar Platform",
+  title: "Регистрация | Avatar AI",
+  description: "Создайте аккаунт Avatar AI",
 };
 
 export default function RegisterPage() {
