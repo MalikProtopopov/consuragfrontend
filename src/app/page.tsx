@@ -22,10 +22,16 @@ import { useAuthStore, useMe, authApi } from "@/entities/auth";
 import { useUsageSummary } from "@/entities/billing";
 import { tokenManager } from "@/shared/api";
 import { Button } from "@/shared/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
+import { NumberTicker } from "@/shared/ui/number-ticker";
 import { PlanBadge } from "@/shared/ui/plan-badge";
 import { ShimmerButton } from "@/shared/ui/shimmer-button";
 import { Skeleton } from "@/shared/ui/skeleton";
+import { TextScramble } from "@/shared/ui/text-scramble";
+import {
+  AnimatedSpan,
+  Terminal,
+  TypingAnimation,
+} from "@/shared/ui/terminal";
 
 // Тяжёлый анимированный фон — только на клиенте.
 const AnimatedGridPattern = dynamic(
@@ -81,22 +87,11 @@ export default function HomePage() {
   const currentPlan = usageSummary?.plan ?? "free";
   const shouldShowUpgrade = currentPlan === "free" || currentPlan === "starter";
 
+  // Компактная полоса фич под терминалом (иконка + короткий факт, без карточек).
   const features = [
-    {
-      icon: Bot,
-      title: "AI-аватары",
-      description: "Создавайте консультантов с уникальными промптами и настройками LLM",
-    },
-    {
-      icon: FileText,
-      title: "База знаний",
-      description: "Загружайте PDF, DOCX, TXT — аватар отвечает на их основе",
-    },
-    {
-      icon: Send,
-      title: "Telegram",
-      description: "Подключите бота и общайтесь с аватаром в мессенджере",
-    },
+    { icon: FileText, label: "RAG по вашим PDF, DOCX, TXT" },
+    { icon: Send, label: "Один бот в Telegram + чат-виджет" },
+    { icon: Bot, label: "Лимиты токенов и тарифы из коробки" },
   ];
 
   // Show loading while checking auth
@@ -194,18 +189,22 @@ export default function HomePage() {
               </motion.div>
             )}
 
-            {/* Title */}
+            {/* Title — ключевая часть с decrypt-эффектом */}
             <motion.h1
-              className="text-3xl md:text-5xl font-bold text-text-primary tracking-tight"
+              className="text-3xl md:text-5xl font-bold text-text-primary tracking-tight font-mono"
               {...fadeUp(1)}
             >
-              AI <span className="text-gradient">Avatar</span> Platform
+              <TextScramble duration={1} speed={0.03}>
+                Аватар читает ваши документы
+              </TextScramble>{" "}
+              и отвечает клиентам в <span className="text-gradient">Telegram</span>
             </motion.h1>
 
-            {/* Subtitle */}
+            {/* Subtitle — конкретика продукта */}
             <motion.p className="text-lg text-text-secondary max-w-xl mx-auto" {...fadeUp(2)}>
-              Создавайте умных AI-консультантов на основе ваших документов.
-              Интегрируйте в Telegram за минуты.
+              Загрузите PDF — получите AI-консультанта, который отвечает по вашей базе
+              знаний через RAG. Telegram-бот и чат-виджет, лимиты токенов и тарифы — без
+              кода.
             </motion.p>
 
             {/* CTA Buttons */}
@@ -229,35 +228,115 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Demo Section — терминал с живой сессией продукта вместо рассказа о нём */}
       <section className="py-16 bg-bg-secondary/50">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl font-bold text-text-primary mb-2">Возможности платформы</h2>
+          <div className="text-center mb-10">
+            <h2 className="text-2xl font-bold text-text-primary mb-2 font-mono">
+              PDF → готовый консультант
+            </h2>
             <p className="text-text-secondary">
-              Всё необходимое для создания AI-консультантов
+              От документа до бота в Telegram — две команды
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          {/* Terminal-окно с демо-сессией */}
+          <Terminal title="avatar — demo session" className="mx-auto">
+            <TypingAnimation delay={300} className="text-text-secondary">
+              $ avatar create --from docs/price-list.pdf
+            </TypingAnimation>
+            <AnimatedSpan delay={1600} className="text-accent-primary">
+              ✓ 142 chunks indexed · 1.2 MB
+            </AnimatedSpan>
+
+            <TypingAnimation delay={2200} className="text-text-secondary">
+              $ avatar deploy --telegram @my_shop_bot
+            </TypingAnimation>
+            <AnimatedSpan delay={3600} className="text-accent-primary">
+              ✓ live · webhook ok
+            </AnimatedSpan>
+
+            <AnimatedSpan delay={4400} className="pt-2 text-text-muted">
+              # @my_shop_bot
+            </AnimatedSpan>
+            <AnimatedSpan delay={4800}>
+              <span className="text-burgundy">client&gt;</span>{" "}
+              <span className="text-text-primary">Сколько стоит доставка?</span>
+            </AnimatedSpan>
+            <AnimatedSpan delay={5400}>
+              <span className="text-accent-primary">avatar&gt;</span>{" "}
+              <span className="text-text-secondary">
+                Доставка по Москве — 300 ₽, бесплатно от 5000 ₽.
+              </span>
+            </AnimatedSpan>
+          </Terminal>
+
+          {/* Компактная полоса фич — одной строкой, без карточек */}
+          <div className="mx-auto mt-8 flex max-w-2xl flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
             {features.map((feature) => {
               const Icon = feature.icon;
               return (
-                <Card key={feature.title} className="card-hover-gradient border-border/50">
-                  <CardHeader>
-                    <div className="size-12 rounded-lg bg-accent-primary/10 flex items-center justify-center mb-4">
-                      <Icon className="size-6 text-accent-primary" />
-                    </div>
-                    <CardTitle className="text-lg text-text-primary">{feature.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <CardDescription className="text-text-secondary">
-                      {feature.description}
-                    </CardDescription>
-                  </CardContent>
-                </Card>
+                <div
+                  key={feature.label}
+                  className="flex items-center gap-2 text-sm text-text-secondary"
+                >
+                  <Icon className="size-4 shrink-0 text-accent-primary" aria-hidden />
+                  <span>{feature.label}</span>
+                </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section — счётчики с NumberTicker */}
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-3 max-w-3xl mx-auto text-center">
+            <div className="space-y-1">
+              <div className="text-3xl md:text-4xl font-bold text-text-primary">
+                <NumberTicker value={142} />
+                <span className="text-accent-primary"> chunks</span>
+              </div>
+              <p className="text-sm text-text-muted">проиндексировано из одного PDF</p>
+            </div>
+            <div className="space-y-1">
+              <div className="text-3xl md:text-4xl font-bold text-text-primary">
+                &lt;<NumberTicker value={2} />
+                <span className="text-accent-primary"> сек</span>
+              </div>
+              <p className="text-sm text-text-muted">средний ответ аватара</p>
+            </div>
+            <div className="space-y-1">
+              <div className="text-3xl md:text-4xl font-bold text-text-primary">
+                <NumberTicker value={2} />
+                <span className="text-accent-primary"> канала</span>
+              </div>
+              <p className="text-sm text-text-muted">Telegram-бот и чат-виджет</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-16 bg-bg-secondary/50">
+        <div className="container mx-auto px-4">
+          <div className="mx-auto max-w-2xl text-center space-y-6">
+            <h2 className="text-2xl md:text-3xl font-bold text-text-primary font-mono">
+              Загрузите первый документ
+            </h2>
+            <p className="text-text-secondary">
+              Создайте проект, добавьте PDF и подключите бота — аватар начнёт отвечать
+              по вашей базе знаний.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link href={shouldShowUpgrade ? "/settings/usage" : "/projects"}>
+                <ShimmerButton className="px-7 py-3 text-base">
+                  {shouldShowUpgrade ? "Повысить тариф" : "Создать аватар"}
+                  <ArrowRight className="size-4" />
+                </ShimmerButton>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
