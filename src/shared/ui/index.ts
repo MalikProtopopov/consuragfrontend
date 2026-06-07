@@ -73,3 +73,4 @@ export * from "./terminal";
 export * from "./avatar-identity";
 export * from "./dot-pattern";
 export * from "./ai-input";
+export * from "./search-input";

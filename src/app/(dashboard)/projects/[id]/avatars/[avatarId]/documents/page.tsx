@@ -9,6 +9,7 @@ import { PageContainer, PageHeader } from "@/widgets/app-shell";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
+import { SearchInput } from "@/shared/ui/search-input";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { toast } from "sonner";
 import { getApiErrorMessage } from "@/shared/lib";
@@ -25,9 +26,14 @@ export default function DocumentsPage({ params }: DocumentsPageProps) {
   const { mutate: uploadDocument, isPending: uploading } = useUploadDocument();
 
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [query, setQuery] = useState("");
 
   const isLoading = avatarLoading || documentsLoading;
   const documents = documentsData?.items || [];
+  const q = query.trim().toLowerCase();
+  const visibleDocs = q
+    ? documents.filter((d) => d.original_filename?.toLowerCase().includes(q))
+    : documents;
   // A-02: есть готовый (проиндексированный) документ → можно тестировать в чате.
   const hasIndexedDoc = documents.some((doc) => doc.parsing_status === "indexed");
 
@@ -124,27 +130,38 @@ export default function DocumentsPage({ params }: DocumentsPageProps) {
               </Button>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Документ</TableHead>
-                  <TableHead>Размер</TableHead>
-                  <TableHead>Чанков</TableHead>
-                  <TableHead>Статус</TableHead>
-                  <TableHead className="text-right">Действия</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {documents.map((doc) => (
-                  <DocumentRow
-                    key={doc.id}
-                    document={doc}
-                    projectId={projectId}
-                    avatarId={avatarId}
-                  />
-                ))}
-              </TableBody>
-            </Table>
+            <>
+              {documents.length > 5 && (
+                <div className="mb-4 max-w-xs">
+                  <SearchInput value={query} onChange={setQuery} placeholder="Поиск документов…" />
+                </div>
+              )}
+              {visibleDocs.length === 0 ? (
+                <p className="py-8 text-center text-text-muted">Ничего не найдено</p>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Документ</TableHead>
+                      <TableHead>Размер</TableHead>
+                      <TableHead>Чанков</TableHead>
+                      <TableHead>Статус</TableHead>
+                      <TableHead className="text-right">Действия</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {visibleDocs.map((doc) => (
+                      <DocumentRow
+                        key={doc.id}
+                        document={doc}
+                        projectId={projectId}
+                        avatarId={avatarId}
+                      />
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </>
           )}
         </CardContent>
       </Card>

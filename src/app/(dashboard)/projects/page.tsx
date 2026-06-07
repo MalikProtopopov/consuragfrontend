@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Plus, FolderKanban } from "lucide-react";
 import { useProjects } from "@/entities/project";
@@ -9,13 +10,26 @@ import { PageContainer, PageHeader } from "@/widgets/app-shell";
 import { Button } from "@/shared/ui/button";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { EmptyState } from "@/shared/ui/empty-state";
+import { SearchInput } from "@/shared/ui/search-input";
 
 export default function ProjectsPage() {
   const { user } = useAuthStore();
   const { data, isLoading } = useProjects();
+  const [query, setQuery] = useState("");
 
-  const projects = data?.items || [];
+  const projects = useMemo(() => data?.items || [], [data]);
   const canCreate = canCreateProject(user);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return projects;
+    return projects.filter(
+      (p) =>
+        p.name.toLowerCase().includes(q) ||
+        p.slug.toLowerCase().includes(q) ||
+        (p.description?.toLowerCase().includes(q) ?? false),
+    );
+  }, [projects, query]);
 
   return (
     <PageContainer>
@@ -61,11 +75,24 @@ export default function ProjectsPage() {
           }
         />
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
-          ))}
-        </div>
+        <>
+          {projects.length > 5 && (
+            <div className="mb-6 max-w-sm">
+              <SearchInput value={query} onChange={setQuery} placeholder="Поиск проектов…" />
+            </div>
+          )}
+          {filtered.length === 0 ? (
+            <p className="py-12 text-center text-text-muted">
+              Ничего не найдено по запросу «{query}»
+            </p>
+          ) : (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {filtered.map((project) => (
+                <ProjectCard key={project.id} project={project} />
+              ))}
+            </div>
+          )}
+        </>
       )}
     </PageContainer>
   );
