@@ -1,3 +1,4 @@
+import { Bot, LineChart, Mail } from "lucide-react";
 import type { ConfigCategory, PlatformKeyType } from "@/shared/types/api";
 
 /**
@@ -7,19 +8,19 @@ export const PLATFORM_CONFIG_CATEGORIES: ConfigCategory[] = [
   {
     id: "llm",
     name: "LLM Providers",
-    icon: "🤖",
+    icon: Bot,
     keys: ["openai_api_key", "anthropic_api_key"],
   },
   {
     id: "monitoring",
     name: "Monitoring",
-    icon: "📊",
+    icon: LineChart,
     keys: ["langsmith_api_key", "sentry_dsn"],
   },
   {
     id: "email",
     name: "Email",
-    icon: "📧",
+    icon: Mail,
     keys: ["smtp_password"],
   },
 ];

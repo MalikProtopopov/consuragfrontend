@@ -1,5 +1,3 @@
-import * as React from "react";
-import { Send, Link2, Key } from "lucide-react";
 import { ConfigCard, Skeleton } from "@/shared/ui";
 import {
   PROJECT_SECRET_CATEGORIES,
@@ -7,12 +5,6 @@ import {
   PROJECT_SECRET_DESCRIPTIONS,
 } from "@/entities/project-secret";
 import type { ProjectSecret, ProjectSecretType } from "@/shared/types/api";
-
-const categoryIcons: Record<string, React.ElementType> = {
-  telegram: Send,
-  webhooks: Link2,
-  custom: Key,
-};
 
 interface SecretsGridProps {
   isLoading: boolean;
@@ -34,7 +26,7 @@ export function SecretsGrid({
   return (
     <div className="space-y-8">
       {PROJECT_SECRET_CATEGORIES.map((category) => {
-        const Icon = categoryIcons[category.id] ?? Key;
+        const Icon = category.icon;
 
         return (
           <section key={category.id}>

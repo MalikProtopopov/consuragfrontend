@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/sha
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { ActiveStatusBadge } from "@/shared/ui/status-badge";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/shared/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
 import { Skeleton } from "@/shared/ui/skeleton";
@@ -157,10 +158,16 @@ export default function TelegramSessionsPage({ params }: TelegramSessionsPagePro
                           </span>
                         </TableCell>
                         <TableCell className="text-center">
-                          <ActiveStatusBadge
-                            active={session.is_active}
-                            label={session.is_active ? "Активна" : "Неактивна"}
-                          />
+                          {session.is_active ? (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="status-dot status-dot-active inline-block" />
+                              </TooltipTrigger>
+                              <TooltipContent>Активна</TooltipContent>
+                            </Tooltip>
+                          ) : (
+                            <ActiveStatusBadge active={false} label="Неактивна" />
+                          )}
                         </TableCell>
                       </TableRow>
                     ))}

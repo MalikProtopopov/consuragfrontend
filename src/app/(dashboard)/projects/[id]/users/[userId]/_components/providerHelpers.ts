@@ -1,17 +1,18 @@
+import { Send, Globe, MessageCircle, Mail, User, type LucideIcon } from "lucide-react";
 import type { IdentityProvider } from "@/shared/types/api";
 
-export function getProviderIcon(provider: IdentityProvider): string {
+export function getProviderIcon(provider: IdentityProvider): LucideIcon {
   switch (provider) {
     case "telegram":
-      return "📱";
+      return Send;
     case "web":
-      return "🌐";
+      return Globe;
     case "whatsapp":
-      return "💬";
+      return MessageCircle;
     case "email":
-      return "📧";
+      return Mail;
     default:
-      return "👤";
+      return User;
   }
 }
 

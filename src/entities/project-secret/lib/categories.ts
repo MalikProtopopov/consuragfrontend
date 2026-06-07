@@ -1,3 +1,4 @@
+import { Send, Link2, Key } from "lucide-react";
 import type { ConfigCategory, ProjectSecretType } from "@/shared/types/api";
 
 /**
@@ -7,19 +8,19 @@ export const PROJECT_SECRET_CATEGORIES: ConfigCategory[] = [
   {
     id: "telegram",
     name: "Telegram",
-    icon: "📱",
+    icon: Send,
     keys: ["telegram_bot_token"],
   },
   {
     id: "webhooks",
     name: "Webhooks",
-    icon: "🔗",
+    icon: Link2,
     keys: ["webhook_secret"],
   },
   {
     id: "custom",
     name: "Custom",
-    icon: "🔑",
+    icon: Key,
     keys: ["custom_api_key"],
   },
 ];

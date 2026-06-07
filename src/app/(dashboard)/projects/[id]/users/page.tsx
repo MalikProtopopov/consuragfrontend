@@ -2,7 +2,18 @@
 
 import { use, useState } from "react";
 import Link from "next/link";
-import { Search, Users, Ban, MoreHorizontal, MessageCircle } from "lucide-react";
+import {
+  Search,
+  Users,
+  Ban,
+  MoreHorizontal,
+  MessageCircle,
+  Send,
+  Globe,
+  Mail,
+  User,
+  type LucideIcon,
+} from "lucide-react";
 import { useEndUsers } from "@/entities/end-user";
 import { PageContainer, PageHeader } from "@/widgets/app-shell";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/ui/card";
@@ -10,6 +21,7 @@ import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Badge } from "@/shared/ui/badge";
 import { EndUserStatusBadge } from "@/shared/ui/status-badge";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/shared/ui/tooltip";
 import {
   Select,
   SelectContent,
@@ -44,18 +56,18 @@ interface EndUsersPageProps {
 type StatusFilter = EndUserStatus | "all";
 type ChannelFilter = IdentityProvider | "all";
 
-function getChannelIcon(channel: IdentityProvider | null): string {
+function getChannelIcon(channel: IdentityProvider | null): LucideIcon {
   switch (channel) {
     case "telegram":
-      return "📱";
+      return Send;
     case "web":
-      return "🌐";
+      return Globe;
     case "whatsapp":
-      return "💬";
+      return MessageCircle;
     case "email":
-      return "📧";
+      return Mail;
     default:
-      return "👤";
+      return User;
   }
 }
 
@@ -235,12 +247,27 @@ export default function EndUsersPage({ params }: EndUsersPageProps) {
                           </div>
                         </TableCell>
                         <TableCell className="text-center">
-                          <span title={getChannelLabel(user.primary_channel)}>
-                            {getChannelIcon(user.primary_channel)}
-                          </span>
+                          {(() => {
+                            const ChannelIcon = getChannelIcon(user.primary_channel);
+                            return (
+                              <ChannelIcon
+                                className="size-4 inline-block text-text-secondary"
+                                aria-label={getChannelLabel(user.primary_channel)}
+                              />
+                            );
+                          })()}
                         </TableCell>
                         <TableCell className="text-center">
-                          <EndUserStatusBadge status={user.status} />
+                          {user.status === "active" ? (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="status-dot status-dot-active inline-block" />
+                              </TooltipTrigger>
+                              <TooltipContent>Активен</TooltipContent>
+                            </Tooltip>
+                          ) : (
+                            <EndUserStatusBadge status={user.status} />
+                          )}
                         </TableCell>
                         <TableCell className="text-center">
                           <span className="font-medium">{user.conversations_count}</span>

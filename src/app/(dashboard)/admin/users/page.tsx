@@ -8,6 +8,7 @@ import { PageContainer, PageHeader } from "@/widgets/app-shell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/shared/ui/tooltip";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
 import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
@@ -158,7 +159,16 @@ export default function UsersPage() {
                           <Badge variant="outline">{roleLabels[user.role]}</Badge>
                         </TableCell>
                         <TableCell>
-                          <Badge variant={status.variant}>{status.label}</Badge>
+                          {user.status === "active" ? (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="status-dot status-dot-active inline-block" />
+                              </TooltipTrigger>
+                              <TooltipContent>{status.label}</TooltipContent>
+                            </Tooltip>
+                          ) : (
+                            <Badge variant={status.variant}>{status.label}</Badge>
+                          )}
                         </TableCell>
                         <TableCell>
                           {user.is_email_verified ? (

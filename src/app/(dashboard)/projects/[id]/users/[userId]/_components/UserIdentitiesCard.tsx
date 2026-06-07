@@ -18,7 +18,9 @@ export function UserIdentitiesCard({ identities }: UserIdentitiesCardProps) {
         <CardDescription>Каналы связи пользователя</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {identities.map((identity) => (
+        {identities.map((identity) => {
+          const ProviderIcon = getProviderIcon(identity.provider);
+          return (
           <div
             key={identity.id}
             className={cn(
@@ -28,7 +30,7 @@ export function UserIdentitiesCard({ identities }: UserIdentitiesCardProps) {
           >
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <span className="text-xl">{getProviderIcon(identity.provider)}</span>
+                <ProviderIcon className="size-5 text-text-secondary" />
                 <span className="font-medium">{getProviderLabel(identity.provider)}</span>
                 {identity.is_primary && (
                   <Badge variant="secondary" className="text-xs">
@@ -60,7 +62,8 @@ export function UserIdentitiesCard({ identities }: UserIdentitiesCardProps) {
               )}
             </div>
           </div>
-        ))}
+          );
+        })}
       </CardContent>
     </Card>
   );

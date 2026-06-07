@@ -36,14 +36,18 @@ export function UserHeader({
             </h1>
             <EndUserStatusBadge status={user.status} />
           </div>
-          {primaryIdentity && (
-            <p className="text-text-muted mt-1">
-              {getProviderIcon(primaryIdentity.provider)}{" "}
-              {primaryIdentity.username
-                ? `@${primaryIdentity.username}`
-                : `ID: ${primaryIdentity.external_id}`}
-            </p>
-          )}
+          {primaryIdentity &&
+            (() => {
+              const ProviderIcon = getProviderIcon(primaryIdentity.provider);
+              return (
+                <p className="text-text-muted mt-1 flex items-center gap-1.5">
+                  <ProviderIcon className="size-4" />
+                  {primaryIdentity.username
+                    ? `@${primaryIdentity.username}`
+                    : `ID: ${primaryIdentity.external_id}`}
+                </p>
+              );
+            })()}
           {user.blocked_reason && (
             <p className="text-sm text-destructive mt-1">
               Причина блокировки: {user.blocked_reason}

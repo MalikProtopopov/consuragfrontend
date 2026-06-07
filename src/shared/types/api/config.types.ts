@@ -3,6 +3,8 @@
  * For managing platform API keys (SAAS_ADMIN) and project secrets (OWNER)
  */
 
+import type { LucideIcon } from "lucide-react";
+
 // ==================== Platform Config Types (SAAS_ADMIN) ====================
 
 /**
@@ -167,7 +169,7 @@ export type ConfigErrorCode =
 export interface ConfigCategory {
   id: string;
   name: string;
-  icon: string;
+  icon: LucideIcon;
   keys: string[];
 }
 

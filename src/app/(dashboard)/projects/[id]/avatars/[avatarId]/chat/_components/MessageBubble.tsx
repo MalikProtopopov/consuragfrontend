@@ -3,7 +3,7 @@
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import type { Components } from "react-markdown";
-import { ThumbsUp, ThumbsDown, Bot, User } from "lucide-react";
+import { ThumbsUp, ThumbsDown, Bot, User, FileText } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
 import { Skeleton } from "@/shared/ui/skeleton";
@@ -115,8 +115,9 @@ export function MessageBubble({
         {message.sources && message.sources.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {message.sources.map((source, i) => (
-              <Badge key={i} variant="outline" className="text-xs">
-                📄 {source.filename}
+              <Badge key={i} variant="outline" className="text-xs gap-1">
+                <FileText className="inline size-3.5" />
+                {source.filename}
               </Badge>
             ))}
           </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Bot, LineChart, Mail, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageContainer, PageHeader } from "@/widgets/app-shell/ui/app-shell";
@@ -18,15 +18,6 @@ import {
   PLATFORM_KEY_DESCRIPTIONS,
   PLATFORM_KEY_PLACEHOLDERS,
 } from "@/entities/platform-config";
-
-/**
- * Category icons mapping
- */
-const categoryIcons: Record<string, React.ElementType> = {
-  llm: Bot,
-  monitoring: LineChart,
-  email: Mail,
-};
 
 /**
  * Platform Settings Page (SAAS_ADMIN)
@@ -184,7 +175,7 @@ export default function PlatformSettingsPage() {
 
       <div className="space-y-8">
         {PLATFORM_CONFIG_CATEGORIES.map((category) => {
-          const Icon = categoryIcons[category.id] ?? Bot;
+          const Icon = category.icon;
 
           return (
             <section key={category.id}>
