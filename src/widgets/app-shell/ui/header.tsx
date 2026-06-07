@@ -4,7 +4,7 @@ import * as React from "react";
 
 import Link from "next/link";
 
-import { Bell, ChevronDown, LogOut, Menu, Search, Settings, User } from "lucide-react";
+import { Bell, Check, ChevronDown, LogOut, Menu, Search, Settings, User } from "lucide-react";
 
 import { cn } from "@/shared/lib";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
@@ -26,7 +26,9 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
 import { Input } from "@/shared/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover";
 import { useAuthStore, useLogout } from "@/entities/auth";
+import { useTelegramStatus } from "@/entities/notification";
 
 export interface BreadcrumbItemData {
   title: string;
@@ -52,6 +54,8 @@ const Header = React.forwardRef<HTMLElement, HeaderProps>(
   ) => {
     const { user } = useAuthStore();
     const { mutate: logout, isPending: isLoggingOut } = useLogout();
+    const { data: tgStatus } = useTelegramStatus({ enabled: true });
+    const notifyLinked = Boolean(tgStatus?.linked && tgStatus?.notifications_enabled);
 
     const displayName = user?.full_name || user?.email || "Пользователь";
     const initials = displayName
@@ -114,13 +118,48 @@ const Header = React.forwardRef<HTMLElement, HeaderProps>(
 
         {/* Actions */}
         <div className="flex items-center gap-2">
-          {/* Notifications */}
-          <Button variant="ghost" size="icon" className="relative" asChild>
-            <Link href="/settings/notifications">
-              <Bell className="size-5" />
-              <span className="sr-only">Уведомления</span>
-            </Link>
-          </Button>
+          {/* Notifications (N-04): уведомления приходят в Telegram — поповер со статусом */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" size="icon" className="relative" aria-label="Уведомления">
+                <Bell className="size-5" />
+                {tgStatus && !notifyLinked && (
+                  <span className="absolute right-1.5 top-1.5 size-2 rounded-full bg-warning ring-2 ring-bg-primary" />
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-72">
+              <div className="space-y-3">
+                <div>
+                  <p className="text-sm font-medium text-text-primary">Уведомления</p>
+                  <p className="mt-0.5 text-xs text-text-muted">
+                    Avatar AI присылает уведомления о событиях (готовность документов, лимиты,
+                    заявки) в Telegram.
+                  </p>
+                </div>
+                {notifyLinked ? (
+                  <div className="flex items-center gap-2 text-sm text-success">
+                    <Check className="size-4" aria-hidden />
+                    Telegram подключён
+                  </div>
+                ) : (
+                  <p className="text-sm text-text-secondary">
+                    Подключите Telegram, чтобы не пропускать события.
+                  </p>
+                )}
+                <Button
+                  asChild
+                  size="sm"
+                  variant={notifyLinked ? "outline" : "default"}
+                  className="w-full"
+                >
+                  <Link href="/settings/notifications">
+                    {notifyLinked ? "Настроить уведомления" : "Подключить Telegram"}
+                  </Link>
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
 
           {/* User menu */}
           {user && (
