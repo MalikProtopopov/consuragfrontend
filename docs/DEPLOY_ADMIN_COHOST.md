@@ -17,20 +17,17 @@
 
 Проверено: `curl -H "Host: admin.parmenid.tech" http://localhost/login` → 200, `<title>Вход | Avatar AI</title>`.
 
-## ⚠️ Что нужно сделать пользователю (вне моего доступа)
+## ✅ DNS + SSL — сделано (2026-06-07)
 
-1. **DNS:** перевести A-запись `admin.parmenid.tech` с `83.217.221.77` → **`95.140.159.9`**.
-   До этого домен публично недоступен (сейчас отдаётся только при `Host: admin.parmenid.tech` к этому серверу).
-2. **SSL (после смены DNS):** получить сертификат Let's Encrypt и добавить :443-блок:
-   ```bash
-   cd /opt/consulrag
-   docker compose --env-file .env.prod -f docker-compose.prod.yml run --rm certbot \
-     certonly --webroot -w /var/www/certbot -d admin.parmenid.tech
-   # затем добавить в nginx.conf :443 server-блок для admin.parmenid.tech
-   # (по образцу api-блока: ssl_certificate /etc/letsencrypt/live/admin.parmenid.tech/...),
-   # в :80-блоке заменить location / на: return 301 https://$host$request_uri;
-   # и перезапустить: docker restart avatar_nginx_prod
-   ```
+1. **DNS:** A-запись `admin.parmenid.tech` → `95.140.159.9` (переключено пользователем).
+2. **SSL:** выпущен сертификат Let's Encrypt (webroot HTTP-01) для `admin.parmenid.tech`
+   (`/etc/letsencrypt/live/admin.parmenid.tech/`, до 2026-09-05). В nginx добавлен :443-блок
+   (SSL-протоколы/шифры наследуются из http-уровня) + в :80-блоке `location /` →
+   `return 301 https://$host$request_uri` (с сохранением `acme-challenge`).
+   **Публично работает:** `https://admin.parmenid.tech` → 200, http → 301 → https. `api.parmenid.tech` цел.
+3. **Автообновление SSL:** уже покрыто существующим cron на сервере —
+   `0 0 * * * ... certbot renew && ... nginx -s reload` (renew обновляет ВСЕ сертификаты,
+   включая admin). Проверено `certbot renew --dry-run` — оба сертификата обновляются успешно.
 
 ## Обновление фронта в будущем
 
