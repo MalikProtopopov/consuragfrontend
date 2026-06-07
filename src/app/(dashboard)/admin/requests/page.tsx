@@ -1,108 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import {
-  FileText,
-  TrendingUp,
-  Calendar,
-  Phone,
-  Mail,
-  MessageCircle,
-  Eye,
-  Trash2,
-} from "lucide-react";
 import { usePlanRequests, useDeletePlanRequest } from "@/entities/plan-request";
 import { PageContainer, PageHeader } from "@/widgets/app-shell";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/ui/card";
-import { Badge } from "@/shared/ui/badge";
-import { PlanRequestStatusBadge } from "@/shared/ui/status-badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/shared/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/ui/select";
-import { Button } from "@/shared/ui/button";
-import { Skeleton } from "@/shared/ui/skeleton";
-import { NumberedPaginationControls } from "@/shared/ui/pagination-controls";
 import { ConfirmDialog } from "@/shared/ui/confirm-dialog";
+import { usePagination } from "@/shared/lib";
 import type {
   PlanRequestType,
   PlanRequestStatus,
   PlanRequestDetail,
 } from "@/shared/types/api";
-import { PlanRequestDetailDialog } from "./_components/PlanRequestDetailDialog";
-import { formatDate, usePagination } from "@/shared/lib";
-
-// Labels
-const statusLabels: Record<PlanRequestStatus, string> = {
-  new: "Новая",
-  in_progress: "В работе",
-  completed: "Завершена",
-  rejected: "Отклонена",
-};
-
-const typeLabels: Record<PlanRequestType, string> = {
-  plan_upgrade: "Повышение тарифа",
-  demo_request: "Запрос демо",
-  contact_sales: "Связь с продажами",
-};
-
-const TypeIcon = ({ type }: { type: PlanRequestType }) => {
-  switch (type) {
-    case "plan_upgrade":
-      return <TrendingUp className="size-4" />;
-    case "demo_request":
-      return <Calendar className="size-4" />;
-    case "contact_sales":
-      return <Phone className="size-4" />;
-  }
-};
-
-const ContactInfo = ({ request }: { request: PlanRequestDetail }) => {
-  if (request.user?.email) {
-    return (
-      <div className="flex items-center gap-1.5">
-        <Mail className="size-3.5 text-text-muted" />
-        <span className="text-sm">{request.user.email}</span>
-      </div>
-    );
-  }
-  if (request.contact_email) {
-    return (
-      <div className="flex items-center gap-1.5">
-        <Mail className="size-3.5 text-text-muted" />
-        <span className="text-sm">{request.contact_email}</span>
-      </div>
-    );
-  }
-  if (request.contact_telegram) {
-    return (
-      <div className="flex items-center gap-1.5">
-        <MessageCircle className="size-3.5 text-text-muted" />
-        <span className="text-sm">{request.contact_telegram}</span>
-      </div>
-    );
-  }
-  if (request.contact_phone) {
-    return (
-      <div className="flex items-center gap-1.5">
-        <Phone className="size-3.5 text-text-muted" />
-        <span className="text-sm">{request.contact_phone}</span>
-      </div>
-    );
-  }
-  return <span className="text-text-muted text-sm">—</span>;
-};
+import {
+  PlanRequestDetailDialog,
+  RequestsFilters,
+  RequestsTable,
+} from "./_components";
 
 export default function PlanRequestsPage() {
   const [statusFilter, setStatusFilter] = useState<PlanRequestStatus | "all">("all");
@@ -138,52 +51,19 @@ export default function PlanRequestsPage() {
         description="Управление заявками пользователей на повышение тарифа, демо и связь с продажами"
       />
 
-      {/* Filters */}
-      <div className="flex gap-4 mb-6">
-        <Select
-          value={statusFilter}
-          onValueChange={(v) => {
-            setStatusFilter(v as typeof statusFilter);
-            pagination.reset();
-          }}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Статус" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Все статусы</SelectItem>
-            {Object.entries(statusLabels).map(([value, label]) => (
-              <SelectItem key={value} value={value}>
-                {label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select
-          value={typeFilter}
-          onValueChange={(v) => {
-            setTypeFilter(v as typeof typeFilter);
-            pagination.reset();
-          }}
-        >
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Тип заявки" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Все типы</SelectItem>
-            {Object.entries(typeLabels).map(([value, label]) => (
-              <SelectItem key={value} value={value}>
-                {label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <div className="ml-auto text-sm text-text-muted self-center">
-          Всего: {total}
-        </div>
-      </div>
+      <RequestsFilters
+        statusFilter={statusFilter}
+        typeFilter={typeFilter}
+        total={total}
+        onStatusChange={(v) => {
+          setStatusFilter(v);
+          pagination.reset();
+        }}
+        onTypeChange={(v) => {
+          setTypeFilter(v);
+          pagination.reset();
+        }}
+      />
 
       <Card>
         <CardHeader>
@@ -191,87 +71,17 @@ export default function PlanRequestsPage() {
           <CardDescription>Список заявок от пользователей</CardDescription>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
-            <div className="space-y-4">
-              {[...Array(10)].map((_, i) => (
-                <Skeleton key={i} className="h-12" />
-              ))}
-            </div>
-          ) : requests.length === 0 ? (
-            <div className="text-center py-12">
-              <FileText className="mx-auto h-12 w-12 text-text-muted mb-4" />
-              <p className="text-text-secondary">Нет заявок</p>
-            </div>
-          ) : (
-            <>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Дата</TableHead>
-                    <TableHead>Тип</TableHead>
-                    <TableHead>Контакт</TableHead>
-                    <TableHead>План</TableHead>
-                    <TableHead>Статус</TableHead>
-                    <TableHead className="text-right">Действия</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {requests.map((request) => (
-                    <TableRow key={request.id} className="cursor-pointer hover:bg-bg-hover">
-                      <TableCell className="text-xs font-mono">
-                        {formatDate(request.created_at, "datetime-short")}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <TypeIcon type={request.request_type} />
-                          <span className="text-sm">{typeLabels[request.request_type]}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <ContactInfo request={request} />
-                      </TableCell>
-                      <TableCell>
-                        {request.requested_plan ? (
-                          <Badge variant="outline" className="capitalize">
-                            {request.requested_plan}
-                          </Badge>
-                        ) : (
-                          <span className="text-text-muted">—</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <PlanRequestStatusBadge status={request.status} />
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setSelectedRequest(request)}
-                          >
-                            <Eye className="size-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setDeleteRequest(request)}
-                          >
-                            <Trash2 className="size-4 text-destructive" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-
-              <NumberedPaginationControls pagination={pagination} total={data?.total} />
-            </>
-          )}
+          <RequestsTable
+            requests={requests}
+            isLoading={isLoading}
+            total={data?.total}
+            pagination={pagination}
+            onView={setSelectedRequest}
+            onDelete={setDeleteRequest}
+          />
         </CardContent>
       </Card>
 
-      {/* Detail Dialog */}
       {selectedRequest && (
         <PlanRequestDetailDialog
           request={selectedRequest}
@@ -280,7 +90,6 @@ export default function PlanRequestsPage() {
         />
       )}
 
-      {/* Delete Confirmation */}
       <ConfirmDialog
         open={!!deleteRequest}
         onOpenChange={(open) => !open && setDeleteRequest(null)}
@@ -294,4 +103,3 @@ export default function PlanRequestsPage() {
     </PageContainer>
   );
 }
-
