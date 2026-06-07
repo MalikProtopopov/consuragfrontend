@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
-import { Bot, FileText, MessageSquare } from "lucide-react";
+import { FileText, MessageSquare } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/shared/ui/card";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
+import { AvatarIdentity } from "@/shared/ui/avatar-identity";
 import type { Avatar } from "@/shared/types/api";
 
 interface AvatarCardProps {
@@ -25,32 +25,15 @@ export function AvatarCard({ avatar, projectId }: AvatarCardProps) {
   const baseUrl = `/projects/${projectId}/avatars/${avatar.id}`;
 
   return (
-    <Card className="h-full flex flex-col">
+    <Card className="card-hover-gradient h-full flex flex-col">
       <CardHeader className="pb-3">
         <div className="flex items-start gap-3">
-            <div
-            className="flex size-12 shrink-0 items-center justify-center rounded-xl"
-              style={{
-                backgroundColor: avatar.primary_color
-                  ? `${avatar.primary_color}20`
-                  : "var(--color-accent-primary-10)",
-              }}
-            >
-              {avatar.avatar_image_url ? (
-                <Image
-                  src={avatar.avatar_image_url}
-                  alt={avatar.name}
-                  width={32}
-                  height={32}
-                  className="size-8 rounded-lg object-cover"
-                />
-              ) : (
-                <Bot
-                  className="size-6"
-                  style={{ color: avatar.primary_color || "var(--color-accent-primary)" }}
-                />
-              )}
-            </div>
+          <AvatarIdentity
+            name={avatar.name}
+            color={avatar.primary_color}
+            imageUrl={avatar.avatar_image_url}
+            size="md"
+          />
           <div className="min-w-0 flex-1">
             <h3 className="font-semibold text-text-primary line-clamp-1">{avatar.name}</h3>
             <div className="flex flex-wrap items-center gap-2 mt-1">

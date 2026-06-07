@@ -17,6 +17,7 @@ import { Badge } from "@/shared/ui/badge";
 import { AvatarStatusBadge } from "@/shared/ui/status-badge";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Spinner } from "@/shared/ui/spinner";
+import { AvatarIdentity } from "@/shared/ui/avatar-identity";
 import { toast } from "sonner";
 import { getApiErrorMessage } from "@/shared/lib";
 import { DEFAULT_AVATAR_COLOR } from "@/shared/config";
@@ -129,6 +130,19 @@ export default function AvatarSettingsPage({ params }: AvatarSettingsPageProps) 
         </Button>
       </div>
 
+      <div className="mb-6 flex items-start gap-4">
+        <AvatarIdentity
+          name={avatar.name}
+          color={avatar.primary_color}
+          imageUrl={avatar.avatar_image_url}
+          size="lg"
+        />
+        <div className="flex flex-wrap items-center gap-2 pt-1">
+          <AvatarStatusBadge status={avatar.status} />
+          {avatar.is_published && <Badge variant="success-subtle">Опубликован</Badge>}
+        </div>
+      </div>
+
       <PageHeader
         title={avatar.name}
         description={avatar.description || "Настройки аватара"}
@@ -154,12 +168,6 @@ export default function AvatarSettingsPage({ params }: AvatarSettingsPageProps) 
           </div>
         }
       />
-
-      {/* Status Badge */}
-      <div className="flex gap-2 mb-6">
-        <AvatarStatusBadge status={avatar.status} />
-        {avatar.is_published && <Badge variant="success-subtle">Опубликован</Badge>}
-      </div>
 
       <AvatarSettingsTabs
         form={form}

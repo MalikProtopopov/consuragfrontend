@@ -21,7 +21,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
 
   return (
     <Link href={`/projects/${project.id}`}>
-      <Card className="h-full transition-all hover:border-accent-primary/50 hover:shadow-md cursor-pointer">
+      <Card className="card-hover-gradient h-full cursor-pointer hover:border-accent-primary/50">
         <CardHeader className="pb-3">
           <div className="flex flex-wrap items-start gap-2">
             <div className="flex items-center gap-3 flex-1 min-w-[150px]">

@@ -3,6 +3,7 @@
 import { use } from "react";
 import Link from "next/link";
 import { Bot, FileText, MessageSquare, Users, UserCircle, BarChart3, Settings, Plus } from "lucide-react";
+import { AvatarIdentity } from "@/shared/ui/avatar-identity";
 import { useProject } from "@/entities/project";
 import { useAvatars } from "@/entities/avatar";
 import { useProjectUsage } from "@/entities/analytics";
@@ -148,9 +149,12 @@ export default function ProjectDashboardPage({ params }: ProjectDashboardPagePro
                     className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-bg-hover transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="flex size-8 items-center justify-center rounded-lg bg-accent-primary/10">
-                        <Bot className="size-4 text-accent-primary" />
-                      </div>
+                      <AvatarIdentity
+                        name={avatar.name}
+                        color={avatar.primary_color}
+                        imageUrl={avatar.avatar_image_url}
+                        size="sm"
+                      />
                       <div>
                         <p className="font-medium text-text-primary">{avatar.name}</p>
                         <p className="text-xs text-text-muted">
