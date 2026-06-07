@@ -93,6 +93,11 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
     const projectId = params?.id as string | undefined;
     const avatarId = params?.avatarId as string | undefined;
 
+    // R-03: режим оператора платформы (saas_admin на /admin/*). В этом режиме
+    // показываем ТОЛЬКО админ-навигацию; в тенант-режиме админка убрана из меню
+    // и доступна через явный вход «Админка платформы» в футере.
+    const isOperatorMode = Boolean(pathname?.startsWith("/admin")) && isAdmin(user);
+
     // Get limited projects for sidebar
     const sidebarProjects = React.useMemo(() => {
       return projectsData?.items?.slice(0, MAX_PROJECTS_IN_SIDEBAR) || [];
@@ -141,7 +146,26 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
     const navSections = React.useMemo(() => {
       const sections: NavSection[] = [];
 
-      // Main navigation
+      // R-03 — Operator-зона: только админ-навигация + возврат к проектам.
+      if (isOperatorMode) {
+        sections.push({ items: [{ title: "К проектам", href: "/projects", icon: ChevronLeft }] });
+        sections.push({
+          title: "Администрирование платформы",
+          items: [
+            { title: "Пользователи платформы", href: "/admin/users", icon: Users, adminOnly: true },
+            { title: "Аналитика платформы", href: "/admin/analytics", icon: BarChart3, adminOnly: true },
+            { title: "Биллинг", href: "/admin/billing", icon: CreditCard, adminOnly: true },
+            { title: "Заявки", href: "/admin/requests", icon: FileText, adminOnly: true },
+            { title: "Настройки платформы", href: "/admin/settings/platform", icon: Key, adminOnly: true },
+            { title: "Telegram-боты", href: "/admin/settings/telegram-notifications", icon: Send, adminOnly: true },
+            { title: "Логи уведомлений", href: "/admin/notifications/logs", icon: Bell, adminOnly: true },
+            { title: "Аудит логи", href: "/admin/audit", icon: Shield, adminOnly: true },
+          ],
+        });
+        return sections;
+      }
+
+      // Tenant-зона: проекты + контекст проекта/аватара (без админки).
       const mainItems: NavItem[] = [
         { title: "Проекты", href: "/projects", icon: FolderKanban },
       ];
@@ -203,43 +227,8 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
         sections.push({ title: "Аватар", items: avatarItems });
       }
 
-      // Admin section (only for saas_admin)
-      if (isAdmin(user)) {
-        const adminItems: NavItem[] = [
-          { title: "Пользователи платформы", href: "/admin/users", icon: Users, adminOnly: true },
-          {
-            title: "Аналитика платформы",
-            href: "/admin/analytics",
-            icon: BarChart3,
-            adminOnly: true,
-          },
-          { title: "Биллинг", href: "/admin/billing", icon: CreditCard, adminOnly: true },
-          { title: "Заявки", href: "/admin/requests", icon: FileText, adminOnly: true },
-          {
-            title: "Настройки платформы",
-            href: "/admin/settings/platform",
-            icon: Key,
-            adminOnly: true,
-          },
-          {
-            title: "Telegram-боты",
-            href: "/admin/settings/telegram-notifications",
-            icon: Send,
-            adminOnly: true,
-          },
-          {
-            title: "Логи уведомлений",
-            href: "/admin/notifications/logs",
-            icon: Bell,
-            adminOnly: true,
-          },
-          { title: "Аудит логи", href: "/admin/audit", icon: Shield, adminOnly: true },
-        ];
-        sections.push({ title: "Администрирование", items: adminItems });
-      }
-
       return sections;
-    }, [projectId, avatarId, user, currentProjectName]);
+    }, [projectId, avatarId, isOperatorMode, currentProjectName]);
 
     return (
       <TooltipProvider delayDuration={0}>
@@ -468,6 +457,24 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
           <div className="mt-auto border-t border-border p-3 space-y-1">
             {footer || (
               <>
+                {/* R-03: вход в operator-зону (только saas_admin, только из тенант-режима) */}
+                {isAdmin(user) && !isOperatorMode && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link
+                        href="/admin/analytics"
+                        className={cn(
+                          "relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-text-secondary hover:bg-bg-hover hover:text-text-primary",
+                          collapsed && "justify-center px-2"
+                        )}
+                      >
+                        <Shield className="size-5" />
+                        {!collapsed && <span>Админка платформы</span>}
+                      </Link>
+                    </TooltipTrigger>
+                    {collapsed && <TooltipContent side="right">Админка платформы</TooltipContent>}
+                  </Tooltip>
+                )}
                 {/* Token Counter */}
                 {usageSummary && (
                   <TokenCounter
