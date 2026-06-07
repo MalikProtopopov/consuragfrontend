@@ -40,15 +40,14 @@ import {
 } from "@/shared/ui/dialog";
 import { Alert, AlertDescription } from "@/shared/ui/alert";
 import { ScrollArea } from "@/shared/ui/scroll-area";
-import { getApiErrorMessage } from "@/shared/lib";
+import { PaginationControls } from "@/shared/ui/pagination-controls";
+import { getApiErrorMessage, usePagination } from "@/shared/lib";
 import { useNotificationLogs } from "@/entities/notification";
 import type {
   NotificationLog,
   NotificationStatus,
   NotificationType,
 } from "@/shared/types/api";
-
-const ITEMS_PER_PAGE = 20;
 
 /**
  * Notification type labels
@@ -88,27 +87,25 @@ const statusConfig: Record<
  * Notification logs page for SAAS_ADMIN
  */
 export default function NotificationLogsPage() {
-  const [page, setPage] = useState(0);
   const [typeFilter, setTypeFilter] = useState<NotificationType | "all">("all");
   const [recipientFilter, setRecipientFilter] = useState<"admin" | "user" | "all">("all");
   const [statusFilter, setStatusFilter] = useState<NotificationStatus | "all">("all");
   const [selectedLog, setSelectedLog] = useState<NotificationLog | null>(null);
+  const pagination = usePagination();
 
   const { data, isLoading, error, refetch } = useNotificationLogs({
-    skip: page * ITEMS_PER_PAGE,
-    limit: ITEMS_PER_PAGE,
+    skip: pagination.skip,
+    limit: pagination.limit,
     type: typeFilter !== "all" ? typeFilter : undefined,
     recipient_type: recipientFilter !== "all" ? recipientFilter : undefined,
     status: statusFilter !== "all" ? statusFilter : undefined,
   });
 
-  const totalPages = data ? Math.ceil(data.total / ITEMS_PER_PAGE) : 0;
-
   const handleResetFilters = () => {
     setTypeFilter("all");
     setRecipientFilter("all");
     setStatusFilter("all");
-    setPage(0);
+    pagination.reset();
   };
 
   if (isLoading) {
@@ -163,7 +160,7 @@ export default function NotificationLogsPage() {
                 value={typeFilter}
                 onValueChange={(value) => {
                   setTypeFilter(value as NotificationType | "all");
-                  setPage(0);
+                  pagination.reset();
                 }}
               >
                 <SelectTrigger className="w-[160px]">
@@ -183,7 +180,7 @@ export default function NotificationLogsPage() {
                 value={recipientFilter}
                 onValueChange={(value) => {
                   setRecipientFilter(value as "admin" | "user" | "all");
-                  setPage(0);
+                  pagination.reset();
                 }}
               >
                 <SelectTrigger className="w-[140px]">
@@ -200,7 +197,7 @@ export default function NotificationLogsPage() {
                 value={statusFilter}
                 onValueChange={(value) => {
                   setStatusFilter(value as NotificationStatus | "all");
-                  setPage(0);
+                  pagination.reset();
                 }}
               >
                 <SelectTrigger className="w-[140px]">
@@ -260,32 +257,11 @@ export default function NotificationLogsPage() {
                 </TableBody>
               </Table>
 
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex items-center justify-between mt-4">
-                  <p className="text-sm text-text-muted">
-                    Страница {page + 1} из {totalPages}
-                  </p>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setPage((p) => Math.max(0, p - 1))}
-                      disabled={page === 0}
-                    >
-                      Назад
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-                      disabled={page >= totalPages - 1}
-                    >
-                      Вперёд
-                    </Button>
-                  </div>
-                </div>
-              )}
+              <PaginationControls
+                pagination={pagination}
+                total={data?.total}
+                className="mt-4"
+              />
             </>
           )}
         </CardContent>

@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { PAGE_SIZE } from "@/shared/config";
 import {
   Coins,
   DollarSign,
@@ -63,7 +62,7 @@ import { Switch } from "@/shared/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import { toast } from "sonner";
 import type { BillingPlan, UsersUsageParams, UserUsage } from "@/shared/types/api";
-import { formatCurrency, formatCompact } from "@/shared/lib";
+import { formatCurrency, formatCompact, usePagination } from "@/shared/lib";
 
 const planOptions: { value: BillingPlan; label: string }[] = [
   { value: "free", label: "Free" },
@@ -76,13 +75,13 @@ const planOptions: { value: BillingPlan; label: string }[] = [
 export default function AdminBillingPage() {
   const { user } = useAuthStore();
   const [selectedPlan, setSelectedPlan] = React.useState<BillingPlan | "all">("all");
-  const [page, setPage] = React.useState(0);
   const [selectedUser, setSelectedUser] = React.useState<UserUsage | null>(null);
   const [isManageDialogOpen, setIsManageDialogOpen] = React.useState(false);
+  const pagination = usePagination();
 
   const params: UsersUsageParams = {
-    skip: page * PAGE_SIZE,
-    limit: PAGE_SIZE,
+    skip: pagination.skip,
+    limit: pagination.limit,
     plan: selectedPlan !== "all" ? selectedPlan : undefined,
     sort_by: "tokens_used",
     sort_order: "desc",
@@ -91,6 +90,12 @@ export default function AdminBillingPage() {
   const { data: platformUsage, isLoading: platformLoading } = usePlatformUsage();
   const { data: usersUsage, isLoading: usersLoading } = useUsersUsage(params);
 
+  // Sync total into pagination hook (для totalPages/hasNext)
+  const { setTotal } = pagination;
+  React.useEffect(() => {
+    setTotal(usersUsage?.total);
+  }, [setTotal, usersUsage?.total]);
+
   const handleManageUser = (userItem: UserUsage) => {
     setSelectedUser(userItem);
     setIsManageDialogOpen(true);
@@ -98,11 +103,8 @@ export default function AdminBillingPage() {
 
   // Get users from response (backend returns 'users' not 'items')
   const users = usersUsage?.users ?? [];
-  
-  // Calculate pagination info
-  const totalPages = usersUsage ? Math.ceil(usersUsage.total / PAGE_SIZE) : 0;
-  const hasNextPage = (page + 1) * PAGE_SIZE < (usersUsage?.total ?? 0);
-  const hasPrevPage = page > 0;
+
+  const { page, limit, totalPages, hasNext: hasNextPage, hasPrev: hasPrevPage } = pagination;
 
   // Check admin access
   if (!isAdmin(user)) {
@@ -207,7 +209,7 @@ export default function AdminBillingPage() {
                 value={selectedPlan}
                 onValueChange={(v) => {
                   setSelectedPlan(v as BillingPlan | "all");
-                  setPage(0); // Reset page when filter changes
+                  pagination.reset(); // Reset page when filter changes
                 }}
               >
                 <SelectTrigger className="w-[160px]">
@@ -343,10 +345,10 @@ export default function AdminBillingPage() {
           {usersUsage && usersUsage.total > 0 && (
             <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
               <p className="text-sm text-text-muted">
-                {usersUsage.total > 20 ? (
+                {usersUsage.total > limit ? (
                   <>
-                    Показано {page * 20 + 1} - {Math.min((page + 1) * 20, usersUsage.total)}{" "}
-                    из {usersUsage.total}
+                    Показано {page * limit + 1} -{" "}
+                    {Math.min((page + 1) * limit, usersUsage.total)} из {usersUsage.total}
                   </>
                 ) : (
                   <>Всего: {usersUsage.total} пользователей</>
@@ -358,7 +360,7 @@ export default function AdminBillingPage() {
                     variant="outline"
                     size="sm"
                     disabled={!hasPrevPage}
-                    onClick={() => setPage(page - 1)}
+                    onClick={pagination.prev}
                   >
                     Назад
                   </Button>
@@ -369,7 +371,7 @@ export default function AdminBillingPage() {
                     variant="outline"
                     size="sm"
                     disabled={!hasNextPage}
-                    onClick={() => setPage(page + 1)}
+                    onClick={pagination.next}
                   >
                     Вперед
                   </Button>

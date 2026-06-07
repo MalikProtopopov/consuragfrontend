@@ -32,6 +32,7 @@ export * from "./toggle-group";
 export * from "./hover-card";
 export * from "./collapsible";
 export * from "./pagination";
+export * from "./pagination-controls";
 export * from "./form";
 
 // Custom Components
@@ -42,6 +43,7 @@ export * from "./stepper";
 export * from "./file-upload";
 export * from "./chat";
 export * from "./permission-guard";
+export * from "./confirm-dialog";
 
 // Billing Components
 export * from "./usage-progress-bar";

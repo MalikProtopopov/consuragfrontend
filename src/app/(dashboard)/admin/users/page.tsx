@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { PAGE_SIZE } from "@/shared/config";
 import Link from "next/link";
 import { UserPlus } from "lucide-react";
 import { useUsers } from "@/entities/user";
@@ -13,8 +12,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { Skeleton } from "@/shared/ui/skeleton";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/shared/ui/pagination";
-import { formatDate } from "@/shared/lib";
+import { NumberedPaginationControls } from "@/shared/ui/pagination-controls";
+import { formatDate, usePagination } from "@/shared/lib";
 import type { UserRole, UserStatus } from "@/shared/types/api";
 
 const roleLabels: Record<UserRole, string> = {
@@ -33,21 +32,19 @@ const statusConfig: Record<UserStatus, { label: string; variant: "default" | "se
 };
 
 export default function UsersPage() {
-  const [page, setPage] = useState(0);
   const [roleFilter, setRoleFilter] = useState<UserRole | "all">("all");
   const [statusFilter, setStatusFilter] = useState<UserStatus | "all">("all");
-  const limit = PAGE_SIZE;
+  const pagination = usePagination();
 
   const { data, isLoading } = useUsers({
-    skip: page * limit,
-    limit,
+    skip: pagination.skip,
+    limit: pagination.limit,
     role: roleFilter === "all" ? undefined : roleFilter,
     user_status: statusFilter === "all" ? undefined : statusFilter,
   });
 
   const users = data?.items || [];
   const total = data?.total || 0;
-  const totalPages = Math.ceil(total / limit);
 
   return (
     <PageContainer>
@@ -70,7 +67,7 @@ export default function UsersPage() {
           value={roleFilter}
           onValueChange={(v) => {
             setRoleFilter(v as typeof roleFilter);
-            setPage(0);
+            pagination.reset();
           }}
         >
           <SelectTrigger className="w-[180px]">
@@ -89,7 +86,7 @@ export default function UsersPage() {
           value={statusFilter}
           onValueChange={(v) => {
             setStatusFilter(v as typeof statusFilter);
-            setPage(0);
+            pagination.reset();
           }}
         >
           <SelectTrigger className="w-[180px]">
@@ -178,47 +175,11 @@ export default function UsersPage() {
                 </TableBody>
               </Table>
 
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="mt-6">
-                  <Pagination>
-                    <PaginationContent>
-                      <PaginationItem>
-                        <PaginationPrevious
-                          href="#"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            if (page > 0) setPage(page - 1);
-                          }}
-                        />
-                      </PaginationItem>
-                      {[...Array(Math.min(totalPages, 5))].map((_, i) => (
-                        <PaginationItem key={i}>
-                          <PaginationLink
-                            href="#"
-                            isActive={page === i}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              setPage(i);
-                            }}
-                          >
-                            {i + 1}
-                          </PaginationLink>
-                        </PaginationItem>
-                      ))}
-                      <PaginationItem>
-                        <PaginationNext
-                          href="#"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            if (page < totalPages - 1) setPage(page + 1);
-                          }}
-                        />
-                      </PaginationItem>
-                    </PaginationContent>
-                  </Pagination>
-                </div>
-              )}
+              <NumberedPaginationControls
+                pagination={pagination}
+                total={data?.total}
+                windowed={false}
+              />
             </>
           )}
         </CardContent>

@@ -12,8 +12,9 @@ import { Badge } from "@/shared/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
 import { Skeleton } from "@/shared/ui/skeleton";
-import { ROUTES, PAGE_SIZE } from "@/shared/config";
-import { formatRelativeTime } from "@/shared/lib";
+import { PaginationControls } from "@/shared/ui/pagination-controls";
+import { ROUTES } from "@/shared/config";
+import { formatRelativeTime, usePagination } from "@/shared/lib";
 import type { TelegramSessionStatus } from "@/shared/types/api";
 
 interface TelegramSessionsPageProps {
@@ -24,19 +25,17 @@ export default function TelegramSessionsPage({ params }: TelegramSessionsPagePro
   const { id: projectId } = use(params);
   const [status, setStatus] = useState<TelegramSessionStatus>("all");
   const [search, setSearch] = useState("");
-  const [page, setPage] = useState(0);
-  const limit = PAGE_SIZE;
+  const pagination = usePagination();
 
   const { data, isLoading } = useTelegramSessions(projectId, {
     status,
     search: search || undefined,
-    skip: page * limit,
-    limit,
+    skip: pagination.skip,
+    limit: pagination.limit,
   });
 
   const sessions = data?.items || [];
   const total = data?.total || 0;
-  const totalPages = Math.ceil(total / limit);
 
   return (
     <PageContainer>
@@ -71,7 +70,7 @@ export default function TelegramSessionsPage({ params }: TelegramSessionsPagePro
                   value={search}
                   onChange={(e) => {
                     setSearch(e.target.value);
-                    setPage(0);
+                    pagination.reset();
                   }}
                   className="pl-9 w-full sm:w-[250px]"
                 />
@@ -80,7 +79,7 @@ export default function TelegramSessionsPage({ params }: TelegramSessionsPagePro
                 value={status}
                 onValueChange={(v) => {
                   setStatus(v as TelegramSessionStatus);
-                  setPage(0);
+                  pagination.reset();
                 }}
               >
                 <SelectTrigger className="w-full sm:w-[140px]">
@@ -168,32 +167,11 @@ export default function TelegramSessionsPage({ params }: TelegramSessionsPagePro
                 </Table>
               </div>
 
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
-                  <p className="text-sm text-text-muted">
-                    Страница {page + 1} из {totalPages}
-                  </p>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setPage((p) => Math.max(0, p - 1))}
-                      disabled={page === 0}
-                    >
-                      Назад
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-                      disabled={page >= totalPages - 1}
-                    >
-                      Вперёд
-                    </Button>
-                  </div>
-                </div>
-              )}
+              <PaginationControls
+                pagination={pagination}
+                total={data?.total}
+                className="mt-4 pt-4 border-t border-border"
+              />
             </>
           )}
         </CardContent>

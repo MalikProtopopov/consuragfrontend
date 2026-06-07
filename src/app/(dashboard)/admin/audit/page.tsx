@@ -9,8 +9,8 @@ import { Badge } from "@/shared/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { Skeleton } from "@/shared/ui/skeleton";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/shared/ui/pagination";
-import { formatDate } from "@/shared/lib";
+import { NumberedPaginationControls } from "@/shared/ui/pagination-controls";
+import { formatDate, usePagination } from "@/shared/lib";
 import type { AuditAction, AuditResourceType } from "@/shared/types/api";
 
 const actionLabels: Record<AuditAction, string> = {
@@ -42,21 +42,19 @@ const actionColors: Record<AuditAction, "default" | "secondary" | "success" | "d
 };
 
 export default function AuditLogsPage() {
-  const [page, setPage] = useState(0);
   const [actionFilter, setActionFilter] = useState<AuditAction | "all">("all");
   const [resourceFilter, setResourceFilter] = useState<string>("all");
-  const limit = 50;
+  const pagination = usePagination({ limit: 50 });
 
   const { data, isLoading } = useAuditLogs({
-    skip: page * limit,
-    limit,
+    skip: pagination.skip,
+    limit: pagination.limit,
     action: actionFilter === "all" ? undefined : actionFilter,
     resource_type: resourceFilter === "all" ? undefined : resourceFilter,
   });
 
   const logs = data?.items || [];
   const total = data?.total || 0;
-  const totalPages = Math.ceil(total / limit);
 
   return (
     <PageContainer>
@@ -68,7 +66,7 @@ export default function AuditLogsPage() {
           value={actionFilter}
           onValueChange={(v) => {
             setActionFilter(v as typeof actionFilter);
-            setPage(0);
+            pagination.reset();
           }}
         >
           <SelectTrigger className="w-[180px]">
@@ -87,7 +85,7 @@ export default function AuditLogsPage() {
           value={resourceFilter}
           onValueChange={(v) => {
             setResourceFilter(v as typeof resourceFilter);
-            setPage(0);
+            pagination.reset();
           }}
         >
           <SelectTrigger className="w-[180px]">
@@ -162,47 +160,11 @@ export default function AuditLogsPage() {
                 </TableBody>
               </Table>
 
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="mt-6">
-                  <Pagination>
-                    <PaginationContent>
-                      <PaginationItem>
-                        <PaginationPrevious
-                          href="#"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            if (page > 0) setPage(page - 1);
-                          }}
-                        />
-                      </PaginationItem>
-                      {[...Array(Math.min(totalPages, 5))].map((_, i) => (
-                        <PaginationItem key={i}>
-                          <PaginationLink
-                            href="#"
-                            isActive={page === i}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              setPage(i);
-                            }}
-                          >
-                            {i + 1}
-                          </PaginationLink>
-                        </PaginationItem>
-                      ))}
-                      <PaginationItem>
-                        <PaginationNext
-                          href="#"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            if (page < totalPages - 1) setPage(page + 1);
-                          }}
-                        />
-                      </PaginationItem>
-                    </PaginationContent>
-                  </Pagination>
-                </div>
-              )}
+              <NumberedPaginationControls
+                pagination={pagination}
+                total={data?.total}
+                windowed={false}
+              />
             </>
           )}
         </CardContent>
