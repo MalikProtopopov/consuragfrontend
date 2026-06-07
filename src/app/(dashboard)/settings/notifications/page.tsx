@@ -21,6 +21,7 @@ import { Switch } from "@/shared/ui/switch";
 import { Badge } from "@/shared/ui/badge";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Spinner } from "@/shared/ui/spinner";
+import { useConfirm } from "@/shared/ui/confirm-dialog";
 import {
   Dialog,
   DialogContent,
@@ -32,7 +33,7 @@ import {
   Alert,
   AlertDescription,
 } from "@/shared/ui/alert";
-import { getApiErrorMessage, formatDate } from "@/shared/lib";
+import { getApiErrorMessage, formatDate, useCountdown } from "@/shared/lib";
 import {
   useTelegramStatus,
   useGenerateLinkCode,
@@ -170,6 +171,7 @@ function TelegramLinkedCard({
 }) {
   const { mutate: toggleNotifications, isPending: toggling } = useToggleNotifications();
   const { mutate: unlinkTelegram, isPending: unlinking } = useUnlinkTelegram();
+  const confirm = useConfirm();
 
   const handleToggle = (enabled: boolean) => {
     toggleNotifications(enabled, {
@@ -183,10 +185,14 @@ function TelegramLinkedCard({
     });
   };
 
-  const handleUnlink = () => {
-    if (!confirm("Отвязать Telegram? Вы перестанете получать уведомления.")) {
-      return;
-    }
+  const handleUnlink = async () => {
+    const ok = await confirm({
+      title: "Отвязать Telegram?",
+      description: "Вы перестанете получать уведомления в Telegram.",
+      confirmLabel: "Отвязать",
+      variant: "destructive",
+    });
+    if (!ok) return;
     unlinkTelegram(undefined, {
       onSuccess: () => {
         toast.success("Telegram отвязан");
@@ -327,49 +333,6 @@ function NotificationTypesCard() {
 }
 
 /**
- * Custom hook for countdown timer
- */
-function useCountdown(initialSeconds: number) {
-  const [timeLeft, setTimeLeft] = useState(initialSeconds);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  const start = useCallback((seconds: number) => {
-    setTimeLeft(seconds);
-  }, []);
-
-  const stop = useCallback(() => {
-    setTimeLeft(0);
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-  }, []);
-
-  useEffect(() => {
-    if (timeLeft <= 0) {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-      return;
-    }
-
-    intervalRef.current = setInterval(() => {
-      setTimeLeft((prev) => Math.max(0, prev - 1));
-    }, 1000);
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-    };
-  }, [timeLeft]);
-
-  return { timeLeft, start, stop };
-}
-
-/**
  * Modal for linking Telegram
  */
 function LinkTelegramModal({
@@ -383,7 +346,7 @@ function LinkTelegramModal({
 }) {
   const { mutate: generateCode, data: linkData, isPending, error, reset } = useGenerateLinkCode();
   const [copied, setCopied] = useState(false);
-  const { timeLeft, start, stop } = useCountdown(0);
+  const { secondsLeft: timeLeft, formatted: timeFormatted, start, stop } = useCountdown(0);
 
   // Handle generate code
   const handleGenerateCode = useCallback(() => {
@@ -419,12 +382,6 @@ function LinkTelegramModal({
     } catch {
       toast.error("Не удалось скопировать");
     }
-  };
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   return (
@@ -508,7 +465,7 @@ function LinkTelegramModal({
                 <div className="flex items-center gap-2 text-sm text-text-muted">
                   <span>Код действителен:</span>
                   <Badge variant={timeLeft < 60 ? "destructive" : "secondary"}>
-                    {formatTime(timeLeft)}
+                    {timeFormatted}
                   </Badge>
                 </div>
               ) : (

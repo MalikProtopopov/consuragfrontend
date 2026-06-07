@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { PAGE_SIZE } from "@/shared/config";
 import {
   FileText,
   TrendingUp,
@@ -33,31 +32,15 @@ import {
 } from "@/shared/ui/select";
 import { Button } from "@/shared/ui/button";
 import { Skeleton } from "@/shared/ui/skeleton";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/shared/ui/pagination";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/shared/ui/alert-dialog";
+import { NumberedPaginationControls } from "@/shared/ui/pagination-controls";
+import { ConfirmDialog } from "@/shared/ui/confirm-dialog";
 import type {
   PlanRequestType,
   PlanRequestStatus,
   PlanRequestDetail,
 } from "@/shared/types/api";
 import { PlanRequestDetailDialog } from "./_components/PlanRequestDetailDialog";
-import { formatDate } from "@/shared/lib";
+import { formatDate, usePagination } from "@/shared/lib";
 
 // Labels
 const statusLabels: Record<PlanRequestStatus, string> = {
@@ -131,16 +114,15 @@ const ContactInfo = ({ request }: { request: PlanRequestDetail }) => {
 };
 
 export default function PlanRequestsPage() {
-  const [page, setPage] = useState(0);
   const [statusFilter, setStatusFilter] = useState<PlanRequestStatus | "all">("all");
   const [typeFilter, setTypeFilter] = useState<PlanRequestType | "all">("all");
   const [selectedRequest, setSelectedRequest] = useState<PlanRequestDetail | null>(null);
   const [deleteRequest, setDeleteRequest] = useState<PlanRequestDetail | null>(null);
-  const limit = PAGE_SIZE;
+  const pagination = usePagination();
 
   const { data, isLoading } = usePlanRequests({
-    skip: page * limit,
-    limit,
+    skip: pagination.skip,
+    limit: pagination.limit,
     status: statusFilter === "all" ? undefined : statusFilter,
     request_type: typeFilter === "all" ? undefined : typeFilter,
     sort_by: "created_at",
@@ -151,7 +133,6 @@ export default function PlanRequestsPage() {
 
   const requests = data?.requests || [];
   const total = data?.total || 0;
-  const totalPages = Math.ceil(total / limit);
 
   const handleDelete = async () => {
     if (!deleteRequest) return;
@@ -172,7 +153,7 @@ export default function PlanRequestsPage() {
           value={statusFilter}
           onValueChange={(v) => {
             setStatusFilter(v as typeof statusFilter);
-            setPage(0);
+            pagination.reset();
           }}
         >
           <SelectTrigger className="w-[180px]">
@@ -192,7 +173,7 @@ export default function PlanRequestsPage() {
           value={typeFilter}
           onValueChange={(v) => {
             setTypeFilter(v as typeof typeFilter);
-            setPage(0);
+            pagination.reset();
           }}
         >
           <SelectTrigger className="w-[200px]">
@@ -295,60 +276,7 @@ export default function PlanRequestsPage() {
                 </TableBody>
               </Table>
 
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="mt-6">
-                  <Pagination>
-                    <PaginationContent>
-                      <PaginationItem>
-                        <PaginationPrevious
-                          href="#"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            if (page > 0) setPage(page - 1);
-                          }}
-                        />
-                      </PaginationItem>
-                      {[...Array(Math.min(totalPages, 5))].map((_, i) => {
-                        // Show pages around current page
-                        let pageNum = i;
-                        if (totalPages > 5) {
-                          if (page < 3) {
-                            pageNum = i;
-                          } else if (page > totalPages - 3) {
-                            pageNum = totalPages - 5 + i;
-                          } else {
-                            pageNum = page - 2 + i;
-                          }
-                        }
-                        return (
-                          <PaginationItem key={pageNum}>
-                            <PaginationLink
-                              href="#"
-                              isActive={page === pageNum}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                setPage(pageNum);
-                              }}
-                            >
-                              {pageNum + 1}
-                            </PaginationLink>
-                          </PaginationItem>
-                        );
-                      })}
-                      <PaginationItem>
-                        <PaginationNext
-                          href="#"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            if (page < totalPages - 1) setPage(page + 1);
-                          }}
-                        />
-                      </PaginationItem>
-                    </PaginationContent>
-                  </Pagination>
-                </div>
-              )}
+              <NumberedPaginationControls pagination={pagination} total={data?.total} />
             </>
           )}
         </CardContent>
@@ -364,26 +292,16 @@ export default function PlanRequestsPage() {
       )}
 
       {/* Delete Confirmation */}
-      <AlertDialog open={!!deleteRequest} onOpenChange={(open) => !open && setDeleteRequest(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Удалить заявку?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Это действие нельзя отменить. Заявка будет удалена безвозвратно.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Отмена</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              disabled={deleteMutation.isPending}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {deleteMutation.isPending ? "Удаление..." : "Удалить"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        open={!!deleteRequest}
+        onOpenChange={(open) => !open && setDeleteRequest(null)}
+        title="Удалить заявку?"
+        description="Это действие нельзя отменить. Заявка будет удалена безвозвратно."
+        confirmLabel="Удалить"
+        variant="destructive"
+        onConfirm={handleDelete}
+        isPending={deleteMutation.isPending}
+      />
     </PageContainer>
   );
 }

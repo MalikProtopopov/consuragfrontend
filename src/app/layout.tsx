@@ -4,6 +4,7 @@ import { IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
 import { QueryProvider, ThemeProvider } from "@/providers";
 import { Toaster } from "@/shared/ui/sonner";
 import { TokenLimitDialogProvider } from "@/shared/ui/token-limit-dialog";
+import { ConfirmDialogProvider } from "@/shared/ui/confirm-dialog";
 import { ApiUrlSwitcher } from "@/shared/ui/api-url-switcher";
 
 import "./globals.css";
@@ -41,9 +42,11 @@ export default function RootLayout({
       <body className={`${ibmPlexSans.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
         <ThemeProvider>
           <QueryProvider>
-            <TokenLimitDialogProvider>
-              {children}
-            </TokenLimitDialogProvider>
+            <ConfirmDialogProvider>
+              <TokenLimitDialogProvider>
+                {children}
+              </TokenLimitDialogProvider>
+            </ConfirmDialogProvider>
             <Toaster />
             {/* Переключатель API — только вне production (security: нельзя дать
                 пользователю увести кабинет на dev-API) */}

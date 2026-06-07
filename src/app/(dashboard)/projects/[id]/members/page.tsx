@@ -22,6 +22,7 @@ import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
 import { Badge } from "@/shared/ui/badge";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Spinner } from "@/shared/ui/spinner";
+import { useConfirm } from "@/shared/ui/confirm-dialog";
 import { AccessDenied, isPermissionError } from "@/shared/ui/access-denied";
 import { toast } from "sonner";
 import { getApiErrorMessage } from "@/shared/lib";
@@ -400,17 +401,23 @@ function PermissionCheckboxes({
 // Remove Member Button
 function RemoveMemberButton({ projectId, userId }: { projectId: string; userId: string }) {
   const { mutate: removeMember, isPending } = useRemoveMember();
+  const confirm = useConfirm();
 
-  const handleRemove = () => {
-    if (confirm("Удалить участника из проекта?")) {
-      removeMember(
-        { projectId, userId },
-        {
-          onSuccess: () => toast.success("Участник удален"),
-          onError: (error) => toast.error(getApiErrorMessage(error)),
-        }
-      );
-    }
+  const handleRemove = async () => {
+    const ok = await confirm({
+      title: "Удалить участника?",
+      description: "Участник потеряет доступ к проекту.",
+      confirmLabel: "Удалить",
+      variant: "destructive",
+    });
+    if (!ok) return;
+    removeMember(
+      { projectId, userId },
+      {
+        onSuccess: () => toast.success("Участник удален"),
+        onError: (error) => toast.error(getApiErrorMessage(error)),
+      }
+    );
   };
 
   return (

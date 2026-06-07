@@ -12,6 +12,7 @@ import {
   Alert,
   AlertDescription,
   Skeleton,
+  useConfirm,
   type ConfigFormData,
 } from "@/shared/ui";
 import { AccessDenied, isPermissionError } from "@/shared/ui/access-denied";
@@ -57,6 +58,7 @@ export default function ProjectSecretsPage({ params }: PageProps) {
   const updateMutation = useUpdateProjectSecret();
   const deleteMutation = useDeleteProjectSecret();
   const validateTelegramMutation = useValidateTelegramToken();
+  const confirm = useConfirm();
 
   // Modal state
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -130,7 +132,13 @@ export default function ProjectSecretsPage({ params }: PageProps) {
 
   // Handle delete
   const handleDelete = async (secret: ProjectSecret) => {
-    if (!confirm(`Удалить секрет "${secret.display_name}"?`)) return;
+    const ok = await confirm({
+      title: "Удалить секрет?",
+      description: `Секрет «${secret.display_name}» будет удалён. Это действие нельзя отменить.`,
+      confirmLabel: "Удалить",
+      variant: "destructive",
+    });
+    if (!ok) return;
 
     try {
       await deleteMutation.mutateAsync({ projectId, key: secret.key });

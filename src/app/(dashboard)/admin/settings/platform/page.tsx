@@ -5,7 +5,7 @@ import { Bot, LineChart, Mail, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageContainer, PageHeader } from "@/widgets/app-shell/ui/app-shell";
-import { ConfigCard, ConfigModal, Alert, AlertDescription, Skeleton, type ConfigFormData } from "@/shared/ui";
+import { ConfigCard, ConfigModal, Alert, AlertDescription, Skeleton, useConfirm, type ConfigFormData } from "@/shared/ui";
 import type { PlatformConfig, PlatformKeyType } from "@/shared/types/api";
 import {
   usePlatformConfigs,
@@ -43,6 +43,7 @@ export default function PlatformSettingsPage() {
   const updateMutation = useUpdatePlatformConfig();
   const deleteMutation = useDeletePlatformConfig();
   const validateMutation = useValidatePlatformKey();
+  const confirm = useConfirm();
 
   // Modal state
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -123,7 +124,13 @@ export default function PlatformSettingsPage() {
 
   // Handle delete
   const handleDelete = React.useCallback(async (config: PlatformConfig) => {
-    if (!confirm(`Удалить конфигурацию "${config.display_name}"?`)) return;
+    const ok = await confirm({
+      title: "Удалить конфигурацию?",
+      description: `Конфигурация «${config.display_name}» будет удалена. Это действие нельзя отменить.`,
+      confirmLabel: "Удалить",
+      variant: "destructive",
+    });
+    if (!ok) return;
 
     try {
       await deleteMutation.mutateAsync(config.key);
@@ -131,7 +138,7 @@ export default function PlatformSettingsPage() {
     } catch {
       toast.error("Ошибка при удалении");
     }
-  }, [deleteMutation]);
+  }, [deleteMutation, confirm]);
 
   // Handle validation
   const handleValidate = React.useCallback(async (value: string): Promise<{ valid: boolean; message?: string }> => {

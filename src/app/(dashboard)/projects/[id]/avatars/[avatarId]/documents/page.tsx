@@ -22,6 +22,7 @@ import { FileUpload } from "@/shared/ui/file-upload";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Spinner } from "@/shared/ui/spinner";
 import { ScrollArea } from "@/shared/ui/scroll-area";
+import { useConfirm } from "@/shared/ui/confirm-dialog";
 import { toast } from "sonner";
 import { getApiErrorMessage, formatBytes } from "@/shared/lib";
 import type { Document, DocumentStatus } from "@/shared/types/api";
@@ -197,6 +198,7 @@ function DocumentRow({
 }) {
   const { mutate: deleteDocument, isPending: deleting } = useDeleteDocument();
   const { mutate: reindexDocument, isPending: reindexing } = useReindexDocument();
+  const confirm = useConfirm();
   const [chunksDialogOpen, setChunksDialogOpen] = useState(false);
 
   const status = statusConfig[doc.parsing_status] || { label: "Неизвестно", variant: "outline" as const };
@@ -204,16 +206,21 @@ function DocumentRow({
     doc.parsing_status
   );
 
-  const handleDelete = () => {
-    if (confirm("Удалить документ?")) {
-      deleteDocument(
-        { projectId, avatarId, documentId: doc.id },
-        {
-          onSuccess: () => toast.success("Документ удален"),
-          onError: (error) => toast.error(getApiErrorMessage(error)),
-        }
-      );
-    }
+  const handleDelete = async () => {
+    const ok = await confirm({
+      title: "Удалить документ?",
+      description: "Документ и его данные будут удалены из базы знаний.",
+      confirmLabel: "Удалить",
+      variant: "destructive",
+    });
+    if (!ok) return;
+    deleteDocument(
+      { projectId, avatarId, documentId: doc.id },
+      {
+        onSuccess: () => toast.success("Документ удален"),
+        onError: (error) => toast.error(getApiErrorMessage(error)),
+      }
+    );
   };
 
   const handleReindex = () => {
