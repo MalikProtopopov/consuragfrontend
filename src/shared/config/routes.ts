@@ -4,7 +4,6 @@
  */
 export const ROUTES = {
   HOME: "/",
-  DESIGN_SYSTEM: "/design-system",
 
   // Auth routes
   LOGIN: "/login",

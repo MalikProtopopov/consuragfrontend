@@ -3,6 +3,7 @@
 import * as React from "react";
 
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
 import {
   AlertCircle,
@@ -39,7 +40,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/ui/card";
-import { ChatContainer, ChatMessage } from "@/shared/ui/chat";
+import { ChatContainer, type ChatMessage } from "@/shared/ui/chat";
 import { Checkbox } from "@/shared/ui/checkbox";
 import {
   Dialog,
@@ -100,6 +101,11 @@ function ComponentCard({ title, children }: { title: string; children: React.Rea
 }
 
 export default function DesignSystemPage() {
+  // Витрина компонентов — только для разработки, в прод-бандл не отдаём
+  if (process.env.NODE_ENV === "production") {
+    notFound();
+  }
+
   const { theme, setTheme } = useTheme();
   const [sliderValue, setSliderValue] = React.useState([50]);
   const [progressValue, setProgressValue] = React.useState(45);
@@ -699,7 +705,7 @@ export default function DesignSystemPage() {
                   "application/pdf": [".pdf"],
                   "text/plain": [".txt"],
                 }}
-                onUpload={(files) => console.log("Uploaded:", files)}
+                onUpload={() => {}}
               />
             </Card>
           </Section>
@@ -712,7 +718,7 @@ export default function DesignSystemPage() {
                 title="No projects yet"
                 description="Get started by creating your first project. Projects help you organize your AI avatars and documents."
                 action={
-                  <Button onClick={() => console.log("Create project")}>
+                  <Button>
                     Create Project
                   </Button>
                 }
@@ -778,8 +784,8 @@ export default function DesignSystemPage() {
               <ChatContainer
                 messages={demoMessages}
                 avatarName="AI Assistant"
-                onSend={(msg) => console.log("Send:", msg)}
-                onFeedback={(id, fb) => console.log("Feedback:", id, fb)}
+                onSend={() => {}}
+                onFeedback={() => {}}
               />
             </Card>
           </Section>
