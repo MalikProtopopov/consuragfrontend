@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { Coins } from "lucide-react";
-import { cn, formatCompact } from "@/shared/lib";
+import { cn, formatCompact, formatNumber } from "@/shared/lib";
 import { ROUTES } from "@/shared/config";
 import { NumberTicker } from "./number-ticker";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
@@ -55,7 +55,7 @@ const TokenCounter = React.forwardRef<HTMLAnchorElement, TokenCounterProps>(
             <div className="space-y-1">
               <p className="font-medium">Использование токенов</p>
               <p className="font-mono tabular-nums text-text-muted">
-                {safeUsed.toLocaleString()} / {safeLimit.toLocaleString()} ({percent}%)
+                {formatNumber(safeUsed)} / {formatNumber(safeLimit)} ({percent}%)
               </p>
               <p className="text-xs text-text-muted">Нажмите для подробностей</p>
             </div>

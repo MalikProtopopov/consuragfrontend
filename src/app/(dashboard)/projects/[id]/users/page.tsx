@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   Search,
   Users,
-  Ban,
   MoreHorizontal,
   MessageCircle,
   Send,
@@ -294,19 +293,6 @@ export default function EndUsersPage({ params }: EndUsersPageProps) {
                                   Открыть профиль
                                 </Link>
                               </DropdownMenuItem>
-                              <DropdownMenuItem disabled>
-                                <MessageCircle className="mr-2 h-4 w-4" />
-                                Написать
-                              </DropdownMenuItem>
-                              {user.status === "active" && (
-                                <DropdownMenuItem
-                                  className="text-destructive focus:text-destructive"
-                                  disabled
-                                >
-                                  <Ban className="mr-2 h-4 w-4" />
-                                  Заблокировать
-                                </DropdownMenuItem>
-                              )}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>

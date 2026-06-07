@@ -13,6 +13,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Coins,
   CreditCard,
   FileText,
   Folder,
@@ -475,14 +476,30 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                     {collapsed && <TooltipContent side="right">Админка платформы</TooltipContent>}
                   </Tooltip>
                 )}
-                {/* Token Counter */}
-                {usageSummary && (
+                {/* Token Counter (S-05: при отсутствии данных — не пропадаем молча) */}
+                {usageSummary ? (
                   <TokenCounter
                     chatUsed={usageSummary.chat_tokens_used}
                     chatLimit={usageSummary.chat_tokens_limit}
                     showDetails={!collapsed}
                     compact={collapsed}
                   />
+                ) : (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link
+                        href="/settings/usage"
+                        className={cn(
+                          "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-text-muted hover:bg-bg-hover hover:text-text-primary",
+                          collapsed && "justify-center px-2"
+                        )}
+                      >
+                        <Coins className="size-5" />
+                        {!collapsed && <span>Токены</span>}
+                      </Link>
+                    </TooltipTrigger>
+                    {collapsed && <TooltipContent side="right">Токены</TooltipContent>}
+                  </Tooltip>
                 )}
                 <Tooltip>
                   <TooltipTrigger asChild>

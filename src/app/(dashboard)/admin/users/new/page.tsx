@@ -42,6 +42,7 @@ export default function CreateUserPage() {
 
   return (
     <PageContainer maxWidth="lg">
+      <h1 className="sr-only">Создание пользователя</h1>
       <div className="mb-6">
         <Button variant="ghost" onClick={() => router.back()}>
           <ArrowLeft className="mr-2 h-4 w-4" />
