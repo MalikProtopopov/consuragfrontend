@@ -26,7 +26,7 @@ import {
 } from "@/shared/ui/dialog";
 import { ROUTES } from "@/shared/config";
 import { toast } from "sonner";
-import { getApiErrorMessage } from "@/shared/lib";
+import { getApiErrorMessage, useRealtimeChannel } from "@/shared/lib";
 import { ConversationInfoCard, ConversationMessages } from "./_components";
 
 interface ConversationDetailPageProps {
@@ -52,6 +52,26 @@ export default function ConversationDetailPage({ params }: ConversationDetailPag
 
   const [isEndDialogOpen, setIsEndDialogOpen] = useState(false);
   const [messageText, setMessageText] = useState("");
+
+  // Real-time: входящие/исходящие сообщения end-user'а приходят через
+  // канал project:{id}:endusers (бэк фанаутит EndUserMessage* по WS). Когда
+  // событие касается ЭТОГО диалога — освежаем ленту и счётчики.
+  useRealtimeChannel(`project:${projectId}:endusers`, (msg) => {
+    const data = (msg.data ?? {}) as { conversation_id?: string };
+    if (data.conversation_id && data.conversation_id !== conversationId) return;
+    if (
+      msg.type === "enduser.message_in" ||
+      msg.type === "enduser.message_out" ||
+      msg.type === "conversation.started"
+    ) {
+      queryClient.invalidateQueries({
+        queryKey: endUserKeys.messages(projectId, conversationId, messagesParams),
+      });
+      queryClient.invalidateQueries({
+        queryKey: endUserKeys.conversation(projectId, conversationId),
+      });
+    }
+  });
 
   const messages = messagesData?.items || [];
   const isLoading = convLoading || messagesLoading;

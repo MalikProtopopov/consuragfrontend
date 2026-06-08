@@ -17,6 +17,7 @@ export {
   type DateStyle,
 } from "./formatters";
 export { useCountdown, type UseCountdownResult } from "./useCountdown";
+export { useRealtimeChannel, type RealtimeMessage } from "./use-realtime-channel";
 export {
   usePagination,
   type UsePaginationOptions,
