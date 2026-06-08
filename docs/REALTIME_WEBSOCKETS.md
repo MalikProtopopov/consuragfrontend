@@ -4,12 +4,62 @@
 > «ЧАСТЬ B») — для **backend-команды**. Эта «ЧАСТЬ A» — рабочая выжимка для
 > **фронтенда**: что фронт делает, чего ждёт от бэка, и текущее состояние.
 >
-> Статус на 2026-06-08: **фронт ждёт Phase 0 бэкенда** (generic `WS /api/v1/ws`,
-> Redis-backplane, каналы, авторизация). Код фронта пока не трогаем.
+> Статус на 2026-06-08: **бэкенд Phase 0 РЕАЛИЗОВАН и задеплоен** на прод
+> (`api.parmenid.tech`). Фронт **разблокирован** — можно строить WS-клиент и
+> подписки. Точный задеплоенный контракт — в §A.0 ниже.
 
 ═══════════════════════════════════════════════════════════
 ## ЧАСТЬ A. Фронтенд-сторона
 ═══════════════════════════════════════════════════════════
+
+### A.0. ✅ Задеплоенный backend-контракт (Phase 0, LIVE на проде)
+
+Проверено вживую end-to-end (handshake, JWT-авторизация каналов, ping/pong,
+multi-worker fan-out через Redis: `PUBLISH → 2 воркера → сокет получил событие`).
+
+**Эндпоинт:** `wss://api.parmenid.tech/api/v1/ws?token=<JWT access-токен>`
+(тот же домен, что REST; nginx апгрейдит этот путь). Один сокет — мультиплекс каналов.
+
+**Хэндшейк/авторизация:**
+- Без валидного `?token=` — соединение **отклоняется на хэндшейке** (клиент видит
+  ошибку соединения / close `1006`). Трактовать как «нет доступа» → обновить токен и переподключиться.
+- Токен берётся из того же `access_token`, что и REST (JWT). При рефреше — **reconnect** с новым токеном.
+
+**Операции клиент→сервер** (JSON):
+```json
+{ "op": "subscribe",   "channel": "<channel>" }
+{ "op": "unsubscribe", "channel": "<channel>" }
+{ "op": "ping" }
+```
+**Сервер→клиент:**
+```json
+{ "type": "subscribed",   "channel": "<channel>" }
+{ "type": "unsubscribed", "channel": "<channel>" }
+{ "type": "error", "code": "FORBIDDEN|BAD_JSON|BAD_OP", "channel": "<channel?>", "message": "..." }
+{ "type": "pong" }
+{ "type": "<event-type>", "channel": "<channel>", "data": { ... }, "ts": "<iso8601>" }   // событие
+```
+Сервер сам шлёт `{ "type": "ping" }` каждые ~25с (heartbeat) — отвечать необязательно,
+но соединение можно держать; на серверный ping отвечать `{"op":"ping"}` не нужно.
+
+**Реализованные каналы и их события** (что уже фанаутится на прод):
+
+| Канал | Кто допускается (проверка на сервере) | `type` событий |
+|---|---|---|
+| `user:{user_id}:usage` | сам пользователь (`sub == user_id`) | `usage.tokens_consumed`, `usage.alert`, `usage.limit_exceeded`, `usage.plan_changed`, `usage.bonus_added` |
+| `user:{user_id}:notifications` | сам пользователь | `notification.created` (план изменён / бонус / статус заявки) |
+| `avatar:{avatar_id}:documents` | участник проекта аватара (право `manage_documents`) | `document.processing_started/parsed/chunked/indexed/failed/uploaded/deleted` |
+| `document:{document_id}` | (эмитится; для подписки фронт использует `avatar:{id}:documents`) | те же `document.*` |
+| `project:{project_id}:analytics` | участник проекта (право `view_analytics`); saas_admin — bypass | `analytics.tokens` |
+| `admin:plan_requests` | только `saas_admin` | `plan_request.created`, `plan_request.status_changed` |
+
+> Неизвестные/чужие каналы → `error/FORBIDDEN`. Подписка авторизуется на КАЖДЫЙ
+> `op:subscribe` (membership резолвится через БД). `project:{id}:endusers` и
+> `:chat-monitor` авторизуются, но событий для них в Phase 0 ещё не эмитится (Фаза 2).
+
+**Чат — отдельно:** остаётся на `wss://api.parmenid.tech/api/v1/chat/ws/{avatar_id}`
+с `session_token` (не JWT). Протокол стрима бэк ещё дорабатывает (§6.1) — мигрировать
+тестовый чат после заморозки.
 
 ### A.1. Карта текущего polling во фронте (что заменяем)
 
@@ -62,7 +112,7 @@
 
 ### A.5. Фронт-чеклист по фазам (делаем по мере готовности бэка)
 
-**Фундамент (после бэк Phase 0):**
+**Фундамент (бэк Phase 0 готов → можно делать сейчас):**
 - [ ] `entities/realtime/` или `shared/lib/realtime/`: WS-клиент с мультиплексом,
       `subscribe/unsubscribe`, reconnect+backoff, heartbeat (`ping/pong`), очередь
       подписок на время дисконнекта.
@@ -85,11 +135,12 @@
 
 ### A.6. Что блокирует фронт (зависимости от бэка)
 
-- 🔴 **Generic `WS /api/v1/ws` + Redis-backplane + каналы + авторизация** (бэк Phase 0) —
-  без этого приватные каналы недоступны. **Главный блокер.**
+- ✅ ~~Generic `WS /api/v1/ws` + Redis-backplane + каналы + авторизация (Phase 0)~~ —
+  **РЕАЛИЗОВАНО и задеплоено** (см. §A.0). nginx-upgrade, heartbeat — готовы. Фронт разблокирован.
 - 🟡 **Заморозка протокола чат-стрима** (§6.1: единый набор `type`, паритет токенов/лимитов/Conversation)
-  — до неё фронт-чат-стрим строить рискованно (переделка).
-- 🟢 nginx upgrade для `/api/v1/ws`, heartbeat-политика, формат payload (§11) — согласовать.
+  — до неё фронт-чат-стрим строить рискованно (переделка). Единственное, что осталось ждать.
+- 🟢 Формат payload дашбордов (§11.1): бэк сейчас шлёт **тонкое** событие (дельта) —
+  фронт по событию делает `invalidateQueries`/точечный REST-refresh (рекомендация подтверждена).
 
 ### A.7. Открытые вопросы к согласованию (из §11) — влияют на фронт
 
