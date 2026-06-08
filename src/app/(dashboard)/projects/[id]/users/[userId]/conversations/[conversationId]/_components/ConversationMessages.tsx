@@ -77,6 +77,8 @@ export function ConversationMessages({
             </div>
             <p className="text-xs text-text-muted mt-2">
               Сообщение будет отправлено от имени бота в {conversation.channel}
+              {conversation.status !== "active" &&
+                " · диалог неактивен — отправка продолжит текущую переписку"}
             </p>
           </div>
         )}

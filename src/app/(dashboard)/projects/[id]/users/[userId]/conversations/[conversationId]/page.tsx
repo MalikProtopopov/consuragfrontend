@@ -3,13 +3,16 @@
 import { use, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   useConversation,
   useConversationMessages,
   useEndConversation,
   useSendMessageToEndUser,
   useEndUser,
+  endUserKeys,
 } from "@/entities/end-user";
+import type { ConversationMessage, ConversationMessagesResponse } from "@/shared/types/api";
 import { PageContainer, PageHeader } from "@/widgets/app-shell";
 import { Button } from "@/shared/ui/button";
 import { Skeleton } from "@/shared/ui/skeleton";
@@ -33,11 +36,14 @@ interface ConversationDetailPageProps {
 export default function ConversationDetailPage({ params }: ConversationDetailPageProps) {
   const { id: projectId, userId: endUserId, conversationId } = use(params);
 
+  const queryClient = useQueryClient();
+  const messagesParams = { limit: 200 };
+
   const { data: conversation, isLoading: convLoading } = useConversation(projectId, conversationId);
   const { data: messagesData, isLoading: messagesLoading } = useConversationMessages(
     projectId,
     conversationId,
-    { limit: 200 }
+    messagesParams
   );
   const { data: user } = useEndUser(projectId, endUserId);
 
@@ -64,7 +70,37 @@ export default function ConversationDetailPage({ params }: ConversationDetailPag
   };
 
   const handleSendMessage = () => {
-    if (!messageText.trim()) return;
+    const text = messageText.trim();
+    if (!text) return;
+
+    // Optimistically show the operator's message immediately, then let the
+    // mutation's invalidate refetch the authoritative thread (the backend now
+    // keeps the message in this same conversation — see extend_session).
+    const messagesKey = endUserKeys.messages(projectId, conversationId, messagesParams);
+    const previous = queryClient.getQueryData<ConversationMessagesResponse>(messagesKey);
+    const optimistic: ConversationMessage = {
+      id: `optimistic-${Date.now()}`,
+      direction: "out",
+      role: "admin",
+      content: text,
+      content_type: "text",
+      attachments: null,
+      provider_message_id: null,
+      model_used: null,
+      total_tokens: 0,
+      feedback: null,
+      feedback_comment: null,
+      created_at: new Date().toISOString(),
+    };
+    queryClient.setQueryData<ConversationMessagesResponse>(messagesKey, (old) =>
+      old ? { ...old, items: [...old.items, optimistic], total: old.total + 1 } : old
+    );
+    setMessageText("");
+
+    const revert = () => {
+      if (previous) queryClient.setQueryData(messagesKey, previous);
+      setMessageText(text);
+    };
 
     sendMessage(
       {
@@ -72,19 +108,22 @@ export default function ConversationDetailPage({ params }: ConversationDetailPag
         endUserId,
         data: {
           channel: conversation?.channel || "telegram",
-          text: messageText.trim(),
+          text,
         },
       },
       {
         onSuccess: (response) => {
           if (response.success) {
             toast.success("Сообщение отправлено");
-            setMessageText("");
           } else {
             toast.error(response.error || "Не удалось отправить сообщение");
+            revert();
           }
         },
-        onError: (error) => toast.error(getApiErrorMessage(error)),
+        onError: (error) => {
+          toast.error(getApiErrorMessage(error));
+          revert();
+        },
       }
     );
   };
@@ -143,7 +182,7 @@ export default function ConversationDetailPage({ params }: ConversationDetailPag
       <ConversationMessages
         conversation={conversation}
         messages={messages}
-        canSend={conversation.status === "active" && user?.status === "active"}
+        canSend={user?.status === "active"}
         messageText={messageText}
         isSending={isSending}
         onMessageChange={setMessageText}
