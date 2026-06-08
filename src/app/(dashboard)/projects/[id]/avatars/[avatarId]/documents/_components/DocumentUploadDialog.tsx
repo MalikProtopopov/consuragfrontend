@@ -45,7 +45,7 @@ export function DocumentUploadDialog({
           onUpload={onUpload}
           accept={ACCEPTED_FORMATS}
           maxSize={50 * 1024 * 1024}
-          maxFiles={10}
+          maxFiles={100}
           disabled={uploading}
         />
         {uploading && (

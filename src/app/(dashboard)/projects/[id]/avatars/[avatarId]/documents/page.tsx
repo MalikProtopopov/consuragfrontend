@@ -23,9 +23,10 @@ export default function DocumentsPage({ params }: DocumentsPageProps) {
   const { id: projectId, avatarId } = use(params);
   const { data: avatar, isLoading: avatarLoading } = useAvatar(projectId, avatarId);
   const { data: documentsData, isLoading: documentsLoading } = useDocuments(projectId, avatarId);
-  const { mutate: uploadDocument, isPending: uploading } = useUploadDocument();
+  const { mutateAsync: uploadDocumentAsync } = useUploadDocument();
 
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [query, setQuery] = useState("");
 
   const isLoading = avatarLoading || documentsLoading;
@@ -37,21 +38,49 @@ export default function DocumentsPage({ params }: DocumentsPageProps) {
   // A-02: есть готовый (проиндексированный) документ → можно тестировать в чате.
   const hasIndexedDoc = documents.some((doc) => doc.parsing_status === "indexed");
 
-  const handleUpload = (files: File[]) => {
-    files.forEach((file) => {
-      uploadDocument(
-        { projectId, avatarId, file },
-        {
-          onSuccess: () => {
-            toast.success(`${file.name} загружен`);
-          },
-          onError: (error) => {
-            toast.error(`Ошибка загрузки ${file.name}: ${getApiErrorMessage(error)}`);
-          },
-        }
-      );
-    });
+  const handleUpload = async (files: File[]) => {
     setUploadDialogOpen(false);
+    if (files.length === 0) return;
+
+    // Грузим с ограниченной параллельностью (а не все разом), чтобы не упереться
+    // в лимит соединений/нагрузку при пачке файлов. Один сводный тост вместо N.
+    setUploading(true);
+    const toastId = toast.loading(`Загрузка файлов: 0/${files.length}…`);
+    const queue = [...files];
+    let done = 0;
+    let ok = 0;
+    let firstError = "";
+    const failed: string[] = [];
+    const CONCURRENCY = 4;
+
+    const worker = async () => {
+      for (let file = queue.shift(); file; file = queue.shift()) {
+        try {
+          await uploadDocumentAsync({ projectId, avatarId, file });
+          ok += 1;
+        } catch (error) {
+          failed.push(file.name);
+          if (!firstError) firstError = getApiErrorMessage(error);
+        } finally {
+          done += 1;
+          toast.loading(`Загрузка файлов: ${done}/${files.length}…`, { id: toastId });
+        }
+      }
+    };
+
+    await Promise.all(
+      Array.from({ length: Math.min(CONCURRENCY, files.length) }, worker)
+    );
+
+    setUploading(false);
+    if (failed.length === 0) {
+      toast.success(`Загружено файлов: ${ok}`, { id: toastId });
+    } else {
+      toast.error(
+        `Загружено ${ok}, не удалось ${failed.length}${firstError ? `: ${firstError}` : ""}`,
+        { id: toastId }
+      );
+    }
   };
 
   if (isLoading) {
