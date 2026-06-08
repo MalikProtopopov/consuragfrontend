@@ -22,7 +22,13 @@ interface DocumentsPageProps {
 export default function DocumentsPage({ params }: DocumentsPageProps) {
   const { id: projectId, avatarId } = use(params);
   const { data: avatar, isLoading: avatarLoading } = useAvatar(projectId, avatarId);
-  const { data: documentsData, isLoading: documentsLoading } = useDocuments(projectId, avatarId);
+  // Бэк отдаёт страницу по 20 по умолчанию; берём максимум (100) — иначе при
+  // 20+ документах часть не видна, и клиентский поиск работает не по всем.
+  const { data: documentsData, isLoading: documentsLoading } = useDocuments(
+    projectId,
+    avatarId,
+    { limit: 100 }
+  );
   const { mutateAsync: uploadDocumentAsync } = useUploadDocument();
 
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
