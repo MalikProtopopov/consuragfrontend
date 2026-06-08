@@ -14,28 +14,35 @@
 
 ### A.0. ✅ Задеплоенный backend-контракт (Phase 0, LIVE на проде)
 
-Проверено вживую end-to-end (handshake, JWT-авторизация каналов, ping/pong,
-multi-worker fan-out через Redis: `PUBLISH → 2 воркера → сокет получил событие`).
+Проверено вживую end-to-end на проде: `op:auth → ready`, ping/pong, подписка с
+проверкой членства (свой usage, `project:{id}:endusers` для участника), `FORBIDDEN`
+на чужой канал, и multi-worker fan-out через Redis (`PUBLISH → 2 воркера → сокет
+получил событие`, в т.ч. `enduser.created`).
 
-**Эндпоинт:** `wss://api.parmenid.tech/api/v1/ws?token=<JWT access-токен>`
-(тот же домен, что REST; nginx апгрейдит этот путь). Один сокет — мультиплекс каналов.
+**Эндпоинт:** `wss://api.parmenid.tech/api/v1/ws` (тот же домен, что REST; nginx
+апгрейдит этот путь). Один сокет — мультиплекс каналов.
 
-**Хэндшейк/авторизация:**
-- Без валидного `?token=` — соединение **отклоняется на хэндшейке** (клиент видит
-  ошибку соединения / close `1006`). Трактовать как «нет доступа» → обновить токен и переподключиться.
-- Токен берётся из того же `access_token`, что и REST (JWT). При рефреше — **reconnect** с новым токеном.
+**Хэндшейк/авторизация** (проверено вживую):
+- **Предпочтительно:** подключиться **без токена** и прислать первым сообщением
+  `{"op":"auth","token":"<JWT>"}` → сервер ответит `{"type":"ready"}`. Токен не
+  светится в URL/логах nginx. Если за ~10с не прислать валидный `auth` — сокет закрывается (`4401`).
+- **Fast-path:** можно `wss://.../api/v1/ws?token=<JWT>` — сервер сразу пришлёт `{"type":"ready"}`.
+- **Re-auth:** после рефреша access-токена можно прислать `{"op":"auth","token":...}` повторно
+  на том же сокете (или переподключиться). Токен — тот же `access_token`, что и для REST.
 
 **Операции клиент→сервер** (JSON):
 ```json
+{ "op": "auth", "token": "<JWT>" }
 { "op": "subscribe",   "channel": "<channel>" }
 { "op": "unsubscribe", "channel": "<channel>" }
 { "op": "ping" }
 ```
 **Сервер→клиент:**
 ```json
+{ "type": "ready" }
 { "type": "subscribed",   "channel": "<channel>" }
 { "type": "unsubscribed", "channel": "<channel>" }
-{ "type": "error", "code": "FORBIDDEN|BAD_JSON|BAD_OP", "channel": "<channel?>", "message": "..." }
+{ "type": "error", "code": "FORBIDDEN|UNAUTHORIZED|BAD_JSON|BAD_OP", "channel": "<channel?>", "message": "..." }
 { "type": "pong" }
 { "type": "<event-type>", "channel": "<channel>", "data": { ... }, "ts": "<iso8601>" }   // событие
 ```
@@ -51,15 +58,39 @@ multi-worker fan-out через Redis: `PUBLISH → 2 воркера → сок�
 | `avatar:{avatar_id}:documents` | участник проекта аватара (право `manage_documents`) | `document.processing_started/parsed/chunked/indexed/failed/uploaded/deleted` |
 | `document:{document_id}` | (эмитится; для подписки фронт использует `avatar:{id}:documents`) | те же `document.*` |
 | `project:{project_id}:analytics` | участник проекта (право `view_analytics`); saas_admin — bypass | `analytics.tokens` |
+| `project:{project_id}:endusers` | участник проекта (`view_analytics`) | `enduser.created`, `conversation.started`, `enduser.message_in`, `enduser.message_out`, `enduser.blocked`, `enduser.unblocked` |
 | `admin:plan_requests` | только `saas_admin` | `plan_request.created`, `plan_request.status_changed` |
 
-> Неизвестные/чужие каналы → `error/FORBIDDEN`. Подписка авторизуется на КАЖДЫЙ
-> `op:subscribe` (membership резолвится через БД). `project:{id}:endusers` и
-> `:chat-monitor` авторизуются, но событий для них в Phase 0 ещё не эмитится (Фаза 2).
+> Неизвестные/чужие каналы → `error/FORBIDDEN`; подписка до `auth` → `error/UNAUTHORIZED`.
+> Авторизация — на КАЖДЫЙ `op:subscribe` (membership резолвится через БД, проверено вживую).
+> Канал `project:{id}:chat-monitor` авторизуется, но событий пока не эмитится (P3 —
+> `MessageSent`/`ChatSession*` не несут `project_id`; нужно обогатить события).
+
+**Пример (браузер):**
+```js
+const ws = new WebSocket("wss://api.parmenid.tech/api/v1/ws");
+ws.onopen = () => ws.send(JSON.stringify({ op: "auth", token: accessToken }));
+ws.onmessage = (e) => {
+  const m = JSON.parse(e.data);
+  if (m.type === "ready") {
+    ws.send(JSON.stringify({ op: "subscribe", channel: `user:${userId}:usage` }));
+    ws.send(JSON.stringify({ op: "subscribe", channel: `user:${userId}:notifications` }));
+  } else if (m.type === "ping") {
+    /* heartbeat — можно игнорировать */
+  } else {
+    switch (m.type) {              // переключение по реестру (§A.4 / §8)
+      case "usage.tokens_consumed": /* invalidateQueries(usage) */ break;
+      case "notification.created":  /* тост + бейдж */ break;
+      case "document.indexed":      /* снять спиннер документа */ break;
+    }
+  }
+};
+```
 
 **Чат — отдельно:** остаётся на `wss://api.parmenid.tech/api/v1/chat/ws/{avatar_id}`
 с `session_token` (не JWT). Протокол стрима бэк ещё дорабатывает (§6.1) — мигрировать
-тестовый чат после заморозки.
+тестовый чат после заморозки. (M19-паритет стрима — лимиты end-user + запись в
+Conversation — на бэке уже есть.)
 
 ### A.1. Карта текущего polling во фронте (что заменяем)
 
