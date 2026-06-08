@@ -59,6 +59,10 @@ RUN chown nextjs:nodejs .next
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# Workdir must be writable by the app user — the standalone server writes the
+# prerender/ISR cache under /app at runtime (avoids EACCES mkdir '/app').
+RUN chown nextjs:nodejs /app
+
 USER nextjs
 
 EXPOSE 3000
