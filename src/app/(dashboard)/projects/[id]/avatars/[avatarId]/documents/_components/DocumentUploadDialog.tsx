@@ -13,6 +13,7 @@ const ACCEPTED_FORMATS = {
   "text/html": [".html", ".htm"],
   "text/csv": [".csv"],
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation": [".pptx"],
 };
 
 interface DocumentUploadDialogProps {
