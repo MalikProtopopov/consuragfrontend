@@ -45,6 +45,8 @@ export const ERROR_MESSAGES: Record<string, string> = {
   AVATAR_NOT_PUBLISHED: "Аватар не опубликован",
   AVATAR_ALREADY_PUBLISHED: "Аватар уже опубликован",
   AVATAR_NO_DOCUMENTS: "У аватара нет документов",
+  AVATAR_NOT_READY:
+    "Аватар не готов к публикации: нужен хотя бы один проиндексированный документ. Загрузите документ и дождитесь завершения индексации",
 
   // Document errors
   DOC_NOT_FOUND: "Документ не найден",
@@ -126,30 +128,28 @@ interface ApiErrorResponse {
 export function getApiErrorMessage(error: unknown): string {
   if (error && typeof error === "object") {
     const apiError = error as ApiErrorResponse;
-    
-    // Handle nested error structure: { error: { code: ... } }
-    if (apiError.error?.code) {
-      return getErrorMessage(apiError.error.code);
+    const code = apiError.error?.code ?? apiError.code;
+    const message = apiError.error?.message ?? apiError.message;
+
+    // Known code → localized message.
+    if (code && ERROR_MESSAGES[code]) {
+      return ERROR_MESSAGES[code];
     }
-    
-    // Handle flat structure: { code: ... }
-    if (apiError.code) {
-      return getErrorMessage(apiError.code);
-  }
-    
-    // Fallback to message if available
-    if (apiError.error?.message) {
-      return apiError.error.message;
+    // Unknown code but the backend explained the problem → show that, instead of
+    // degrading to a generic "unknown error" (keeps actionable detail visible).
+    if (message) {
+      return message;
     }
-    if (apiError.message) {
-      return apiError.message;
+    // Unknown code, no message → generic fallback for that code.
+    if (code) {
+      return getErrorMessage(code);
     }
   }
-  
+
   if (error instanceof Error) {
     return error.message;
   }
-  
+
   return getErrorMessage("UNKNOWN_ERROR");
 }
 
