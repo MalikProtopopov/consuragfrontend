@@ -88,7 +88,12 @@ export function DocumentRow({
               {doc.original_filename}
             </p>
             {doc.error_message && (
-              <p className="text-xs text-error truncate max-w-[200px]">{doc.error_message}</p>
+              <p
+                className="text-xs text-error truncate max-w-[200px]"
+                title={doc.error_message}
+              >
+                {doc.error_message}
+              </p>
             )}
           </div>
         </div>

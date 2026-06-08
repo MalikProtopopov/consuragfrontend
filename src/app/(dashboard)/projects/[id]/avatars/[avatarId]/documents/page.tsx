@@ -11,8 +11,9 @@ import { Button } from "@/shared/ui/button";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
 import { SearchInput } from "@/shared/ui/search-input";
 import { Skeleton } from "@/shared/ui/skeleton";
+import { PaginationControls } from "@/shared/ui/pagination-controls";
 import { toast } from "sonner";
-import { getApiErrorMessage } from "@/shared/lib";
+import { getApiErrorMessage, usePagination } from "@/shared/lib";
 import { DocumentRow, DocumentUploadDialog } from "./_components";
 
 interface DocumentsPageProps {
@@ -22,13 +23,12 @@ interface DocumentsPageProps {
 export default function DocumentsPage({ params }: DocumentsPageProps) {
   const { id: projectId, avatarId } = use(params);
   const { data: avatar, isLoading: avatarLoading } = useAvatar(projectId, avatarId);
-  // Бэк отдаёт страницу по 20 по умолчанию; берём максимум (100) — иначе при
-  // 20+ документах часть не видна, и клиентский поиск работает не по всем.
-  const { data: documentsData, isLoading: documentsLoading } = useDocuments(
-    projectId,
-    avatarId,
-    { limit: 100 }
-  );
+  // Серверная пагинация (limit/offset) — список грузится постранично.
+  const pagination = usePagination();
+  const { data: documentsData, isLoading: documentsLoading } = useDocuments(projectId, avatarId, {
+    skip: pagination.skip,
+    limit: pagination.limit,
+  });
   const { mutateAsync: uploadDocumentAsync } = useUploadDocument();
 
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
@@ -149,7 +149,7 @@ export default function DocumentsPage({ params }: DocumentsPageProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Документы ({documents.length})</CardTitle>
+          <CardTitle>Документы ({documentsData?.total ?? documents.length})</CardTitle>
           <CardDescription>
             Поддерживаемые форматы: PDF, DOC, DOCX, TXT, MD, HTML, CSV, XLSX
           </CardDescription>
@@ -196,6 +196,9 @@ export default function DocumentsPage({ params }: DocumentsPageProps) {
                   </TableBody>
                 </Table>
               )}
+              <div className="mt-4">
+                <PaginationControls pagination={pagination} total={documentsData?.total} />
+              </div>
             </>
           )}
         </CardContent>
