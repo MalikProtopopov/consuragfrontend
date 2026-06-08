@@ -10,9 +10,12 @@ import {
   BarChart3,
   Bell,
   Bot,
+  Building2,
+  Check,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  ChevronsUpDown,
   Coins,
   CreditCard,
   FileText,
@@ -33,6 +36,12 @@ import {
 
 import { cn } from "@/shared/lib";
 import { Button } from "@/shared/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/shared/ui/dropdown-menu";
 import { ScrollArea } from "@/shared/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/ui/tooltip";
 import { TokenCounter } from "@/shared/ui/token-counter";
@@ -79,6 +88,69 @@ function ActiveBar({ show }: { show: boolean }) {
         show ? "scale-y-100 opacity-100" : "scale-y-0 opacity-0",
       )}
     />
+  );
+}
+
+/**
+ * Контекст-свитчер (только для saas_admin): явное переключение между зонами
+ * «Рабочее пространство» (проекты/тенант) и «Платформа» (владельческая админка).
+ * Заменяет тихую футер-ссылку — переключение становится first-class (как у
+ * Vercel/Stripe), а содержимое зон не перемешивается.
+ */
+function ContextSwitcher({
+  collapsed,
+  isOperatorMode,
+}: {
+  collapsed: boolean;
+  isOperatorMode: boolean;
+}) {
+  const CtxIcon = isOperatorMode ? Building2 : FolderKanban;
+  const label = isOperatorMode ? "Платформа" : "Рабочее пространство";
+
+  return (
+    <div className="border-b border-border p-3">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            title={collapsed ? `Контекст: ${label}` : undefined}
+            className={cn(
+              "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-bg-hover",
+              collapsed && "justify-center px-2"
+            )}
+          >
+            <CtxIcon className="size-5 shrink-0 text-accent-primary" />
+            {!collapsed && (
+              <>
+                <span className="min-w-0 flex-1 text-left">
+                  <span className="block text-[11px] leading-none text-text-muted">Контекст</span>
+                  <span className="block truncate text-sm font-medium text-text-primary">
+                    {label}
+                  </span>
+                </span>
+                <ChevronsUpDown className="size-4 shrink-0 text-text-muted" />
+              </>
+            )}
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-[224px]">
+          <DropdownMenuItem asChild>
+            <Link href="/projects" className="flex items-center gap-2">
+              <FolderKanban className="size-4" />
+              <span className="flex-1">Рабочее пространство</span>
+              {!isOperatorMode && <Check className="size-4 text-accent-primary" />}
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/admin/analytics" className="flex items-center gap-2">
+              <Building2 className="size-4" />
+              <span className="flex-1">Платформа</span>
+              {isOperatorMode && <Check className="size-4 text-accent-primary" />}
+            </Link>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 }
 
@@ -147,9 +219,9 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
     const navSections = React.useMemo(() => {
       const sections: NavSection[] = [];
 
-      // R-03 — Operator-зона: только админ-навигация + возврат к проектам.
+      // Operator-зона: только админ-навигация (переключение зон — через
+      // ContextSwitcher вверху сайдбара).
       if (isOperatorMode) {
-        sections.push({ items: [{ title: "К проектам", href: "/projects", icon: ChevronLeft }] });
         sections.push({
           title: "Администрирование платформы",
           items: [
@@ -254,6 +326,11 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
               </Link>
             )}
           </div>
+
+          {/* Context switcher (saas_admin only): Рабочее пространство ↔ Платформа */}
+          {isAdmin(user) && (
+            <ContextSwitcher collapsed={collapsed} isOperatorMode={isOperatorMode} />
+          )}
 
           {/* Navigation */}
           <ScrollArea className="flex-1 py-4">
@@ -458,24 +535,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
           <div className="mt-auto border-t border-border p-3 space-y-1">
             {footer || (
               <>
-                {/* R-03: вход в operator-зону (только saas_admin, только из тенант-режима) */}
-                {isAdmin(user) && !isOperatorMode && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Link
-                        href="/admin/analytics"
-                        className={cn(
-                          "relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-text-secondary hover:bg-bg-hover hover:text-text-primary",
-                          collapsed && "justify-center px-2"
-                        )}
-                      >
-                        <Shield className="size-5" />
-                        {!collapsed && <span>Админка платформы</span>}
-                      </Link>
-                    </TooltipTrigger>
-                    {collapsed && <TooltipContent side="right">Админка платформы</TooltipContent>}
-                  </Tooltip>
-                )}
+                {/* Вход в админку платформы — теперь через ContextSwitcher вверху. */}
                 {/* Token Counter (S-05: при отсутствии данных — не пропадаем молча) */}
                 {usageSummary ? (
                   <TokenCounter
